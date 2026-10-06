@@ -1,4 +1,6 @@
 ---
+import { t } from '../../data/content';
+
 const links = [
   {
     label: 'Email',
@@ -25,9 +27,9 @@ const links = [
   <div class="container contact__inner reveal">
 
     <header class="contact__header">
-      <p class="label">Contact</p>
-      <h2>Get in touch</h2>
-      <p class="contact__sub">
+      <p class="label" data-i18n="contact.label">Kontak</p>
+      <h2 data-i18n="contact.heading">Hubungi Saya</h2>
+      <p class="contact__sub" data-i18n="contact.subtitle">
         Terbuka untuk kolaborasi, diskusi CTF, atau sekadar ngobrol soal security dan ML.
       </p>
     </header>

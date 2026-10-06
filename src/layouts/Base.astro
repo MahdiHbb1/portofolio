@@ -58,4 +58,88 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin)
     initReveal();
     document.addEventListener('astro:page-load', initReveal);
   </script>
+
+  <script type="module">
+    import { content } from '../data/content';
+    
+    const currentLang = (localStorage.getItem('lang') as 'id' | 'en') || 'id';
+    const t = content[currentLang];
+
+    // Update lang toggle active state
+    function updateLangToggle() {
+      document.querySelectorAll('.lang-toggle__option').forEach(el => {
+        el.setAttribute('data-active', el.dataset.lang === currentLang ? 'true' : 'false');
+      });
+    }
+
+    // Replace text content AND data-text for decrypt
+    function applyTranslations() {
+      // Hero - update both textContent and data-text attribute
+      document.querySelectorAll('[data-i18n="hero.name"]').forEach(el => {
+        el.textContent = t.hero.name;
+        if (el.classList.contains('decrypt')) {
+          el.setAttribute('data-text', t.hero.name);
+        }
+      });
+      document.querySelectorAll('[data-i18n="hero.title"]').forEach(el => el.textContent = t.hero.title);
+      document.querySelectorAll('[data-i18n="hero.subtitle"]').forEach(el => el.textContent = t.hero.subtitle);
+      
+      // About
+      document.querySelectorAll('[data-i18n="about.label"]').forEach(el => el.textContent = t.about.label);
+      document.querySelectorAll('[data-i18n="about.heading"]').forEach(el => el.textContent = t.about.heading);
+      document.querySelectorAll('[data-i18n="about.bio1"]').forEach(el => el.textContent = t.about.bio1);
+      document.querySelectorAll('[data-i18n="about.bio2"]').forEach(el => el.textContent = t.about.bio2);
+      
+      // Skills
+      document.querySelectorAll('[data-i18n="skills.label"]').forEach(el => el.textContent = t.skills.label);
+      document.querySelectorAll('[data-i18n="skills.heading"]').forEach(el => el.textContent = t.skills.heading);
+      
+      // Achievements
+      document.querySelectorAll('[data-i18n="achievements.label"]').forEach(el => el.textContent = t.achievements.label);
+      document.querySelectorAll('[data-i18n="achievements.heading"]').forEach(el => el.textContent = t.achievements.heading);
+      
+      // Achievement items
+      Object.keys(t.achievements.items).forEach(key => {
+        document.querySelectorAll(`[data-i18n="achievements.items.${key}.desc"]`).forEach(el => {
+          el.textContent = t.achievements.items[key].desc;
+        });
+      });
+      
+      // Projects
+      document.querySelectorAll('[data-i18n="projects.label"]').forEach(el => el.textContent = t.projects.label);
+      document.querySelectorAll('[data-i18n="projects.heading"]').forEach(el => el.textContent = t.projects.heading);
+      
+      // Project items
+      Object.keys(t.projects.items).forEach(key => {
+        document.querySelectorAll(`[data-i18n="projects.items.${key}.desc"]`).forEach(el => {
+          el.textContent = t.projects.items[key].desc;
+        });
+      });
+      
+      // Writeups
+      document.querySelectorAll('[data-i18n="writeups.label"]').forEach(el => el.textContent = t.writeups.label);
+      document.querySelectorAll('[data-i18n="writeups.heading"]').forEach(el => el.textContent = t.writeups.heading);
+      
+      // Contact
+      document.querySelectorAll('[data-i18n="contact.label"]').forEach(el => el.textContent = t.contact.label);
+      document.querySelectorAll('[data-i18n="contact.heading"]').forEach(el => el.textContent = t.contact.heading);
+      document.querySelectorAll('[data-i18n="contact.subtitle"]').forEach(el => el.textContent = t.contact.subtitle);
+    }
+
+    // Toggle lang
+    document.getElementById('langToggle')?.addEventListener('click', () => {
+      const newLang = currentLang === 'id' ? 'en' : 'id';
+      localStorage.setItem('lang', newLang);
+      window.location.reload();
+    });
+
+    // Init - run BEFORE decrypt animation
+    updateLangToggle();
+    applyTranslations();
+    
+    document.addEventListener('astro:page-load', () => {
+      updateLangToggle();
+      applyTranslations();
+    });
+  </script>
 </html>

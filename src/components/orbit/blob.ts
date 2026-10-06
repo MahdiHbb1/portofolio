@@ -109,6 +109,16 @@ export interface BlobHandle {
   dispose: () => void;
 }
 
+interface EnergyParticle {
+  mesh: THREE.Points;
+  angle: number;
+  elevation: number;
+  radius: number;
+  speed: number;
+  life: number;
+  maxLife: number;
+}
+
 export function createBlob(ctx: SceneContext): BlobHandle {
   const { scene } = ctx;
 
@@ -120,7 +130,7 @@ export function createBlob(ctx: SceneContext): BlobHandle {
     fragmentShader: fragmentShaderWire,
       uniforms: {
         uTime:     { value: 0 },
-        uStrength: { value: 0.32 }, // Increased from 0.28 for more pronounced deformation
+        uStrength: { value: 0.48 },
         uColor:    { value: new THREE.Color(0xa07850) },
         uOpacity:  { value: 0.18 },
       },
@@ -133,35 +143,126 @@ export function createBlob(ctx: SceneContext): BlobHandle {
   scene.add(wireMesh);
 
   // --- Glow sphere solid di balik wireframe ---
-  // Geometry lebih kasar — tidak perlu subdivisi tinggi untuk solid fill
   const glowGeo = new THREE.IcosahedronGeometry(1.15, 6);
   const glowMaterial = new THREE.ShaderMaterial({
     vertexShader,
     fragmentShader: fragmentShaderGlow,
       uniforms: {
         uTime:     { value: 0 },
-        uStrength: { value: 0.32 }, // Increased from 0.28 for more pronounced deformation
+        uStrength: { value: 0.48 },
       },
     transparent: true,
     depthWrite: false,
-    side: THREE.BackSide, // render bagian dalam → rim effect subtil
+    side: THREE.BackSide,
   });
 
   const glowMesh = new THREE.Mesh(glowGeo, glowMaterial);
   scene.add(glowMesh);
 
+  // --- Outer glow layer ---
+  const outerGeo = new THREE.IcosahedronGeometry(1.35, 4);
+  const outerMaterial = new THREE.ShaderMaterial({
+    vertexShader,
+    fragmentShader: /* glsl */`
+      void main() {
+        gl_FragColor = vec4(0.627, 0.471, 0.314, 0.02);
+      }
+    `,
+    uniforms: {
+      uTime: { value: 0 },
+      uStrength: { value: 0.25 },
+    },
+    transparent: true,
+    depthWrite: false,
+    side: THREE.BackSide,
+  });
+  const outerMesh = new THREE.Mesh(outerGeo, outerMaterial);
+  scene.add(outerMesh);
+
+  // --- 80 energy particles ---
+  const particles: EnergyParticle[] = [];
+  for (let i = 0; i < 80; i++) {
+    const particleGeo = new THREE.BufferGeometry();
+    const position = new Float32Array(3);
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(position, 3));
+
+    const size = 0.02 + Math.random() * 0.02;
+    const particleMat = new THREE.PointsMaterial({
+      size,
+      color: 0xa07850,
+      transparent: true,
+      opacity: 0.8,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+
+    const mesh = new THREE.Points(particleGeo, particleMat);
+    scene.add(mesh);
+
+    particles.push({
+      mesh,
+      angle: Math.random() * Math.PI * 2,
+      elevation: (Math.random() - 0.5) * Math.PI,
+      radius: 2.5 + Math.random() * 0.3,
+      speed: 0.01 + Math.random() * 0.02,
+      life: 0,
+      maxLife: 3,
+    });
+  }
+
   function tick(elapsed: number) {
+    const pulseScale = 0.95 + Math.sin(elapsed * 0.5) * 0.1;
+    
     wireMaterial.uniforms.uTime.value = elapsed;
+    wireMesh.scale.setScalar(pulseScale);
+    
     glowMaterial.uniforms.uTime.value = elapsed;
+    glowMesh.scale.setScalar(pulseScale);
+    
+    outerMaterial.uniforms.uTime.value = elapsed;
+    outerMesh.scale.setScalar(pulseScale * 1.05);
+
+    particles.forEach((p) => {
+      p.life += 0.016;
+      if (p.life > p.maxLife) {
+        p.life = 0;
+        p.angle = Math.random() * Math.PI * 2;
+        p.elevation = (Math.random() - 0.5) * Math.PI;
+        p.radius = 2.5 + Math.random() * 0.3;
+      }
+
+      p.radius -= p.speed;
+      
+      const x = Math.cos(p.angle) * Math.cos(p.elevation) * p.radius;
+      const y = Math.sin(p.elevation) * p.radius;
+      const z = Math.sin(p.angle) * Math.cos(p.elevation) * p.radius;
+
+      const posArray = p.mesh.geometry.attributes.position.array as Float32Array;
+      posArray[0] = x;
+      posArray[1] = y;
+      posArray[2] = z;
+      p.mesh.geometry.attributes.position.needsUpdate = true;
+
+      const mat = p.mesh.material as THREE.PointsMaterial;
+      mat.opacity = Math.max(0, 0.8 * (1 - p.life / p.maxLife));
+    });
   }
 
   function dispose() {
     scene.remove(wireMesh);
     scene.remove(glowMesh);
+    scene.remove(outerMesh);
     geometry.dispose();
     glowGeo.dispose();
+    outerGeo.dispose();
     wireMaterial.dispose();
     glowMaterial.dispose();
+    outerMaterial.dispose();
+    particles.forEach((p) => {
+      scene.remove(p.mesh);
+      p.mesh.geometry.dispose();
+      (p.mesh.material as THREE.Material).dispose();
+    });
   }
 
   return { tick, dispose };

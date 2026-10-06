@@ -1,28 +1,32 @@
 ---
+import { t } from '../../data/content';
 ---
 
 <section class="section about" id="about">
   <div class="container about__inner reveal">
 
     <header class="about__header">
-      <p class="label">About</p>
-      <h2 class="about__heading">Who I am</h2>
+      <p class="label" data-i18n="about.label">Tentang</p>
+      <h2 class="about__heading" data-i18n="about.heading">Siapa Saya</h2>
+      <div class="about__photo-placeholder" aria-label="Foto placeholder">
+        <span class="photo-hint">Foto</span>
+      </div>
     </header>
 
     <div class="about__body">
-      <p class="about__bio">
+      <p class="about__bio" data-i18n="about.bio1">
         Mahasiswa Informatika di Universitas Negeri Semarang. Saat ini menjabat
         sebagai Kepala Divisi IT Security di CODELINES UKM RIPTEK UNNES dan
         aktif berkompetisi di Capture The Flag.
       </p>
-      <p class="about__bio">
+      <p class="about__bio" data-i18n="about.bio2">
         Paralel dengan itu, mengerjakan bagian ML dan web development untuk
-        <strong> SIGAP MBG</strong>, proyek PKM-KC yang sudah lolos pendanaan.
+        SIGAP MBG, proyek PKM-KC yang sudah lolos pendanaan.
         Tertarik di persimpangan antara keamanan sistem, machine learning, dan
         produk yang bisa dipakai orang beneran.
       </p>
 
-      <ul class="about__tags" aria-label="Focus areas">
+      <ul class="about__tags" aria-label="Area fokus">
         <li>IT Security</li>
         <li>Machine Learning</li>
         <li>CTF</li>
@@ -48,8 +52,59 @@
   }
 
   .about__heading {
-    margin-top: 0.5rem;
     color: var(--fg);
+    font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+    margin-top: 0.25rem;
+    margin-bottom: 0;
+  }
+
+  .about__photo-placeholder {
+    margin-top: 1rem;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    max-width: 16rem;
+    border: 2px solid rgba(232, 224, 212, 0.3);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(160, 120, 80, 0.05) 0%, rgba(232, 224, 212, 0.03) 100%);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
+      0 0 20px rgba(160, 120, 80, 0.15),
+      inset 0 0 20px rgba(232, 224, 212, 0.05);
+  }
+
+  .about__photo-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 8px;
+    padding: 2px;
+    background: linear-gradient(135deg, 
+      rgba(232, 224, 212, 0.4) 0%, 
+      rgba(160, 120, 80, 0.6) 50%, 
+      rgba(232, 224, 212, 0.4) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.7;
+    animation: glow-pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.9; }
+  }
+
+  .photo-hint {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    z-index: 1;
   }
 
   .about__body {

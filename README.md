@@ -1,55 +1,98 @@
-# Mahdi Habibi Portfolio
+# Portfolio Website
 
-Personal portfolio website showcasing cybersecurity, machine learning, and software engineering projects.
+> 3D interactive portfolio showcasing cybersecurity and machine learning expertise
 
 ## Features
 
-- **3D Interactive Gallery**: Three.js orbit scene with project panels
-- **Custom Cursor**: Smooth, responsive custom cursor for desktop
-- **View Transitions**: Seamless page navigation with Astro View Transitions
-- **Responsive Design**: Mobile fallback, tablet & desktop optimized
-- **Accessibility**: WCAG compliant, keyboard navigation, screen reader support
+- **3D Orbit Gallery**: Interactive Three.js scene with 6000 stars, shooting stars, and orbital asteroids
+- **Bilingual Support**: Seamless ID/EN language toggle (localStorage-based)
+- **Skills Showcase**: 24 technical skills across Security, ML, Web Development, and Tools
+- **Project Portfolio**: 7 projects including PKM-KC funded SIGAP MBG
+- **CTF Writeups**: Security competition solutions and forensics challenges
+- **Responsive Design**: Mobile-first with warm brown earth-tone palette
+- **Type-Safe**: Built with TypeScript and Astro
 
 ## Tech Stack
 
-- **Framework**: Astro 7.3
-- **3D Graphics**: Three.js 0.186
-- **Styling**: CSS custom properties, design tokens
-- **Typography**: Space Grotesk, JetBrains Mono
-- **Deployment**: Static site generation
+- **Framework**: [Astro](https://astro.build) (Static Site Generator)
+- **3D Graphics**: Three.js
+- **Styling**: CSS custom properties + responsive design
+- **Typography**: Space Grotesk Variable, JetBrains Mono
+- **Deployment**: Static export ready
+
+## Quick Start
+
+```bash
+npm install
+npm run dev
+```
+
+Open [http://localhost:4321](http://localhost:4321)
+
+## Commands
+
+| Command | Action |
+|---------|--------|
+| `npm install` | Install dependencies |
+| `npm run dev` | Start dev server at `localhost:4321` |
+| `npm run build` | Build production site to `./dist/` |
+| `npm run preview` | Preview built site locally |
+| `npm run astro` | Run Astro CLI commands |
 
 ## Project Structure
 
 ```
-/
-├── public/          # Static assets
-├── src/
-│   ├── components/  # Astro components
-│   │   ├── orbit/   # Three.js 3D scene modules
-│   │   └── sections/
-│   ├── layouts/     # Page layouts
-│   ├── pages/       # Routes
-│   ├── scripts/     # Client-side scripts
-│   └── styles/      # Global CSS
-└── package.json
+src/
+├── components/
+│   ├── orbit/          # 3D scene modules
+│   └── sections/       # Page sections
+├── data/
+│   └── content.ts      # Bilingual content
+├── layouts/
+│   └── Base.astro      # Base layout
+├── pages/              # Routes
+└── styles/
+    └── global.css      # Design tokens
 ```
 
-## Commands
+## Bilingual Content
 
-All commands run from project root:
+Switch language via navbar toggle (ID/EN). Content defined in `src/data/content.ts`:
 
-| Command              | Action                                      |
-| :------------------- | :------------------------------------------ |
-| `npm install`        | Install dependencies                        |
-| `npm run dev`        | Start dev server at `localhost:4321`        |
-| `npm run build`      | Build production site to `./dist/`          |
-| `npm run preview`    | Preview build locally before deploying      |
-| `npm run astro ...`  | Run Astro CLI commands                      |
+```typescript
+export const content = {
+  id: { /* Indonesian */ },
+  en: { /* English */ }
+};
+```
 
-## Development
+## Design System
 
-See `AGENTS.md` for AI agent instructions and `DESIGN.md` for design system documentation.
+- **Colors**: Warm brown earth-tone (#a07850 accent)
+- **Typography**: Space Grotesk (sans), JetBrains Mono (mono)
+- **Spacing**: 8px base scale
+- **Dark Theme**: Near-black (#0f0e0d) background
+
+Full design specs in `DESIGN.md`
+
+## 3D Scene Components
+
+- **Starfield**: 6000 particles with twinkle animation
+- **Shooting Stars**: 8 trails with Bezier paths
+- **Asteroids**: 25 orbital objects with rotation
+- **Blob**: Noise-displaced wireframe with energy particles
+- **Nebulae**: 5-layer volumetric clouds
 
 ## License
 
-© 2024-2025 Mahdi Habibi
+© 2024-2026 Mahdi Habibi. All rights reserved.
+
+## Contact
+
+- **Email**: mahdihabibi31352@gmail.com
+- **GitHub**: [MahdiHbb1](https://github.com/MahdiHbb1)
+- **LinkedIn**: [Mahdi Habibi](https://linkedin.com/in/mahdi-habibi-62a939321/)
+
+---
+
+Built with [Astro](https://astro.build) · Styled with love · Secured by design

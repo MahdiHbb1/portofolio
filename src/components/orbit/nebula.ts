@@ -51,7 +51,7 @@ class PerlinNoise {
     );
   }
 
-  fbm(x: number, y: number, octaves = 4): number {
+  fbm(x: number, y: number, octaves = 5): number {
     let value = 0;
     let amplitude = 1;
     let frequency = 1;
@@ -168,15 +168,15 @@ function generateNebulaTexture(size: number, noiseScale: number, octaves: number
 export function createNebulae(ctx: SceneContext) {
   const spheres: THREE.Mesh[] = [];
 
-  // Far sphere: Subtle deep space backdrop
-  const farTexture = generateNebulaTexture(1024, 0.003, 4, 0);
+  // Layer 1 (far): radius 55, opacity 0.5
+  const farTexture = generateNebulaTexture(1024, 0.003, 5, 0);
   const farGeometry = new THREE.SphereGeometry(55, 32, 32);
-  farGeometry.scale(-1, 1, 1); // Flip normals - see inside
+  farGeometry.scale(-1, 1, 1);
   const farMaterial = new THREE.MeshBasicMaterial({
     map: new THREE.CanvasTexture(farTexture),
     side: THREE.BackSide,
     transparent: true,
-    opacity: 0.35,
+    opacity: 0.5,
     depthWrite: false,
     blending: THREE.AdditiveBlending,
   });
@@ -184,56 +184,95 @@ export function createNebulae(ctx: SceneContext) {
   spheres.push(farSphere);
   ctx.scene.add(farSphere);
 
-  // Mid sphere: Brown/purple nebula patches
-  const midTexture = generateNebulaTexture(512, 0.005, 3, 1);
-  const midGeometry = new THREE.SphereGeometry(45, 32, 32);
-  midGeometry.scale(-1, 1, 1);
-  const midMaterial = new THREE.MeshBasicMaterial({
-    map: new THREE.CanvasTexture(midTexture),
+  // Layer 2: radius 48, opacity 0.55
+  const layer2Texture = generateNebulaTexture(512, 0.005, 5, 1);
+  const layer2Geometry = new THREE.SphereGeometry(48, 32, 32);
+  layer2Geometry.scale(-1, 1, 1);
+  const layer2Material = new THREE.MeshBasicMaterial({
+    map: new THREE.CanvasTexture(layer2Texture),
     side: THREE.BackSide,
     transparent: true,
-    opacity: 0.4,
+    opacity: 0.55,
     depthWrite: false,
     blending: THREE.AdditiveBlending,
   });
-  const midSphere = new THREE.Mesh(midGeometry, midMaterial);
-  spheres.push(midSphere);
-  ctx.scene.add(midSphere);
+  const layer2Sphere = new THREE.Mesh(layer2Geometry, layer2Material);
+  spheres.push(layer2Sphere);
+  ctx.scene.add(layer2Sphere);
 
-  // Near sphere: Brown wispy details
-  const nearTexture = generateNebulaTexture(256, 0.008, 2, 2);
-  const nearGeometry = new THREE.SphereGeometry(35, 32, 32);
-  nearGeometry.scale(-1, 1, 1);
-  const nearMaterial = new THREE.MeshBasicMaterial({
-    map: new THREE.CanvasTexture(nearTexture),
+  // Layer 3: radius 40, opacity 0.45
+  const layer3Texture = generateNebulaTexture(512, 0.006, 5, 1);
+  const layer3Geometry = new THREE.SphereGeometry(40, 32, 32);
+  layer3Geometry.scale(-1, 1, 1);
+  const layer3Material = new THREE.MeshBasicMaterial({
+    map: new THREE.CanvasTexture(layer3Texture),
+    side: THREE.BackSide,
+    transparent: true,
+    opacity: 0.45,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+  const layer3Sphere = new THREE.Mesh(layer3Geometry, layer3Material);
+  spheres.push(layer3Sphere);
+  ctx.scene.add(layer3Sphere);
+
+  // Layer 4 (new): radius 32, opacity 0.35
+  const layer4Texture = generateNebulaTexture(256, 0.008, 5, 2);
+  const layer4Geometry = new THREE.SphereGeometry(32, 32, 32);
+  layer4Geometry.scale(-1, 1, 1);
+  const layer4Material = new THREE.MeshBasicMaterial({
+    map: new THREE.CanvasTexture(layer4Texture),
+    side: THREE.BackSide,
+    transparent: true,
+    opacity: 0.35,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+  const layer4Sphere = new THREE.Mesh(layer4Geometry, layer4Material);
+  spheres.push(layer4Sphere);
+  ctx.scene.add(layer4Sphere);
+
+  // Layer 5 (new): radius 25, opacity 0.25
+  const layer5Texture = generateNebulaTexture(256, 0.01, 5, 2);
+  const layer5Geometry = new THREE.SphereGeometry(25, 32, 32);
+  layer5Geometry.scale(-1, 1, 1);
+  const layer5Material = new THREE.MeshBasicMaterial({
+    map: new THREE.CanvasTexture(layer5Texture),
     side: THREE.BackSide,
     transparent: true,
     opacity: 0.25,
     depthWrite: false,
     blending: THREE.AdditiveBlending,
   });
-  const nearSphere = new THREE.Mesh(nearGeometry, nearMaterial);
-  spheres.push(nearSphere);
-  ctx.scene.add(nearSphere);
+  const layer5Sphere = new THREE.Mesh(layer5Geometry, layer5Material);
+  spheres.push(layer5Sphere);
+  ctx.scene.add(layer5Sphere);
 
   return {
     tick(elapsed: number) {
-      // Slow rotation for organic movement (no camera follow needed)
-      spheres[0].rotation.y = elapsed * 0.008;
+      spheres[0].rotation.y = elapsed * 0.008 + Math.sin(elapsed * 0.01) * 0.5;
       spheres[0].rotation.x = elapsed * 0.003;
-      spheres[1].rotation.y = elapsed * 0.012;
+      spheres[1].rotation.y = elapsed * 0.012 + Math.sin(elapsed * 0.015) * 0.5;
       spheres[1].rotation.x = -elapsed * 0.005;
-      spheres[2].rotation.y = elapsed * 0.015;
+      spheres[2].rotation.y = elapsed * 0.015 + Math.sin(elapsed * 0.012) * 0.5;
       spheres[2].rotation.x = elapsed * 0.007;
+      if (spheres[3]) {
+        spheres[3].rotation.y = elapsed * 0.018 + Math.sin(elapsed * 0.008) * 0.5;
+        spheres[3].rotation.x = -elapsed * 0.006;
+      }
+      if (spheres[4]) {
+        spheres[4].rotation.y = elapsed * 0.02 + Math.sin(elapsed * 0.01) * 0.5;
+        spheres[4].rotation.x = elapsed * 0.009;
+      }
     },
     dispose() {
       spheres.forEach(sphere => {
         sphere.geometry.dispose();
         const mat = sphere.material as THREE.MeshBasicMaterial;
-        mat.map?.dispose();
+        if (mat.map) mat.map.dispose();
         mat.dispose();
         ctx.scene.remove(sphere);
       });
-    },
+    }
   };
 }

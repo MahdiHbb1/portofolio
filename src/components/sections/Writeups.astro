@@ -1,28 +1,38 @@
 ---
+import { t } from '../../data/content';
+
 const writeups = [
   {
-    title: 'CTF itsecdevx26',
-    event: 'itsecdevx26',
+    id: 'itsecdevx26-web',
+    title: 'SQL Injection via Login Bypass',
+    event: 'itsecdevx26 CTF',
     year: '2024',
-    tags: ['web', 'forensics'],
-    excerpt: 'Placeholder — tambahkan writeup detail.',
-    href: '/projects/ctf-itsecdevx26',
+    category: 'Web Exploitation',
+    tags: ['SQLi', 'auth bypass'],
   },
   {
-    title: 'Writeup #2',
-    event: 'CTF Event',
+    id: 'itsecdevx26-forensics',
+    title: 'Memory Dump Analysis',
+    event: 'itsecdevx26 CTF',
     year: '2024',
-    tags: ['pwn', 'reverse'],
-    excerpt: 'Placeholder — tambahkan writeup detail.',
-    href: '/projects/ctf-writeups',
+    category: 'Forensics',
+    tags: ['volatility', 'memory'],
   },
   {
-    title: 'Writeup #3',
-    event: 'CTF Event',
+    id: 'placeholder-xss',
+    title: 'XSS to Admin Takeover',
+    event: 'CTF Event Placeholder',
+    year: '2024',
+    category: 'Web Exploitation',
+    tags: ['XSS', 'session'],
+  },
+  {
+    id: 'placeholder-crypto',
+    title: 'RSA Key Recovery',
+    event: 'CTF Event Placeholder',
     year: '2025',
-    tags: ['crypto', 'web'],
-    excerpt: 'Placeholder — tambahkan writeup detail.',
-    href: '/projects/ctf-writeups',
+    category: 'Cryptography',
+    tags: ['RSA', 'crypto'],
   },
 ];
 ---
@@ -31,43 +41,35 @@ const writeups = [
   <div class="container">
 
     <header class="writeups__header reveal">
-      <p class="label">Security</p>
-      <h2>CTF Writeups</h2>
+      <p class="label" data-i18n="writeups.label">Keamanan</p>
+      <h2 data-i18n="writeups.heading">CTF Writeups</h2>
     </header>
 
-    <ul class="writeups__list reveal" style="--delay: 100ms" role="list">
-      {writeups.map((w) => (
-        <li>
-          <a href={w.href} class="writeup-item">
-            <div class="writeup-item__left">
-              <span class="writeup-item__year label">{w.year}</span>
-              <div>
-                <h3 class="writeup-item__title">{w.title}</h3>
-                <p class="writeup-item__event">{w.event}</p>
+    <div class="writeups__timeline">
+      {writeups.map((w, i) => (
+        <article class="writeup-card reveal" style={`--delay: ${i * 100}ms`}>
+          <div class="writeup-card__year-marker">
+            <span class="writeup-card__year">{w.year}</span>
+          </div>
+          
+          <a href={`/writeups/${w.id}`} class="writeup-card__link">
+            <div class="writeup-card__content">
+              <div class="writeup-card__header">
+                <span class="writeup-card__event label">{w.event}</span>
+                <span class="writeup-card__category">{w.category}</span>
               </div>
-            </div>
 
-            <div class="writeup-item__right">
-              <p class="writeup-item__excerpt">{w.excerpt}</p>
-              <ul class="writeup-item__tags" aria-label="Tags">
+              <h3 class="writeup-card__title">{w.title}</h3>
+
+              <ul class="writeup-card__tags" aria-label="Tags">
                 {w.tags.map(t => <li>{t}</li>)}
               </ul>
+
+              <span class="writeup-card__arrow" aria-hidden="true">→</span>
             </div>
-
-            <span class="writeup-item__arrow" aria-hidden="true">→</span>
           </a>
-        </li>
+        </article>
       ))}
-    </ul>
-
-    <div class="writeups__footer reveal" style="--delay: 180ms">
-      <a href="/projects/ctf-writeups" class="writeups__all">
-        View all writeups
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-          <path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" stroke-width="1.5"
-                stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
     </div>
 
   </div>
@@ -75,152 +77,168 @@ const writeups = [
 
 <style>
   .writeups__header {
-    margin-bottom: clamp(2rem, 5vw, 3rem);
+    margin-bottom: clamp(3rem, 6vw, 4.5rem);
   }
 
   .writeups__header h2 {
     margin-top: 0.5rem;
   }
 
-  .writeups__list {
-    list-style: none;
-    border-top: 1px solid var(--border);
-  }
-
-  .writeup-item {
-    display: grid;
-    grid-template-columns: 1fr 2fr auto;
-    align-items: center;
-    gap: 2rem;
-    padding: 1.5rem 0;
-    border-bottom: 1px solid var(--border);
-    transition: background 160ms ease;
+  .writeups__timeline {
     position: relative;
+    max-width: 56rem;
+    margin: 0 auto;
+    padding-left: 2rem;
   }
 
-  .writeup-item:hover {
-    /* Subtle background wash pada hover */
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(160, 120, 80, 0.04) 20%,
-      transparent
+  .writeups__timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, 
+      transparent 0%, 
+      var(--border-accent) 10%, 
+      var(--border-accent) 90%, 
+      transparent 100%
     );
   }
 
-  .writeup-item__left {
+  .writeup-card {
+    position: relative;
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+  }
+
+  .writeup-card:last-child {
+    margin-bottom: 0;
+  }
+
+  .writeup-card__year-marker {
+    position: absolute;
+    left: -2rem;
+    top: 1.5rem;
+    transform: translateX(-50%);
+    z-index: 2;
+  }
+
+  .writeup-card__year {
     display: flex;
-    align-items: flex-start;
-    gap: 1.25rem;
-  }
-
-  .writeup-item__year {
-    flex-shrink: 0;
-    margin-top: 0.2rem;
-    opacity: 0.7;
-  }
-
-  .writeup-item__title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--fg);
-    margin-bottom: 0.2rem;
-  }
-
-  .writeup-item__event {
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    background: var(--bg-raised);
+    border: 2px solid var(--border-accent);
+    border-radius: 50%;
     font-family: var(--font-mono);
     font-size: 0.7rem;
-    color: var(--fg-faint);
-    max-width: none;
+    font-weight: 600;
+    color: var(--accent);
   }
 
-  .writeup-item__right {
+  .writeup-card__link {
+    display: block;
+    padding: clamp(1.5rem, 3vw, 2rem);
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: all 240ms cubic-bezier(0.4, 0, 0.2, 1);
+    margin-left: 1.5rem;
+  }
+
+  .writeup-card__link:hover {
+    background: var(--bg-subtle);
+    border-color: var(--border-accent);
+    transform: translateX(8px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .writeup-card__content {
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
+    gap: 0.75rem;
+    position: relative;
   }
 
-  .writeup-item__excerpt {
-    font-size: 0.875rem;
-    color: var(--fg-muted);
-    line-height: 1.6;
-    max-width: none;
+  .writeup-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
   }
 
-  .writeup-item__tags {
+  .writeup-card__event {
+    /* label class styling */
+  }
+
+  .writeup-card__category {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .writeup-card__title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--fg);
+    line-height: 1.4;
+  }
+
+  .writeup-card__tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.35rem;
+    gap: 0.4rem;
     list-style: none;
   }
 
-  .writeup-item__tags li {
+  .writeup-card__tags li {
     font-family: var(--font-mono);
-    font-size: 0.62rem;
-    padding: 0.15rem 0.45rem;
+    font-size: 0.65rem;
+    padding: 0.25rem 0.55rem;
     background: var(--accent-dim);
     color: var(--accent);
-    border-radius: 2px;
+    border-radius: 3px;
   }
 
-  .writeup-item__arrow {
+  .writeup-card__arrow {
+    position: absolute;
+    bottom: 0;
+    right: 0;
     font-size: 1rem;
     color: var(--fg-faint);
-    transition: color 160ms ease, transform 160ms ease;
-    flex-shrink: 0;
+    transition: color 180ms ease, transform 180ms ease;
   }
 
-  .writeup-item:hover .writeup-item__arrow {
+  .writeup-card__link:hover .writeup-card__arrow {
     color: var(--accent);
     transform: translateX(4px);
   }
 
-  .writeups__footer {
-    margin-top: 2rem;
-    display: flex;
-    justify-content: flex-end;
-  }
-
-  .writeups__all {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    color: var(--fg-muted);
-    border: 1px solid var(--border);
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
-  }
-
-  .writeups__all:hover {
-    color: var(--fg);
-    border-color: var(--border-accent);
-    background: var(--accent-dim);
-  }
-
-  /* Tablet ke bawah: layout 2-kolom collapse ke 1 kolom */
-  @media (max-width: 680px) {
-    .writeup-item {
-      grid-template-columns: 1fr auto;
-      grid-template-rows: auto auto;
-      gap: 0.75rem 1rem;
+  @media (max-width: 768px) {
+    .writeups__timeline {
+      padding-left: 1.5rem;
     }
 
-    .writeup-item__right {
-      grid-column: 1 / -1;
-    }
-  }
-
-  /* Mobile */
-  @media (max-width: 480px) {
-    .writeup-item {
-      grid-template-columns: 1fr;
+    .writeup-card__year-marker {
+      left: -1.5rem;
     }
 
-    .writeup-item__arrow {
-      display: none;
+    .writeup-card__year {
+      width: 2.5rem;
+      height: 2.5rem;
+      font-size: 0.65rem;
+    }
+
+    .writeup-card__link {
+      margin-left: 1rem;
+    }
+
+    .writeup-card__link:hover {
+      transform: translateX(0) translateY(-2px);
     }
   }
 </style>

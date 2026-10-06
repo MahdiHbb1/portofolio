@@ -1,5 +1,17 @@
 ---
+import { t } from '../../data/content';
+
 const projects = [
+  {
+    id: 'sigapMbg',
+    name: 'SIGAP MBG',
+    category: 'Hardware + Software',
+    tags: ['PKM-KC', 'ML', 'IoT'],
+    desc: 'Sistem monitoring berbasis ML untuk program makan bergizi gratis nasional. Mendapat pendanaan PKM-KC nasional.',
+    year: '2025',
+    gradient: 'linear-gradient(135deg, rgba(232, 224, 212, 0.08), rgba(160, 120, 80, 0.12))',
+    featured: true,
+  },
   {
     id: 'fraudlens',
     name: 'FraudLens',
@@ -7,14 +19,18 @@ const projects = [
     tags: ['security', 'ML'],
     desc: 'Placeholder — tambahkan deskripsi project.',
     year: '2024',
+    gradient: 'linear-gradient(135deg, rgba(255, 120, 60, 0.08), rgba(139, 115, 85, 0.12))',
+    featured: false,
   },
   {
-    id: 'fabric-cnn',
+    id: 'fabricCnn',
     name: 'Fabric Defect CNN',
     category: 'Computer Vision',
     tags: ['deep learning', 'skripsi'],
     desc: 'Placeholder — tambahkan deskripsi project.',
     year: '2024',
+    gradient: 'linear-gradient(135deg, rgba(100, 150, 200, 0.08), rgba(107, 93, 79, 0.12))',
+    featured: false,
   },
   {
     id: 'legalin',
@@ -23,6 +39,8 @@ const projects = [
     tags: ['AI', 'web'],
     desc: 'Placeholder — tambahkan deskripsi project.',
     year: '2024',
+    gradient: 'linear-gradient(135deg, rgba(120, 180, 120, 0.08), rgba(107, 93, 79, 0.12))',
+    featured: false,
   },
   {
     id: 'buktitagih',
@@ -31,30 +49,28 @@ const projects = [
     tags: ['AI', 'hackathon'],
     desc: 'Placeholder — tambahkan deskripsi project.',
     year: '2024',
+    gradient: 'linear-gradient(135deg, rgba(160, 100, 200, 0.08), rgba(107, 93, 79, 0.12))',
+    featured: false,
   },
   {
-    id: 'sigap-mbg',
-    name: 'SIGAP MBG',
-    category: 'Hardware + Software',
-    tags: ['PKM-KC', 'ML', 'IoT'],
-    desc: 'Sistem monitoring berbasis ML dan web untuk program Makan Bergizi Gratis. Lolos pendanaan PKM-KC.',
-    year: '2025',
-  },
-  {
-    id: 'ctf-itsecdevx26',
+    id: 'ctfItsecdevx26',
     name: 'CTF itsecdevx26',
     category: 'Security Challenge',
     tags: ['CTF', 'security'],
     desc: 'Placeholder — tambahkan deskripsi challenge.',
     year: '2024',
+    gradient: 'linear-gradient(135deg, rgba(200, 80, 80, 0.08), rgba(139, 115, 85, 0.12))',
+    featured: false,
   },
   {
-    id: 'ctf-writeups',
+    id: 'ctfWriteups',
     name: 'CTF Writeups',
     category: 'Writeups',
     tags: ['CTF', 'writeups'],
     desc: 'Kumpulan writeup dari berbagai kompetisi CTF.',
     year: '2024–2025',
+    gradient: 'linear-gradient(135deg, rgba(255, 180, 100, 0.08), rgba(139, 115, 85, 0.12))',
+    featured: false,
   },
 ];
 ---
@@ -63,21 +79,25 @@ const projects = [
   <div class="container">
 
     <header class="projects__header reveal">
-      <p class="label">Work</p>
-      <h2>Projects</h2>
+      <p class="label" data-i18n="projects.label">Karya</p>
+      <h2 data-i18n="projects.heading">Projects</h2>
     </header>
 
     <ul class="projects__grid reveal" style="--delay: 120ms" role="list">
-      {projects.map((p) => (
-        <li class="project-card">
-          <a href={`/projects/${p.id}`} class="project-card__link">
+      {projects.map((p, i) => (
+        <li class={`project-card ${p.featured ? 'project-card--featured' : ''}`}>
+          <a 
+            href={`/projects/${p.id}`} 
+            class="project-card__link"
+            style={`--placeholder-gradient: ${p.gradient}`}
+          >
             <div class="project-card__top">
               <span class="project-card__year label">{p.year}</span>
               <span class="project-card__cat">{p.category}</span>
             </div>
 
             <h3 class="project-card__name">{p.name}</h3>
-            <p class="project-card__desc">{p.desc}</p>
+            <p class="project-card__desc" data-i18n={`projects.items.${p.id}.desc`}>{p.desc}</p>
 
             <ul class="project-card__tags" aria-label="Tags">
               {p.tags.map(t => <li>{t}</li>)}
@@ -104,31 +124,65 @@ const projects = [
   .projects__grid {
     list-style: none;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
-    gap: 1px; /* gap via border — tidak ada gutter kosong */
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
+    grid-template-columns: repeat(12, 1fr);
+    gap: clamp(1rem, 2vw, 1.5rem);
   }
 
   .project-card {
-    border-right: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
+    grid-column: span 6;
+  }
+
+  .project-card--featured {
+    grid-column: span 12;
+  }
+
+  @media (max-width: 1024px) {
+    .project-card {
+      grid-column: span 12;
+    }
+  }
+
+  @media (min-width: 1025px) {
+    .project-card:nth-child(4) {
+      grid-column: span 7;
+    }
+    .project-card:nth-child(5) {
+      grid-column: span 5;
+    }
   }
 
   .project-card__link {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    padding: clamp(1.25rem, 3vw, 1.75rem);
+    padding: clamp(1.5rem, 3vw, 2rem);
     height: 100%;
     background: var(--bg-raised);
-    transition: background 180ms ease;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: all 240ms cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
+    overflow: hidden;
+  }
+
+  .project-card__link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--placeholder-gradient, linear-gradient(135deg, rgba(160, 120, 80, 0.05), transparent));
+    opacity: 0.6;
+    transition: opacity 240ms ease;
   }
 
   .project-card__link:hover {
     background: var(--bg-subtle);
+    border-color: var(--border-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .project-card__link:hover::before {
+    opacity: 1;
   }
 
   .project-card__top {
@@ -152,6 +206,13 @@ const projects = [
     font-size: 1.1rem;
     color: var(--fg);
     font-weight: 600;
+    position: relative;
+    z-index: 1;
+  }
+
+  .project-card--featured .project-card__name {
+    font-size: clamp(1.35rem, 3vw, 1.6rem);
+    font-weight: 700;
   }
 
   .project-card__desc {
@@ -160,6 +221,12 @@ const projects = [
     line-height: 1.6;
     flex: 1;
     max-width: none;
+    position: relative;
+    z-index: 1;
+  }
+
+  .project-card--featured .project-card__desc {
+    font-size: 0.95rem;
   }
 
   .project-card__tags {

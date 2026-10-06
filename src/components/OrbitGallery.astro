@@ -251,6 +251,8 @@ import PanelDetailModal from './PanelDetailModal.astro';
       { createPanels },
       { createLines },
       { createControls },
+      { createAsteroids },
+      { createShootingStars },
     ] = await Promise.all([
       import('./orbit/scene.ts'),
       import('./orbit/blob.ts'),
@@ -259,6 +261,8 @@ import PanelDetailModal from './PanelDetailModal.astro';
       import('./orbit/panels.ts'),
       import('./orbit/lines.ts'),
       import('./orbit/controls.ts'),
+      import('./orbit/asteroids.ts'),
+      import('./orbit/shooting-stars.ts'),
     ]);
 
     // TODO: verifikasi empiris breakpoint 959px di browser
@@ -270,6 +274,8 @@ import PanelDetailModal from './PanelDetailModal.astro';
     const nebulae  = createNebulae(ctx);
     const starfield = createStarfield(ctx);
     const blob     = createBlob(ctx);
+    const asteroids = createAsteroids(ctx);
+    const shootingStars = createShootingStars(ctx);
     const panels   = createPanels(ctx);
     const lines    = createLines(ctx, panels);
     const controls = createControls(ctx, resetBtn ?? null, panels);
@@ -286,6 +292,8 @@ import PanelDetailModal from './PanelDetailModal.astro';
       nebulae.tick(elapsed);
       starfield.tick(elapsed);
       blob.tick(elapsed);
+      asteroids.tick(elapsed);
+      shootingStars.tick(elapsed);
       panels.tick(elapsed, ctx.camera);
       lines.tick(elapsed);
       controls.tick();
@@ -297,12 +305,13 @@ import PanelDetailModal from './PanelDetailModal.astro';
       controls.dispose();
       lines.dispose();
       panels.dispose();
+      shootingStars.dispose();
+      asteroids.dispose();
       blob.dispose();
       starfield.dispose();
       nebulae.dispose();
       ctx.dispose();
       isInitialized = false;
-      currentCleanup = null;
     };
 
     currentCleanup = cleanup;

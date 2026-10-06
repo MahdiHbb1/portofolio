@@ -1,20 +1,54 @@
 ---
+import { t } from '../../data/content';
+
 const categories = [
   {
     name: 'Security',
-    items: ['CTF', 'Web Exploitation', 'Forensics', 'Reverse Engineering', 'Burp Suite', 'Wireshark'],
+    icon: 'shield-lock.svg',
+    items: [
+      { skill: 'CTF', level: 85 },
+      { skill: 'Web Exploitation', level: 80 },
+      { skill: 'Forensics', level: 70 },
+      { skill: 'Reverse Engineering', level: 65 },
+      { skill: 'Burp Suite', level: 70 },
+      { skill: 'Wireshark', level: 65 },
+    ],
   },
   {
     name: 'Machine Learning',
-    items: ['Python', 'TensorFlow', 'PyTorch', 'CNN', 'scikit-learn', 'OpenCV'],
+    icon: 'neural-net.svg',
+    items: [
+      { skill: 'Python', level: 85 },
+      { skill: 'TensorFlow', level: 70 },
+      { skill: 'PyTorch', level: 65 },
+      { skill: 'CNN', level: 80 },
+      { skill: 'scikit-learn', level: 70 },
+      { skill: 'OpenCV', level: 65 },
+    ],
   },
   {
     name: 'Web Development',
-    items: ['Astro', 'JavaScript', 'TypeScript', 'HTML/CSS', 'Node.js', 'REST API'],
+    icon: 'code-globe.svg',
+    items: [
+      { skill: 'Astro', level: 75 },
+      { skill: 'JavaScript', level: 85 },
+      { skill: 'TypeScript', level: 70 },
+      { skill: 'HTML/CSS', level: 90 },
+      { skill: 'Node.js', level: 70 },
+      { skill: 'REST API', level: 75 },
+    ],
   },
   {
     name: 'Tools & Infra',
-    items: ['Git', 'Linux', 'Docker', 'VS Code', 'Arduino', 'Raspberry Pi'],
+    icon: 'wrench-terminal.svg',
+    items: [
+      { skill: 'Git', level: 85 },
+      { skill: 'Linux', level: 75 },
+      { skill: 'Docker', level: 65 },
+      { skill: 'VS Code', level: 70 },
+      { skill: 'Arduino', level: 60 },
+      { skill: 'Raspberry Pi', level: 60 },
+    ],
   },
 ];
 ---
@@ -23,17 +57,28 @@ const categories = [
   <div class="container">
 
     <header class="skills__header reveal">
-      <p class="label">Expertise</p>
-      <h2>Skills</h2>
+      <p class="label" data-i18n="skills.label">Keahlian</p>
+      <h2 data-i18n="skills.heading">Skills</h2>
     </header>
 
     <div class="skills__grid">
       {categories.map((cat, i) => (
         <div class="skills__cat reveal" style={`--delay: ${i * 80}ms`}>
-          <h3 class="skills__cat-name">{cat.name}</h3>
+          <div class="skills__cat-header">
+            <img src={`/icons/${cat.icon}`} alt="" class="skills__cat-icon" width="40" height="40" />
+            <h3 class="skills__cat-name">{cat.name}</h3>
+          </div>
           <ul class="skills__list" role="list">
             {cat.items.map(item => (
-              <li class="skills__item">{item}</li>
+              <li class="skills__item">
+                <div class="skills__item-header">
+                  <span class="skills__item-name">{item.skill}</span>
+                  <span class="skills__item-level">{item.level}%</span>
+                </div>
+                <div class="skills__progress">
+                  <div class="skills__progress-bar" style={`--progress: ${item.level}%`}></div>
+                </div>
+              </li>
             ))}
           </ul>
         </div>
@@ -54,69 +99,112 @@ const categories = [
 
   .skills__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
-    gap: 1px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+    gap: 1.5rem;
+    align-items: start;
   }
 
   .skills__cat {
-    padding: clamp(1.25rem, 3vw, 1.75rem);
+    padding: clamp(1.5rem, 3vw, 2rem);
     background: var(--bg-raised);
-    border-right: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    transition: background 180ms ease;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: all 220ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .skills__cat:hover {
     background: var(--bg-subtle);
+    border-color: var(--border-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .skills__cat-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .skills__cat-icon {
+    color: var(--accent);
+    opacity: 0.7;
+    transition: opacity 200ms ease, filter 200ms ease;
+  }
+
+  .skills__cat:hover .skills__cat-icon {
+    opacity: 1;
+    filter: drop-shadow(0 0 8px rgba(160, 120, 80, 0.4));
   }
 
   .skills__cat-name {
     font-family: var(--font-mono);
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--accent);
-    margin-bottom: 1rem;
+    font-weight: 600;
   }
 
   .skills__list {
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 1rem;
   }
 
   .skills__item {
-    font-size: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .skills__item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .skills__item-name {
+    font-size: 0.875rem;
     color: var(--fg-muted);
-    padding-left: 0.875rem;
-    position: relative;
-    transition: color 160ms ease, padding-left 160ms ease;
+    transition: color 180ms ease;
   }
 
-  /* Bullet tembaga kecil */
-  .skills__item::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
+  .skills__item-level {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--fg-faint);
+    transition: color 180ms ease;
+  }
+
+  .skills__progress {
     height: 4px;
-    background: var(--accent);
-    border-radius: 50%;
-    opacity: 0.5;
-    transition: opacity 160ms ease;
+    background: rgba(232, 224, 212, 0.08);
+    border-radius: 2px;
+    overflow: hidden;
   }
 
-  .skills__cat:hover .skills__item {
+  .skills__progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent) 0%, rgba(160, 120, 80, 0.6) 100%);
+    width: var(--progress);
+    border-radius: 2px;
+    transition: width 600ms cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: left;
+  }
+
+  .skills__cat:hover .skills__item-name {
     color: var(--fg);
   }
 
-  .skills__cat:hover .skills__item::before {
-    opacity: 1;
+  .skills__cat:hover .skills__item-level {
+    color: var(--accent);
+  }
+
+  @media (max-width: 768px) {
+    .skills__grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

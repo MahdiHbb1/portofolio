@@ -1,0 +1,272 @@
+---
+import { t } from '../../data/content';
+
+const achievements = [
+  {
+    id: 'pkmkc',
+    title: 'PKM-KC 2025',
+    category: 'Research Grant',
+    date: 'January 2025',
+    org: 'Kemdikbud',
+    desc: 'Pendanaan nasional untuk sistem monitoring berbasis ML SIGAP MBG',
+    tags: ['PKM-KC', 'Machine Learning', 'IoT', 'Social Impact'],
+    gradient: 'from-amber-900/20 to-orange-900/20',
+    featured: true,
+  },
+  {
+    id: 'ctf',
+    title: 'CTF itsecdevx26',
+    category: 'Cybersecurity Competition',
+    date: 'November 2024',
+    org: 'itsecdevx26',
+    desc: 'Kompetisi CTF - web exploitation & forensics',
+    tags: ['CTF', 'Web Security', 'Forensics'],
+    gradient: 'from-orange-900/20 to-red-900/20',
+    featured: false,
+  },
+  {
+    id: 'fabricCnn',
+    title: 'Fabric CNN Research',
+    category: 'Academic Publication',
+    date: 'In Progress',
+    org: '[Conference/Journal Name]',
+    desc: 'Deteksi cacat tekstil berbasis CNN - publikasi dalam proses',
+    tags: ['Computer Vision', 'CNN', 'Research'],
+    gradient: 'from-blue-900/20 to-stone-900/20',
+    pending: true,
+    featured: false,
+  },
+  {
+    id: 'aiHackathon',
+    title: 'AI Hackathon',
+    category: 'Competition',
+    date: '2024',
+    org: '[Event Name]',
+    desc: 'BuktiTagih AI - verifikasi invoice OCR dalam 48 jam',
+    tags: ['AI', 'Hackathon', 'MVP'],
+    gradient: 'from-purple-900/20 to-stone-900/20',
+    pending: true,
+    featured: false,
+  },
+];
+---
+
+<section class="section achievements" id="achievements">
+  <div class="container">
+
+    <header class="achievements__header reveal">
+      <p class="label" data-i18n="achievements.label">Pencapaian</p>
+      <h2 data-i18n="achievements.heading">Achievements</h2>
+    </header>
+
+    <div class="achievements__grid">
+      {achievements.map((ach, i) => (
+        <div 
+          class={`achievement-card reveal ${ach.featured ? 'achievement-card--featured' : ''} ${ach.pending ? 'achievement-card--pending' : ''}`}
+          style={`--delay: ${i * 100}ms; --offset: ${i % 2 === 0 ? '0' : '60px'}`}
+        >
+          <div class={`achievement-card__inner ${ach.gradient}`}>
+            
+            {ach.pending && (
+              <span class="achievement-card__badge">Details pending</span>
+            )}
+
+            <div class="achievement-card__icon">
+              <img src="/icons/trophy.svg" alt="" width="32" height="32" />
+            </div>
+
+            <div class="achievement-card__content">
+              <div class="achievement-card__meta">
+                <span class="achievement-card__date label">{ach.date}</span>
+                <span class="achievement-card__org">{ach.org}</span>
+              </div>
+
+              <h3 class="achievement-card__title">{ach.title}</h3>
+              <p class="achievement-card__category">{ach.category}</p>
+              <p class="achievement-card__desc" data-i18n={`achievements.items.${ach.id}.desc`}>{ach.desc}</p>
+
+              <ul class="achievement-card__tags" aria-label="Tags">
+                {ach.tags.map(t => <li>{t}</li>)}
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      ))}
+    </div>
+
+  </div>
+</section>
+
+<style>
+  .achievements__header {
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .achievements__header h2 {
+    margin-top: 0.5rem;
+  }
+
+  .achievements__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    max-width: 56rem;
+    margin: 0 auto;
+  }
+
+  .achievement-card {
+    transform: translateX(0);
+  }
+
+  .achievement-card--featured {
+    transform: scale(1.02);
+  }
+
+  .achievement-card__inner {
+    position: relative;
+    padding: clamp(1.75rem, 4vw, 2.5rem);
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: all 280ms cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+  }
+
+  .achievement-card__inner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    padding: 1px;
+    background: linear-gradient(135deg, var(--border-accent), transparent 50%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 280ms ease;
+  }
+
+  .achievement-card:hover .achievement-card__inner {
+    background: var(--bg-subtle);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  .achievement-card:hover .achievement-card__inner::before {
+    opacity: 1;
+  }
+
+  .achievement-card--pending .achievement-card__inner {
+    opacity: 0.85;
+  }
+
+  .achievement-card__badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    padding: 0.35rem 0.65rem;
+    background: rgba(160, 120, 80, 0.15);
+    color: var(--accent);
+    border: 1px solid var(--border-accent);
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .achievement-card__icon {
+    color: var(--accent);
+    margin-bottom: 1.25rem;
+    opacity: 0.8;
+  }
+
+  .achievement-card:hover .achievement-card__icon {
+    opacity: 1;
+    filter: drop-shadow(0 0 12px rgba(160, 120, 80, 0.5));
+  }
+
+  .achievement-card__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .achievement-card__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .achievement-card__date {
+    /* label class styling */
+  }
+
+  .achievement-card__org {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--fg-faint);
+    letter-spacing: 0.03em;
+  }
+
+  .achievement-card__title {
+    font-size: clamp(1.25rem, 3vw, 1.5rem);
+    font-weight: 700;
+    color: var(--fg);
+    letter-spacing: -0.02em;
+  }
+
+  .achievement-card__category {
+    font-size: 0.8rem;
+    color: var(--accent);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .achievement-card__desc {
+    font-size: 0.9rem;
+    color: var(--fg-muted);
+    line-height: 1.6;
+  }
+
+  .achievement-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    margin-top: 0.5rem;
+  }
+
+  .achievement-card__tags li {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    padding: 0.3rem 0.6rem;
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-radius: 3px;
+    border: 1px solid rgba(160, 120, 80, 0.2);
+  }
+
+  @media (min-width: 768px) {
+    .achievement-card--featured .achievement-card__title {
+      font-size: 1.75rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .achievements__grid {
+      gap: 1.5rem;
+    }
+
+    .achievement-card {
+      transform: translateX(0) !important;
+    }
+
+    .achievement-card--featured {
+      transform: scale(1) !important;
+    }
+  }
+</style>
