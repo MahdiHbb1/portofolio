@@ -85,7 +85,7 @@ Full design specs in `DESIGN.md`
 
 ## License
 
-© 2024-2026 Mahdi Habibi. All rights reserved.
+© 2026 Mahdi Habibi. All rights reserved.
 
 ## Contact
 
