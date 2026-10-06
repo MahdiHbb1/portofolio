@@ -1,0 +1,179 @@
+---
+import Base from './Base.astro';
+
+interface Props {
+  title: string;
+  category: string;
+  year: string;
+  tags: string[];
+  description: string;
+  readingTime?: string;   // e.g. "8 min read"
+  date?: string;          // e.g. "Jan 2025"
+}
+
+const { title, category, year, tags, description, readingTime, date } = Astro.props;
+---
+
+<Base title={`${title} — Mahdi Habibi`} description={description}>
+  <div class="project-page">
+
+    <!-- Back link -->
+    <nav class="project-page__back container" aria-label="Breadcrumb">
+      <a href="/#projects" class="back-link">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        All projects
+      </a>
+    </nav>
+
+    <article class="container project-page__article">
+
+      <!-- Header -->
+      <header class="project-page__header">
+        <div class="project-page__meta">
+          <span class="label">{category}</span>
+          <span class="project-page__year">{year}</span>
+          {date && <span class="project-page__date">{date}</span>}
+          {readingTime && <span class="project-page__reading">{readingTime}</span>}
+        </div>
+        <h1 class="project-page__title">{title}</h1>
+        <ul class="project-page__tags" aria-label="Tags">
+          {tags.map(t => <li>{t}</li>)}
+        </ul>
+      </header>
+
+      <!-- Konten — diisi via slot dari tiap halaman project -->
+      <div class="project-page__body">
+        <slot />
+      </div>
+
+    </article>
+  </div>
+</Base>
+
+
+
+<style>
+  .project-page {
+    min-height: 100dvh;
+    padding-top: 5rem; /* clearance untuk navbar */
+    padding-bottom: 6rem;
+  }
+
+  .project-page__back {
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--fg-muted);
+    transition: color 160ms ease;
+  }
+
+  .back-link:hover { color: var(--accent); }
+
+  .project-page__header {
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2.5rem;
+  }
+
+  .project-page__meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .project-page__year,
+  .project-page__date,
+  .project-page__reading {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--fg-faint);
+  }
+
+  .project-page__reading::before {
+    content: '·';
+    margin-right: 0.5rem;
+    opacity: 0.4;
+  }
+
+  .project-page__date::before {
+    content: '·';
+    margin-right: 0.5rem;
+    opacity: 0.4;
+  }
+
+  .project-page__title {
+    margin-bottom: 1.25rem;
+    color: var(--fg);
+  }
+
+  .project-page__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    list-style: none;
+  }
+
+  .project-page__tags li {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    padding: 0.25rem 0.6rem;
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-radius: 2px;
+  }
+
+  /* Body konten */
+  .project-page__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 72ch;
+  }
+
+  .project-page__body p {
+    color: var(--fg-muted);
+    line-height: 1.8;
+    max-width: none;
+  }
+
+  .project-page__body h2 {
+    color: var(--fg);
+    margin-top: 1rem;
+  }
+
+  .project-page__body h3 {
+    color: var(--fg);
+  }
+
+  .project-page__body a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .project-page__body ul,
+  .project-page__body ol {
+    padding-left: 1.25rem;
+    color: var(--fg-muted);
+    line-height: 1.8;
+  }
+
+  .project-page__body code {
+    background: var(--bg-subtle);
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+    font-size: 0.85em;
+    color: var(--fg);
+  }
+</style>

@@ -1,0 +1,162 @@
+---
+// Cursor custom — hanya desktop (pointer: fine)
+// Di touch device tidak dimunculkan
+---
+
+<div class="cursor" id="cursor" aria-hidden="true">
+  <div class="cursor__dot"></div>
+  <div class="cursor__ring"></div>
+</div>
+
+<style>
+  /* Sembunyikan cursor asli - hanya saat body punya custom cursor */
+  @media (pointer: fine) {
+    body.has-custom-cursor,
+    body.has-custom-cursor * { cursor: none; }
+  }
+
+  .cursor {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 200ms ease;
+  }
+
+  @media (pointer: fine) {
+    .cursor { display: block; }
+  }
+
+  .cursor__dot {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: var(--fg);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 180ms ease, height 180ms ease, background 180ms ease;
+  }
+
+  .cursor__ring {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    border: 1.5px solid rgba(232, 224, 212, 0.35);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 220ms cubic-bezier(0.22, 1, 0.36, 1),
+                height 220ms cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 220ms ease;
+  }
+
+  .cursor.is-hovering .cursor__dot {
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+  }
+
+  .cursor.is-hovering .cursor__ring {
+    width: 48px;
+    height: 48px;
+    border-color: rgba(160, 120, 80, 0.5);
+  }
+
+  .cursor.is-clicking .cursor__dot {
+    width: 4px;
+    height: 4px;
+  }
+
+  .cursor.is-clicking .cursor__ring {
+    width: 24px;
+    height: 24px;
+  }
+</style>
+
+<script>
+  function initCursor() {
+    if (!window.matchMedia('(pointer: fine)').matches) {
+      document.body.classList.remove('has-custom-cursor');
+      return;
+    }
+
+    const cursor = document.getElementById('cursor');
+    if (!cursor) {
+      document.body.classList.remove('has-custom-cursor');
+      return;
+    }
+
+    document.body.classList.add('has-custom-cursor');
+
+    const ring = cursor.querySelector('.cursor__ring') as HTMLElement;
+    
+    let mouseX = 0, mouseY = 0;
+    let ringX = 0, ringY = 0;
+    let rafId: number;
+
+    function loop() {
+      ringX += (mouseX - ringX) * 0.12;
+      ringY += (mouseY - ringY) * 0.12;
+
+      cursor.style.transform = `translate(${mouseX}px, ${mouseY}px)`;
+      if (ring) {
+        ring.style.transform = `translate(calc(${ringX - mouseX}px - 50%), calc(${ringY - mouseY}px - 50%))`;
+      }
+
+      rafId = requestAnimationFrame(loop);
+    }
+    loop();
+
+    const mousemoveHandler = (e: MouseEvent) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      if (cursor.style.opacity !== '1') {
+        cursor.style.opacity = '1';
+      }
+    };
+
+    const sel = 'a, button, [role="button"], canvas, input, select, textarea, label[for]';
+    
+    const mouseoverHandler = (e: Event) => {
+      if ((e.target as Element)?.closest(sel)) {
+        cursor.classList.add('is-hovering');
+      }
+    };
+
+    const mouseoutHandler = (e: Event) => {
+      if ((e.target as Element)?.closest(sel)) {
+        cursor.classList.remove('is-hovering');
+      }
+    };
+
+    const mousedownHandler = () => cursor.classList.add('is-clicking');
+    const mouseupHandler = () => cursor.classList.remove('is-clicking');
+    const mouseleaveHandler = () => cursor.style.opacity = '0';
+    const mouseenterHandler = () => cursor.style.opacity = '1';
+
+    document.addEventListener('mousemove', mousemoveHandler);
+    document.addEventListener('mouseover', mouseoverHandler);
+    document.addEventListener('mouseout', mouseoutHandler);
+    document.addEventListener('mousedown', mousedownHandler);
+    document.addEventListener('mouseup', mouseupHandler);
+    document.addEventListener('mouseleave', mouseleaveHandler);
+    document.addEventListener('mouseenter', mouseenterHandler);
+
+    document.addEventListener('astro:before-swap', () => {
+      cancelAnimationFrame(rafId);
+      document.body.classList.remove('has-custom-cursor');
+      document.removeEventListener('mousemove', mousemoveHandler);
+      document.removeEventListener('mouseover', mouseoverHandler);
+      document.removeEventListener('mouseout', mouseoutHandler);
+      document.removeEventListener('mousedown', mousedownHandler);
+      document.removeEventListener('mouseup', mouseupHandler);
+      document.removeEventListener('mouseleave', mouseleaveHandler);
+      document.removeEventListener('mouseenter', mouseenterHandler);
+    }, { once: true });
+  }
+
+  initCursor();
+  document.addEventListener('astro:page-load', initCursor);
+</script>

@@ -1,0 +1,195 @@
+---
+const projects = [
+  {
+    id: 'fraudlens',
+    name: 'FraudLens',
+    category: 'Fraud Detection',
+    tags: ['security', 'ML'],
+    desc: 'Placeholder — tambahkan deskripsi project.',
+    year: '2024',
+  },
+  {
+    id: 'fabric-cnn',
+    name: 'Fabric Defect CNN',
+    category: 'Computer Vision',
+    tags: ['deep learning', 'skripsi'],
+    desc: 'Placeholder — tambahkan deskripsi project.',
+    year: '2024',
+  },
+  {
+    id: 'legalin',
+    name: 'LegalIn',
+    category: 'AI Legal Assistant',
+    tags: ['AI', 'web'],
+    desc: 'Placeholder — tambahkan deskripsi project.',
+    year: '2024',
+  },
+  {
+    id: 'buktitagih',
+    name: 'BuktiTagih AI',
+    category: 'Hackathon',
+    tags: ['AI', 'hackathon'],
+    desc: 'Placeholder — tambahkan deskripsi project.',
+    year: '2024',
+  },
+  {
+    id: 'sigap-mbg',
+    name: 'SIGAP MBG',
+    category: 'Hardware + Software',
+    tags: ['PKM-KC', 'ML', 'IoT'],
+    desc: 'Sistem monitoring berbasis ML dan web untuk program Makan Bergizi Gratis. Lolos pendanaan PKM-KC.',
+    year: '2025',
+  },
+  {
+    id: 'ctf-itsecdevx26',
+    name: 'CTF itsecdevx26',
+    category: 'Security Challenge',
+    tags: ['CTF', 'security'],
+    desc: 'Placeholder — tambahkan deskripsi challenge.',
+    year: '2024',
+  },
+  {
+    id: 'ctf-writeups',
+    name: 'CTF Writeups',
+    category: 'Writeups',
+    tags: ['CTF', 'writeups'],
+    desc: 'Kumpulan writeup dari berbagai kompetisi CTF.',
+    year: '2024–2025',
+  },
+];
+---
+
+<section class="section projects" id="projects">
+  <div class="container">
+
+    <header class="projects__header reveal">
+      <p class="label">Work</p>
+      <h2>Projects</h2>
+    </header>
+
+    <ul class="projects__grid reveal" style="--delay: 120ms" role="list">
+      {projects.map((p) => (
+        <li class="project-card">
+          <a href={`/projects/${p.id}`} class="project-card__link">
+            <div class="project-card__top">
+              <span class="project-card__year label">{p.year}</span>
+              <span class="project-card__cat">{p.category}</span>
+            </div>
+
+            <h3 class="project-card__name">{p.name}</h3>
+            <p class="project-card__desc">{p.desc}</p>
+
+            <ul class="project-card__tags" aria-label="Tags">
+              {p.tags.map(t => <li>{t}</li>)}
+            </ul>
+
+            <span class="project-card__arrow" aria-hidden="true">→</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+  </div>
+</section>
+
+<style>
+  .projects__header {
+    margin-bottom: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .projects__header h2 {
+    margin-top: 0.5rem;
+  }
+
+  .projects__grid {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+    gap: 1px; /* gap via border — tidak ada gutter kosong */
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .project-card {
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .project-card__link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+    height: 100%;
+    background: var(--bg-raised);
+    transition: background 180ms ease;
+    position: relative;
+  }
+
+  .project-card__link:hover {
+    background: var(--bg-subtle);
+  }
+
+  .project-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .project-card__year {
+    /* label class sudah handle font/size/color */
+  }
+
+  .project-card__cat {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--fg-faint);
+    letter-spacing: 0.06em;
+  }
+
+  .project-card__name {
+    font-size: 1.1rem;
+    color: var(--fg);
+    font-weight: 600;
+  }
+
+  .project-card__desc {
+    font-size: 0.875rem;
+    color: var(--fg-muted);
+    line-height: 1.6;
+    flex: 1;
+    max-width: none;
+  }
+
+  .project-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    list-style: none;
+    margin-top: auto;
+  }
+
+  .project-card__tags li {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    padding: 0.2rem 0.5rem;
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-radius: 2px;
+  }
+
+  .project-card__arrow {
+    position: absolute;
+    bottom: clamp(1.25rem, 3vw, 1.75rem);
+    right: clamp(1.25rem, 3vw, 1.75rem);
+    font-size: 1rem;
+    color: var(--fg-faint);
+    transition: color 180ms ease, transform 180ms ease;
+  }
+
+  .project-card__link:hover .project-card__arrow {
+    color: var(--accent);
+    transform: translateX(3px);
+  }
+</style>

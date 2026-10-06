@@ -1,0 +1,102 @@
+---
+---
+
+<section class="section about" id="about">
+  <div class="container about__inner reveal">
+
+    <header class="about__header">
+      <p class="label">About</p>
+      <h2 class="about__heading">Who I am</h2>
+    </header>
+
+    <div class="about__body">
+      <p class="about__bio">
+        Mahasiswa Informatika di Universitas Negeri Semarang. Saat ini menjabat
+        sebagai Kepala Divisi IT Security di CODELINES UKM RIPTEK UNNES dan
+        aktif berkompetisi di Capture The Flag.
+      </p>
+      <p class="about__bio">
+        Paralel dengan itu, mengerjakan bagian ML dan web development untuk
+        <strong> SIGAP MBG</strong>, proyek PKM-KC yang sudah lolos pendanaan.
+        Tertarik di persimpangan antara keamanan sistem, machine learning, dan
+        produk yang bisa dipakai orang beneran.
+      </p>
+
+      <ul class="about__tags" aria-label="Focus areas">
+        <li>IT Security</li>
+        <li>Machine Learning</li>
+        <li>CTF</li>
+        <li>Web Development</li>
+        <li>PKM-KC</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<style>
+  .about__inner {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: start;
+  }
+
+  .about__header {
+    position: sticky;
+    top: 2rem;
+  }
+
+  .about__heading {
+    margin-top: 0.5rem;
+    color: var(--fg);
+  }
+
+  .about__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+
+  .about__bio {
+    color: var(--fg-muted);
+    font-size: 1.05rem;
+    line-height: 1.75;
+    max-width: none; /* kolom 2fr sudah membatasi lebar — max-width tidak perlu */
+  }
+
+  .about__bio strong {
+    color: var(--fg);
+    font-weight: 600;
+  }
+
+  .about__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    margin-top: 0.5rem;
+  }
+
+  .about__tags li {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    padding: 0.3rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--accent);
+  }
+
+  /* Tablet ke bawah: header tidak sticky, satu kolom */
+  @media (max-width: 680px) {
+    .about__inner {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .about__header {
+      position: static;
+    }
+  }
+</style>

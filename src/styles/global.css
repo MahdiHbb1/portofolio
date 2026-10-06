@@ -1,0 +1,164 @@
+/* ── Fonts ─────────────────────────────────────────────────────── */
+@import '@fontsource-variable/space-grotesk/wght.css';
+@import '@fontsource/jetbrains-mono/latin-400.css';
+@import '@fontsource/jetbrains-mono/latin-700.css';
+
+/* ── Tokens ────────────────────────────────────────────────────── */
+:root {
+  /* Palet 4: near-black / warm off-white / copper */
+  --bg:          #0f0e0d;
+  --bg-raised:   #161412;
+  --bg-subtle:   #1c1a17;
+  --border:      rgba(232, 224, 212, 0.10);
+  --border-accent: rgba(160, 120, 80, 0.35);
+
+  --fg:          #e8e0d4;
+  --fg-muted:    rgba(232, 224, 212, 0.50);
+  --fg-faint:    rgba(232, 224, 212, 0.25);
+
+  --accent:      #a07850;
+  --accent-dim:  rgba(160, 120, 80, 0.15);
+
+  /* Typography */
+  --font-sans:  'Space Grotesk Variable', system-ui, sans-serif;
+  --font-mono:  'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Spacing scale (8px base) */
+  --s-1:  0.5rem;   /*  8px */
+  --s-2:  1rem;     /* 16px */
+  --s-3:  1.5rem;   /* 24px */
+  --s-4:  2rem;     /* 32px */
+  --s-6:  3rem;     /* 48px */
+  --s-8:  4rem;     /* 64px */
+  --s-12: 6rem;     /* 96px */
+
+  /* Layout */
+  --content-max: 72rem;
+  --section-pad: clamp(4rem, 10vw, 7rem);
+}
+
+/* ── Reset ─────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── Typography ────────────────────────────────────────────────── */
+h1, h2, h3, h4 {
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+h1 { font-size: clamp(2.25rem, 5vw, 3.75rem); }
+h2 { font-size: clamp(1.5rem,  3vw, 2.25rem); }
+h3 { font-size: clamp(1.1rem,  2vw, 1.375rem); }
+
+p { max-width: 68ch; }
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+code, pre {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+}
+
+/* ── Utilities ─────────────────────────────────────────────────── */
+.container {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 5vw, 3rem);
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.section {
+  padding-block: var(--section-pad);
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--bg-subtle); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ── Selection ─────────────────────────────────────────────────── */
+::selection {
+  background: var(--accent-dim);
+  color: var(--fg);
+}
+
+/* ── Focus visible global ──────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ── View transitions ──────────────────────────────────────── */
+::view-transition-old(root) {
+  animation: vt-fade-out 180ms ease forwards;
+}
+::view-transition-new(root) {
+  animation: vt-fade-in 220ms ease forwards;
+}
+
+@keyframes vt-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+@keyframes vt-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+/* ── Scroll reveal ─────────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger antar child — anak dengan --delay di-set inline */
+.reveal[style*='--delay'] {
+  transition-delay: var(--delay, 0ms);
+}

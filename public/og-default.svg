@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#0f0e0d"/>
+  <rect x="1" y="1" width="1198" height="628" fill="none" stroke="#a07850" stroke-width="2"/>
+  <text x="80" y="260" font-family="monospace" font-size="24" fill="#a07850" letter-spacing="4">MAHDI HABIBI</text>
+  <text x="80" y="360" font-family="monospace" font-size="72" font-weight="bold" fill="#e8e0d4">Security &amp;</text>
+  <text x="80" y="450" font-family="monospace" font-size="72" font-weight="bold" fill="#e8e0d4">ML Engineer</text>
+  <text x="80" y="540" font-family="monospace" font-size="20" fill="rgba(232,224,212,0.4)">Informatika UNNES · CTF · PKM-KC</text>
+</svg>

@@ -1,0 +1,148 @@
+---
+const links = [
+  { label: 'About',    href: '/#about' },
+  { label: 'Skills',   href: '/#skills' },
+  { label: 'Projects', href: '/#projects' },
+  { label: 'Writeups', href: '/#writeups' },
+  { label: 'Contact',  href: '/#contact' },
+];
+---
+
+<header class="navbar" id="navbar" aria-label="Site navigation">
+  <div class="navbar__inner container">
+    <a href="#hero" class="navbar__logo" aria-label="Back to top">
+      MH<span class="navbar__dot">.</span>
+    </a>
+
+    <nav aria-label="Primary">
+      <ul class="navbar__links" role="list">
+        {links.map(l => (
+          <li>
+            <a href={l.href} class="navbar__link">{l.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+
+    /* Mulai transparan, muncul setelah scroll melewati hero */
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition: background 300ms ease, border-color 300ms ease,
+                opacity 300ms ease, transform 300ms ease;
+
+    /* Sembunyikan di atas saat halaman baru load */
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+
+  /* State: navbar visible — ditambahkan via JS */
+  .navbar.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+    background: rgba(15, 14, 13, 0.85);
+    border-bottom-color: var(--border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .navbar__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 3.25rem;
+  }
+
+  .navbar__logo {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--fg);
+    letter-spacing: 0.04em;
+    transition: color 180ms ease;
+  }
+
+  .navbar__logo:hover { color: var(--accent); }
+
+  .navbar__dot {
+    color: var(--accent);
+  }
+
+  .navbar__links {
+    display: flex;
+    align-items: center;
+    gap: clamp(1.25rem, 3vw, 2rem);
+    list-style: none;
+  }
+
+  .navbar__link {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: var(--fg-muted);
+    transition: color 180ms ease;
+    padding-block: 0.25rem; /* touch area sedikit lebih besar */
+  }
+
+  .navbar__link:hover { color: var(--fg); }
+
+  /* Active section highlight — ditambahkan via JS */
+  .navbar__link.is-active { color: var(--accent); }
+</style>
+
+<script type="module">
+  (function () {
+    const navbar   = document.getElementById('navbar');
+    const hero     = document.getElementById('hero');
+    const links    = document.querySelectorAll('.navbar__link');
+    const sections = document.querySelectorAll('section[id]');
+
+    // Kalau tidak ada hero (halaman project, dll) — navbar langsung visible
+    if (!hero) {
+      navbar.classList.add('is-visible');
+      return;
+    }
+
+    if (!navbar) return;
+
+    // ── Tampilkan navbar setelah hero terlewati ──────────────────
+    // threshold: 0 — navbar muncul begitu pixel pertama hero hilang dari viewport
+    const heroObserver = new IntersectionObserver(
+      ([entry]) => {
+        navbar.classList.toggle('is-visible', !entry.isIntersecting);
+      },
+      { threshold: 0 },
+    );
+    heroObserver.observe(hero);
+
+    // ── Active link berdasarkan section yang sedang di viewport ──
+    // rootMargin: trigger saat section masuk 20% dari atas viewport
+    if (sections.length > 0) {
+      const sectionObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            const id = entry.target.id;
+            links.forEach(l => {
+              l.classList.toggle(
+                'is-active',
+                l.getAttribute('href') === `/#${id}`,
+              );
+            });
+          });
+        },
+        { rootMargin: '-15% 0px -70% 0px' },
+      );
+      sections.forEach(s => sectionObserver.observe(s));
+    }
+  })();
+</script>

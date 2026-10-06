@@ -1,0 +1,134 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="404 — Not Found" description="Page not found">
+  <div class="not-found">
+    <div class="not-found__terminal">
+      <div class="not-found__bar">
+        <span class="not-found__dot"></span>
+        <span class="not-found__dot"></span>
+        <span class="not-found__dot"></span>
+        <span class="not-found__title">bash</span>
+      </div>
+      <div class="not-found__body">
+        <p><span class="not-found__prompt">~$</span> curl {Astro.url.pathname}</p>
+        <p class="not-found__error">curl: (404) The requested URL was not found.</p>
+        <p class="not-found__hint"><span class="not-found__prompt">~$</span> <span class="not-found__blink">▋</span></p>
+      </div>
+    </div>
+
+    <h1 class="not-found__code">404</h1>
+    <p class="not-found__msg">Page not found.</p>
+    <a href="/" class="not-found__back">← Back to home</a>
+  </div>
+</Base>
+
+<style>
+  .not-found {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .not-found__terminal {
+    width: min(480px, 100%);
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: left;
+  }
+
+  .not-found__bar {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.6rem 0.875rem;
+    background: var(--bg-subtle);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .not-found__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(232, 224, 212, 0.15);
+  }
+
+  .not-found__title {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--fg-faint);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .not-found__body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--fg-muted);
+  }
+
+  .not-found__prompt {
+    color: var(--accent);
+    margin-right: 0.5rem;
+  }
+
+  .not-found__error {
+    color: rgba(220, 100, 80, 0.85);
+  }
+
+  .not-found__blink {
+    animation: blink 1s step-end infinite;
+    color: var(--fg);
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .not-found__blink { animation: none; }
+  }
+
+  .not-found__code {
+    font-size: clamp(4rem, 15vw, 8rem);
+    font-weight: 700;
+    color: var(--fg-faint);
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  .not-found__msg {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+    max-width: none;
+  }
+
+  .not-found__back {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--accent);
+    border: 1px solid var(--border-accent);
+    padding: 0.6rem 1.25rem;
+    border-radius: 4px;
+    transition: background 160ms ease;
+  }
+
+  .not-found__back:hover {
+    background: var(--accent-dim);
+  }
+</style>

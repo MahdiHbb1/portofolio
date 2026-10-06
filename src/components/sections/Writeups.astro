@@ -1,0 +1,226 @@
+---
+const writeups = [
+  {
+    title: 'CTF itsecdevx26',
+    event: 'itsecdevx26',
+    year: '2024',
+    tags: ['web', 'forensics'],
+    excerpt: 'Placeholder — tambahkan writeup detail.',
+    href: '/projects/ctf-itsecdevx26',
+  },
+  {
+    title: 'Writeup #2',
+    event: 'CTF Event',
+    year: '2024',
+    tags: ['pwn', 'reverse'],
+    excerpt: 'Placeholder — tambahkan writeup detail.',
+    href: '/projects/ctf-writeups',
+  },
+  {
+    title: 'Writeup #3',
+    event: 'CTF Event',
+    year: '2025',
+    tags: ['crypto', 'web'],
+    excerpt: 'Placeholder — tambahkan writeup detail.',
+    href: '/projects/ctf-writeups',
+  },
+];
+---
+
+<section class="section writeups" id="writeups">
+  <div class="container">
+
+    <header class="writeups__header reveal">
+      <p class="label">Security</p>
+      <h2>CTF Writeups</h2>
+    </header>
+
+    <ul class="writeups__list reveal" style="--delay: 100ms" role="list">
+      {writeups.map((w) => (
+        <li>
+          <a href={w.href} class="writeup-item">
+            <div class="writeup-item__left">
+              <span class="writeup-item__year label">{w.year}</span>
+              <div>
+                <h3 class="writeup-item__title">{w.title}</h3>
+                <p class="writeup-item__event">{w.event}</p>
+              </div>
+            </div>
+
+            <div class="writeup-item__right">
+              <p class="writeup-item__excerpt">{w.excerpt}</p>
+              <ul class="writeup-item__tags" aria-label="Tags">
+                {w.tags.map(t => <li>{t}</li>)}
+              </ul>
+            </div>
+
+            <span class="writeup-item__arrow" aria-hidden="true">→</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <div class="writeups__footer reveal" style="--delay: 180ms">
+      <a href="/projects/ctf-writeups" class="writeups__all">
+        View all writeups
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<style>
+  .writeups__header {
+    margin-bottom: clamp(2rem, 5vw, 3rem);
+  }
+
+  .writeups__header h2 {
+    margin-top: 0.5rem;
+  }
+
+  .writeups__list {
+    list-style: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .writeup-item {
+    display: grid;
+    grid-template-columns: 1fr 2fr auto;
+    align-items: center;
+    gap: 2rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--border);
+    transition: background 160ms ease;
+    position: relative;
+  }
+
+  .writeup-item:hover {
+    /* Subtle background wash pada hover */
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(160, 120, 80, 0.04) 20%,
+      transparent
+    );
+  }
+
+  .writeup-item__left {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+  }
+
+  .writeup-item__year {
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+    opacity: 0.7;
+  }
+
+  .writeup-item__title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--fg);
+    margin-bottom: 0.2rem;
+  }
+
+  .writeup-item__event {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--fg-faint);
+    max-width: none;
+  }
+
+  .writeup-item__right {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .writeup-item__excerpt {
+    font-size: 0.875rem;
+    color: var(--fg-muted);
+    line-height: 1.6;
+    max-width: none;
+  }
+
+  .writeup-item__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    list-style: none;
+  }
+
+  .writeup-item__tags li {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    padding: 0.15rem 0.45rem;
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-radius: 2px;
+  }
+
+  .writeup-item__arrow {
+    font-size: 1rem;
+    color: var(--fg-faint);
+    transition: color 160ms ease, transform 160ms ease;
+    flex-shrink: 0;
+  }
+
+  .writeup-item:hover .writeup-item__arrow {
+    color: var(--accent);
+    transform: translateX(4px);
+  }
+
+  .writeups__footer {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .writeups__all {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--fg-muted);
+    border: 1px solid var(--border);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+  }
+
+  .writeups__all:hover {
+    color: var(--fg);
+    border-color: var(--border-accent);
+    background: var(--accent-dim);
+  }
+
+  /* Tablet ke bawah: layout 2-kolom collapse ke 1 kolom */
+  @media (max-width: 680px) {
+    .writeup-item {
+      grid-template-columns: 1fr auto;
+      grid-template-rows: auto auto;
+      gap: 0.75rem 1rem;
+    }
+
+    .writeup-item__right {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* Mobile */
+  @media (max-width: 480px) {
+    .writeup-item {
+      grid-template-columns: 1fr;
+    }
+
+    .writeup-item__arrow {
+      display: none;
+    }
+  }
+</style>

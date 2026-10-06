@@ -1,0 +1,177 @@
+---
+import OrbitGallery from '../OrbitGallery.astro';
+---
+
+<section class="hero" id="hero" aria-label="Hero">
+  <!-- OrbitGallery mengisi seluruh tinggi hero -->
+  <OrbitGallery />
+
+  <!-- Overlay teks di atas canvas -->
+  <div class="hero__overlay">
+    <div class="hero__text">
+      <p class="label hero__eyebrow">Mahdi Habibi</p>
+      <h1 class="hero__title" aria-label="Security & ML Engineer">
+        <span class="decrypt" data-text="Security &amp;">Security &amp;</span><br />
+        <span class="decrypt" data-text="ML Engineer" style="--delay: 120ms">ML Engineer</span>
+      </h1>
+      <p class="hero__sub">
+        Informatika UNNES · CTF · PKM-KC
+      </p>
+    </div>
+
+    <a href="#about" class="hero__scroll" aria-label="Scroll to about">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="M10 4v12M4 10l6 6 6-6" stroke="currentColor" stroke-width="1.5"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    width: 100%;
+    height: 100dvh;
+  }
+
+  /* Overlay: teks di pojok kiri bawah, tidak menghalangi 3D scene */
+  .hero__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: clamp(1.5rem, 4vw, 3rem);
+    pointer-events: none; /* klik/drag tetap ke canvas di belakang */
+  }
+
+  .hero__text {
+    pointer-events: auto;
+    max-width: 28rem;
+  }
+
+  .hero__eyebrow {
+    margin-bottom: 0.5rem;
+    opacity: 0.7;
+  }
+
+  .hero__title {
+    color: var(--fg);
+    margin-bottom: 0.75rem;
+  }
+
+  .hero__sub {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--fg-muted);
+    letter-spacing: 0.04em;
+  }
+
+  /* Scroll cue — kanan bawah, berdampingan dengan reset button OrbitGallery */
+  /* Reset button ada di right:1.5rem, width 44px → scroll arrow di sebelah kirinya */
+  .hero__scroll {
+    position: absolute;
+    bottom: clamp(1.5rem, 4vw, 2rem);
+    right: calc(1.5rem + 44px + 0.5rem);
+    pointer-events: auto;
+    color: var(--fg-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    transition: color 200ms ease, border-color 200ms ease;
+    animation: bob 2.4s ease-in-out infinite;
+  }
+
+  .hero__scroll:hover {
+    color: var(--fg);
+    border-color: var(--border-accent);
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(5px); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__scroll { animation: none; }
+  }
+
+  /* Decrypt spans — invisible sebelum JS jalan */
+  .decrypt {
+    display: inline-block;
+  }
+
+  /* Di mobile */
+  @media (max-width: 538px) {
+    .hero__text {
+      /* Geser teks ke atas supaya tidak nabrak list */
+      position: absolute;
+      top: clamp(1.5rem, 6vw, 2.5rem);
+      left: clamp(1.25rem, 5vw, 2rem);
+      bottom: auto;
+    }
+
+    .hero__scroll { display: none; }
+  }
+</style>
+
+<script type="module">
+  (function () {
+    const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&';
+    const FRAME_MS = 36;
+    const RESOLVE_PER_FRAME = 1; // berapa karakter resolve tiap frame
+
+    const prefersReduced = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+
+    document.querySelectorAll('.decrypt').forEach((el) => {
+      const target = el.dataset.text || el.textContent || '';
+      const delay  = parseInt(
+        getComputedStyle(el).getPropertyValue('--delay') || '0'
+      ) || 0;
+
+      if (prefersReduced) {
+        el.textContent = target;
+        return;
+      }
+
+      let resolved = 0;
+      let frame    = 0;
+      // Scramble beberapa frame dulu sebelum mulai resolve
+      // SCRAMBLE_LEAD: frame murni acak sebelum karakter pertama dikunci
+      const SCRAMBLE_LEAD   = 18;
+      // Resolve 1 karakter tiap N frame — lebih besar = lebih lambat
+      const RESOLVE_EVERY   = 4;
+
+      function scramble() {
+        let display = '';
+        for (let i = 0; i < target.length; i++) {
+          if (target[i] === ' ') { display += ' '; continue; }
+          if (i < resolved) {
+            display += target[i];
+          } else {
+            display += CHARS[Math.floor(Math.random() * CHARS.length)];
+          }
+        }
+        el.textContent = display;
+        frame++;
+        if (frame > SCRAMBLE_LEAD && frame % RESOLVE_EVERY === 0) {
+          resolved++;
+        }
+        if (resolved <= target.length) {
+          requestAnimationFrame(scramble);
+        } else {
+          el.textContent = target;
+        }
+      }
+
+      setTimeout(() => requestAnimationFrame(scramble), delay);
+    });
+  })();
+</script>
