@@ -1,4 +1,4 @@
-# Mahdi Habibi — Portfolio
+# Mahdi Habibi Portfolio
 
 Personal portfolio website showcasing cybersecurity, machine learning, and software engineering projects.
 
