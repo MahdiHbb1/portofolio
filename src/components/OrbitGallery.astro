@@ -1,58 +1,33 @@
 ---
 // OrbitGallery — scene 3D orbit gallery
-// State 1 (<=538px) : list vertikal sederhana (fallback fungsional)
-// State 2 (539–959px): Three.js full, kamera z=10
-// State 3 (>=960px) : Three.js full, kamera z=7
-// Breakpoint State 2→3 belum diverifikasi empiris — tandai dengan TODO
+// State 1 (<=640px) : list vertikal sederhana (fallback fungsional)
+// State 2 (641–900px): Three.js full, kamera z=10
+// State 3 (>900px)   : Three.js full, kamera z=7
 import PanelDetailModal from './PanelDetailModal.astro';
 ---
 
 <div class="orbit-root" aria-label="Interactive 3D project gallery">
 
   <!-- State 1: list fallback mobile -->
-  <nav class="mobile-list" aria-label="Project list">
-    <p class="mobile-list__label">Projects</p>
+  <nav class="mobile-list" aria-label="Featured projects">
+    <p class="mobile-list__label">Featured Projects</p>
     <ul>
       <li>
-        <a href="#" class="mobile-list__item">
-          <span class="mobile-list__name">FraudLens</span>
-          <span class="mobile-list__cat">fraud detection</span>
-        </a>
-      </li>
-      <li>
-        <a href="#" class="mobile-list__item">
-          <span class="mobile-list__name">Fabric Defect CNN</span>
-          <span class="mobile-list__cat">computer vision</span>
-        </a>
-      </li>
-      <li>
-        <a href="#" class="mobile-list__item">
-          <span class="mobile-list__name">LegalIn</span>
-          <span class="mobile-list__cat">AI legal assistant</span>
-        </a>
-      </li>
-      <li>
-        <a href="#" class="mobile-list__item">
-          <span class="mobile-list__name">BuktiTagih AI</span>
-          <span class="mobile-list__cat">hackathon</span>
-        </a>
-      </li>
-      <li>
-        <a href="#" class="mobile-list__item">
+        <a href="/projects/sigap-mbg" class="mobile-list__item">
           <span class="mobile-list__name">SIGAP MBG</span>
           <span class="mobile-list__cat">hardware + software</span>
         </a>
       </li>
       <li>
-        <a href="#" class="mobile-list__item">
-          <span class="mobile-list__name">CTF itsecdevx26</span>
-          <span class="mobile-list__cat">security</span>
+        <a href="/projects/fraudlens" class="mobile-list__item">
+          <span class="mobile-list__name">FraudLens</span>
+          <span class="mobile-list__cat">fraud detection</span>
         </a>
       </li>
       <li>
-        <a href="#" class="mobile-list__item">
-          <span class="mobile-list__name">CTF Writeups</span>
-          <span class="mobile-list__cat">writeups</span>
+        <a href="/projects/fabric-cnn" class="mobile-list__item">
+          <span class="mobile-list__name">Fabric Defect CNN</span>
+          <span class="mobile-list__cat">computer vision</span>
         </a>
       </li>
     </ul>
@@ -85,23 +60,22 @@ import PanelDetailModal from './PanelDetailModal.astro';
     overflow: hidden;
   }
 
-  /* ─── State 1: list fallback (<=538px) ─────────────────────── */
+  /* ─── State 1: hide on mobile (<=640px) ─────────────────────── */
   .mobile-list {
     display: none;
   }
 
-  @media (max-width: 538px) {
-    .mobile-list {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      height: 100%;
-      padding: 2rem 1.25rem;
-      overflow-y: auto;
+  @media (max-width: 640px) {
+    .orbit-root {
+      display: block;
+      height: 0;
+      min-height: 0;
+      overflow: hidden;
     }
 
     .orbit-canvas,
-    .orbit-reset {
+    .orbit-reset,
+    .mobile-list {
       display: none;
     }
   }
@@ -128,7 +102,8 @@ import PanelDetailModal from './PanelDetailModal.astro';
     display: flex;
     align-items: baseline;
     gap: 0.75rem;
-    padding: 0.75rem 1rem;
+    padding: 0.875rem 1rem;
+    min-height: 48px;
     border: 1px solid rgba(232, 224, 212, 0.08);
     border-radius: 4px;
     text-decoration: none;
@@ -198,11 +173,13 @@ import PanelDetailModal from './PanelDetailModal.astro';
     background: rgba(160, 120, 80, 0.12);
     border-color: rgba(160, 120, 80, 0.35);
     color: rgba(232, 224, 212, 0.9);
+    box-shadow: 0 0 16px rgba(160, 120, 80, 0.5);
   }
 
   .orbit-reset:focus-visible {
     outline: 2px solid rgba(160, 120, 80, 0.6);
     outline-offset: 2px;
+    box-shadow: 0 0 20px rgba(160, 120, 80, 0.6);
   }
 
   /* ─── Noscript ──────────────────────────────────────────────── */
@@ -225,7 +202,7 @@ import PanelDetailModal from './PanelDetailModal.astro';
   let isFirstLoad = true;
 
   async function initOrbitGallery() {
-    if (window.matchMedia('(max-width: 538px)').matches) {
+    if (window.matchMedia('(max-width: 640px)').matches) {
       isInitialized = false;
       return;
     }
@@ -242,7 +219,7 @@ import PanelDetailModal from './PanelDetailModal.astro';
     if (isInitialized) return;
 
     // Dynamic import — code-split Three.js + orbit modules (566KB)
-    // Hanya load saat viewport >538px
+    // Hanya load saat viewport >640px
     const [
       { createScene, startLoop },
       { createBlob },
@@ -265,10 +242,9 @@ import PanelDetailModal from './PanelDetailModal.astro';
       import('./orbit/shooting-stars.ts'),
     ]);
 
-    // TODO: verifikasi empiris breakpoint 959px di browser
-    // State 2: 539–959px → kamera z=10 (zoom out)
-    // State 3: >=960px   → kamera z=7
-    const isState2 = window.matchMedia('(max-width: 959px)').matches;
+    // State 2: 641–900px → kamera z=10 (zoom out)
+    // State 3: >900px    → kamera z=7
+    const isState2 = window.matchMedia('(max-width: 900px)').matches;
     const ctx = createScene(canvas, isState2 ? 10 : 7);
 
     const nebulae  = createNebulae(ctx);
@@ -281,7 +257,7 @@ import PanelDetailModal from './PanelDetailModal.astro';
     const controls = createControls(ctx, resetBtn ?? null, panels);
 
     // Adaptive zoom saat viewport di-resize melewati breakpoint State 2↔3
-    const mq = window.matchMedia('(max-width: 959px)');
+    const mq = window.matchMedia('(max-width: 900px)');
     function onBreakpointChange(e) {
       ctx.camera.position.setZ(e.matches ? 10 : 7);
       controls.tick();

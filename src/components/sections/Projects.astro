@@ -136,13 +136,31 @@ const projects = [
     grid-column: span 12;
   }
 
-  @media (max-width: 1024px) {
+  @media (max-width: 640px) {
     .project-card {
       grid-column: span 12;
     }
   }
 
-  @media (min-width: 1025px) {
+  @media (min-width: 641px) and (max-width: 900px) {
+    .project-card {
+      grid-column: span 6;
+    }
+    
+    .project-card--featured {
+      grid-column: span 12;
+    }
+  }
+
+  @media (min-width: 901px) {
+    .project-card {
+      grid-column: span 6;
+    }
+
+    .project-card--featured {
+      grid-column: span 12;
+    }
+
     .project-card:nth-child(4) {
       grid-column: span 7;
     }

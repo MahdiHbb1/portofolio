@@ -96,6 +96,13 @@
   .lang-toggle:hover {
     background: var(--bg-subtle);
     border-color: var(--border-accent);
+    box-shadow: 0 0 16px rgba(160, 120, 80, 0.5);
+  }
+
+  .lang-toggle:focus-visible {
+    outline: 2px solid rgba(160, 120, 80, 0.6);
+    outline-offset: 2px;
+    box-shadow: 0 0 20px rgba(160, 120, 80, 0.6);
   }
 
   .lang-toggle__option {
@@ -135,15 +142,14 @@
     letter-spacing: 0.08em;
     color: var(--fg-muted);
     transition: color 180ms ease;
-    padding-block: 0.25rem; /* touch area sedikit lebih besar */
+    padding: 0.625rem 0.5rem;
   }
 
   .navbar__link:hover { color: var(--fg); }
 
-  /* Active section highlight — ditambahkan via JS */
   .navbar__link.is-active { color: var(--accent); }
 
-  @media (max-width: 768px) {
+  @media (max-width: 900px) {
     nav {
       display: none;
     }
@@ -161,26 +167,23 @@
     const links    = document.querySelectorAll('.navbar__link');
     const sections = document.querySelectorAll('section[id]');
 
-    // Kalau tidak ada hero (halaman project, dll) — navbar langsung visible
-    if (!hero) {
-      navbar.classList.add('is-visible');
-      return;
-    }
-
     if (!navbar) return;
 
-    // ── Tampilkan navbar setelah hero terlewati ──────────────────
-    // threshold: 0 — navbar muncul begitu pixel pertama hero hilang dari viewport
-    const heroObserver = new IntersectionObserver(
-      ([entry]) => {
-        navbar.classList.toggle('is-visible', !entry.isIntersecting);
-      },
-      { threshold: 0 },
-    );
-    heroObserver.observe(hero);
+    // Kalau ada hero, observe untuk visibility
+    if (hero) {
+      const heroObserver = new IntersectionObserver(
+        ([entry]) => {
+          navbar.classList.toggle('is-visible', !entry.isIntersecting);
+        },
+        { threshold: 0 },
+      );
+      heroObserver.observe(hero);
+    } else {
+      // Kalau tidak ada hero, navbar langsung visible
+      navbar.classList.add('is-visible');
+    }
 
     // ── Active link berdasarkan section yang sedang di viewport ──
-    // rootMargin: trigger saat section masuk 20% dari atas viewport
     if (sections.length > 0) {
       const sectionObserver = new IntersectionObserver(
         (entries) => {

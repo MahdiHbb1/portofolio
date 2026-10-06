@@ -95,6 +95,11 @@ import { t } from '../../data/content';
   .hero__scroll:hover {
     color: var(--fg);
     border-color: var(--border-accent);
+    box-shadow: 0 0 16px rgba(160, 120, 80, 0.5);
+  }
+
+  .hero__scroll:focus-visible {
+    box-shadow: 0 0 20px rgba(160, 120, 80, 0.6);
   }
 
   @keyframes bob {
@@ -112,16 +117,31 @@ import { t } from '../../data/content';
   }
 
   /* Di mobile */
-  @media (max-width: 538px) {
+  @media (max-width: 640px) {
+    .hero {
+      height: auto;
+      min-height: 0;
+    }
+
+    .hero__overlay {
+      position: relative;
+      min-height: 0;
+      padding: clamp(3rem, 10vw, 4rem) clamp(1.25rem, 5vw, 2rem) clamp(2rem, 6vw, 3rem);
+      justify-content: flex-start;
+    }
+
     .hero__text {
-      /* Geser teks ke atas supaya tidak nabrak list */
-      position: absolute;
-      top: clamp(1.5rem, 6vw, 2.5rem);
-      left: clamp(1.25rem, 5vw, 2rem);
-      bottom: auto;
+      position: static;
+      max-width: 100%;
     }
 
     .hero__scroll { display: none; }
+  }
+
+  @media (max-width: 900px) {
+    .hero__scroll {
+      bottom: calc(1.5rem + 64px);
+    }
   }
 </style>
 

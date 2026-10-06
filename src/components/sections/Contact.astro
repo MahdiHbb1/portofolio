@@ -153,7 +153,7 @@ const links = [
     gap: 1rem;
   }
 
-  @media (max-width: 680px) {
+  @media (max-width: 900px) {
     .contact__inner {
       grid-template-columns: 1fr;
       gap: 2rem;
@@ -162,5 +162,37 @@ const links = [
     .contact__header {
       position: static;
     }
+  }
+
+  .contact__row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .contact__copy {
+    flex-shrink: 0;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--fg-faint);
+    cursor: pointer;
+    transition: all 160ms ease;
+  }
+
+  .contact__copy:hover {
+    background: var(--bg-subtle);
+    border-color: var(--border-accent);
+    color: var(--accent);
+    box-shadow: 0 0 16px rgba(160, 120, 80, 0.5);
+  }
+
+  .contact__copy:focus-visible {
+    box-shadow: 0 0 20px rgba(160, 120, 80, 0.6);
   }
 </style>

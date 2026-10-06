@@ -41,13 +41,14 @@ const categories = [
   {
     name: 'Tools & Infra',
     icon: 'wrench-terminal.svg',
+    isMarquee: true,
     items: [
-      { skill: 'Git', level: 85 },
-      { skill: 'Linux', level: 75 },
-      { skill: 'Docker', level: 65 },
-      { skill: 'VS Code', level: 70 },
-      { skill: 'Arduino', level: 60 },
-      { skill: 'Raspberry Pi', level: 60 },
+      { skill: 'Git', level: 85, icon: 'git.svg' },
+      { skill: 'Linux', level: 75, icon: 'linux.svg' },
+      { skill: 'Docker', level: 65, icon: 'docker.svg' },
+      { skill: 'VS Code', level: 70, icon: 'vscode.svg' },
+      { skill: 'Arduino', level: 60, icon: 'arduino.svg' },
+      { skill: 'Raspberry Pi', level: 60, icon: 'raspberrypi.svg' },
     ],
   },
 ];
@@ -63,25 +64,44 @@ const categories = [
 
     <div class="skills__grid">
       {categories.map((cat, i) => (
-        <div class="skills__cat reveal" style={`--delay: ${i * 80}ms`}>
-          <div class="skills__cat-header">
-            <img src={`/icons/${cat.icon}`} alt="" class="skills__cat-icon" width="40" height="40" />
-            <h3 class="skills__cat-name">{cat.name}</h3>
+        cat.isMarquee ? (
+          <div class="skills__marquee reveal" style={`--delay: ${i * 80}ms`}>
+            <div class="skills__marquee-header">
+              <img src={`/icons/${cat.icon}`} alt="" class="skills__marquee-icon" width="32" height="32" />
+              <h3 class="skills__cat-name">{cat.name}</h3>
+            </div>
+            <div class="skills__marquee-track">
+              <div class="skills__marquee-content">
+                {cat.items.concat(cat.items).map((item, idx) => (
+                  <div class="skills__marquee-item" key={idx}>
+                    <img src={`/icons/${item.icon}`} alt="" class="skills__marquee-item-icon" width="20" height="20" />
+                    <span class="skills__marquee-text">{item.skill}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-          <ul class="skills__list" role="list">
-            {cat.items.map(item => (
-              <li class="skills__item">
-                <div class="skills__item-header">
-                  <span class="skills__item-name">{item.skill}</span>
-                  <span class="skills__item-level">{item.level}%</span>
-                </div>
-                <div class="skills__progress">
-                  <div class="skills__progress-bar" style={`--progress: ${item.level}%`}></div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
+        ) : (
+          <div class="skills__cat reveal" style={`--delay: ${i * 80}ms`}>
+            <div class="skills__cat-header">
+              <img src={`/icons/${cat.icon}`} alt="" class="skills__cat-icon" width="40" height="40" />
+              <h3 class="skills__cat-name">{cat.name}</h3>
+            </div>
+            <ul class="skills__list" role="list">
+              {cat.items.map(item => (
+                <li class="skills__item">
+                  <div class="skills__item-header">
+                    <span class="skills__item-name">{item.skill}</span>
+                    <span class="skills__item-level">{item.level}%</span>
+                  </div>
+                  <div class="skills__progress">
+                    <div class="skills__progress-bar" style={`--progress: ${item.level}%`}></div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
       ))}
     </div>
 
@@ -202,9 +222,85 @@ const categories = [
     color: var(--accent);
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 640px) {
     .skills__grid {
       grid-template-columns: 1fr;
+    }
+  }
+
+  @media (min-width: 641px) and (max-width: 900px) {
+    .skills__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* ─── Marquee variant ───────────────────────────────────────── */
+  .skills__marquee {
+    grid-column: 1 / -1;
+    padding: clamp(1.5rem, 3vw, 2rem);
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .skills__marquee-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .skills__marquee-icon {
+    color: var(--accent);
+    opacity: 0.7;
+  }
+
+  .skills__marquee-track {
+    overflow: hidden;
+    position: relative;
+    mask-image: linear-gradient(90deg, transparent, #fff 10%, #fff 90%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #fff 10%, #fff 90%, transparent);
+  }
+
+  .skills__marquee-content {
+    display: flex;
+    gap: 2rem;
+    animation: marquee 25s linear infinite;
+    width: fit-content;
+  }
+
+  .skills__marquee-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    padding: 0.5rem 1rem;
+    background: rgba(160, 120, 80, 0.08);
+    border: 1px solid rgba(160, 120, 80, 0.2);
+    border-radius: 6px;
+  }
+
+  .skills__marquee-item-icon {
+    opacity: 0.6;
+    color: var(--accent);
+  }
+
+  .skills__marquee-text {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--fg-muted);
+    font-weight: 500;
+  }
+
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .skills__marquee-content {
+      animation: none;
     }
   }
 </style>

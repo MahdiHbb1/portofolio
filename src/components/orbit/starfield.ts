@@ -8,7 +8,7 @@ import type { SceneContext } from './scene';
  * Color distribution: Brown brand accent woven throughout
  */
 export function createStarfield(ctx: SceneContext) {
-  const count = 6000;
+  const count = 12000;
   const geometry = new THREE.BufferGeometry();
   const positions = new Float32Array(count * 3);
   const sizes = new Float32Array(count);

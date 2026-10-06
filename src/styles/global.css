@@ -162,3 +162,10 @@ code, pre {
 .reveal[style*='--delay'] {
   transition-delay: var(--delay, 0ms);
 }
+
+/* ── Mobile nav clearance ──────────────────────────────────────── */
+@media (max-width: 900px) {
+  body {
+    padding-bottom: 64px;
+  }
+}

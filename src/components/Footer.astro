@@ -93,8 +93,8 @@ const socials = [
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    min-width: 44px;
+    min-height: 44px;
     color: var(--fg-faint);
     border-radius: 6px;
     transition: color 160ms ease, background 160ms ease;
@@ -103,5 +103,11 @@ const socials = [
   .footer__social-link:hover {
     color: var(--fg);
     background: var(--bg-subtle);
+  }
+
+  @media (max-width: 900px) {
+    .footer {
+      padding-bottom: calc(1.75rem + 64px);
+    }
   }
 </style>

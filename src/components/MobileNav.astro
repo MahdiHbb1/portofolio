@@ -1,0 +1,115 @@
+---
+---
+
+<nav class="mobile-nav" aria-label="Mobile navigation">
+  <a href="/#about" class="mobile-nav__item">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <path d="M10 11a3 3 0 100-6 3 3 0 000 6zM4 18c0-3.314 2.686-6 6-6s6 2.686 6 6" 
+            stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <span>About</span>
+  </a>
+
+  <a href="/#projects" class="mobile-nav__item">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <rect x="3" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="11" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="3" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="11" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+    </svg>
+    <span>Projects</span>
+  </a>
+
+  <a href="/#contact" class="mobile-nav__item">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M2 7l8 5 8-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <span>Contact</span>
+  </a>
+</nav>
+
+<style>
+  .mobile-nav {
+    display: none;
+  }
+
+  @media (max-width: 900px) {
+    .mobile-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background: rgba(15, 14, 13, 0.95);
+      border-top: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 0.5rem;
+      padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+    }
+  }
+
+  .mobile-nav__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 1rem;
+    min-width: 64px;
+    min-height: 56px;
+    color: var(--fg-muted);
+    transition: color 200ms ease;
+    text-decoration: none;
+  }
+
+  .mobile-nav__item:active {
+    background: var(--accent-dim);
+    border-radius: 8px;
+  }
+
+  .mobile-nav__item.is-active {
+    color: var(--accent);
+  }
+
+  .mobile-nav__item span {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.04em;
+  }
+</style>
+
+<script type="module">
+  (function () {
+    const links = document.querySelectorAll('.mobile-nav__item');
+    const sections = document.querySelectorAll('section[id]');
+
+    if (sections.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const id = entry.target.id;
+          
+          links.forEach(l => {
+            const targetHref = `/#${id}`;
+            const linkHref = l.getAttribute('href');
+            
+            if (linkHref === targetHref) {
+              l.classList.add('is-active');
+            } else {
+              l.classList.remove('is-active');
+            }
+          });
+        });
+      },
+      { rootMargin: '-15% 0px -70% 0px' }
+    );
+
+    sections.forEach(s => observer.observe(s));
+  })();
+</script>

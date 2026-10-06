@@ -76,12 +76,12 @@ export function createShootingStars(ctx: SceneContext): ShootingStarsHandle {
       startPos,
       endPos,
       progress: 0,
-      speed: 0.12 + Math.random() * 0.1,
+      speed: 0.18 + Math.random() * 0.15,
       active: true,
     };
   }
 
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 25; i++) {
     stars.push(createStar());
   }
 
@@ -112,7 +112,7 @@ export function createShootingStars(ctx: SceneContext): ShootingStarsHandle {
           Math.sin(targetAngle) * Math.cos(targetElevation) * spawnRadius * 0.3
         );
 
-        star.speed = 0.12 + Math.random() * 0.1;
+        star.speed = 0.18 + Math.random() * 0.15;
       }
 
       star.particles.forEach((points, i) => {

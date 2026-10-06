@@ -98,6 +98,13 @@ import { t } from '../../data/content';
     50% { opacity: 0.9; }
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .about__photo-placeholder::before {
+      animation: none;
+      opacity: 0.7;
+    }
+  }
+
   .photo-hint {
     font-family: var(--font-mono);
     font-size: 0.75rem;
@@ -111,6 +118,7 @@ import { t } from '../../data/content';
     display: flex;
     flex-direction: column;
     gap: 1.75rem;
+    padding-top: 4rem;
   }
 
   .about__bio {
@@ -143,8 +151,7 @@ import { t } from '../../data/content';
     color: var(--accent);
   }
 
-  /* Tablet ke bawah: header tidak sticky, satu kolom */
-  @media (max-width: 680px) {
+  @media (max-width: 900px) {
     .about__inner {
       grid-template-columns: 1fr;
       gap: 1.5rem;
@@ -152,6 +159,19 @@ import { t } from '../../data/content';
 
     .about__header {
       position: static;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .about__photo-placeholder {
+      margin-top: 1.5rem;
+      margin-inline: auto;
+    }
+
+    .about__bio {
+      font-size: 0.95rem;
     }
   }
 </style>

@@ -8,11 +8,10 @@ export interface AsteroidsHandle {
 
 interface Asteroid {
   mesh: THREE.Mesh;
-  orbitRadius: number;
-  orbitSpeed: number;
-  orbitAngle: number;
+  velocity: THREE.Vector3;
   rotationSpeed: THREE.Vector3;
-  inclination: number;
+  radius: number;
+  collisionFlash: number;
 }
 
 export function createAsteroids(ctx: SceneContext): AsteroidsHandle {
@@ -20,9 +19,9 @@ export function createAsteroids(ctx: SceneContext): AsteroidsHandle {
   const asteroids: Asteroid[] = [];
 
   const sizes = [
-    { scale: 0.3, count: 12 },
-    { scale: 0.6, count: 10 },
-    { scale: 1.2, count: 3 },
+    { scale: 0.3, count: 20 },
+    { scale: 0.6, count: 16 },
+    { scale: 1.2, count: 6 },
   ];
 
   const materials = [
@@ -63,15 +62,26 @@ export function createAsteroids(ctx: SceneContext): AsteroidsHandle {
       geometry.attributes.position.needsUpdate = true;
       geometry.computeVertexNormals();
 
-      const material = materials[sizeIndex % materials.length];
+      const material = materials[sizeIndex % materials.length].clone();
       const mesh = new THREE.Mesh(geometry, material);
       mesh.castShadow = true;
       mesh.receiveShadow = true;
 
-      const orbitRadius = 15 + Math.random() * 25;
-      const orbitSpeed = (0.02 + Math.random() * 0.03) * (Math.random() > 0.5 ? 1 : -1);
-      const orbitAngle = Math.random() * Math.PI * 2;
-      const inclination = (Math.random() - 0.5) * (Math.PI / 6);
+      const spawnRadius = 10 + Math.random() * 30;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      
+      mesh.position.set(
+        spawnRadius * Math.sin(phi) * Math.cos(theta),
+        spawnRadius * Math.sin(phi) * Math.sin(theta),
+        spawnRadius * Math.cos(phi)
+      );
+
+      const velocity = new THREE.Vector3(
+        (Math.random() - 0.5) * 0.12,
+        (Math.random() - 0.5) * 0.12,
+        (Math.random() - 0.5) * 0.12
+      );
 
       const rotationSpeed = new THREE.Vector3(
         (Math.random() - 0.5) * 0.003,
@@ -81,11 +91,10 @@ export function createAsteroids(ctx: SceneContext): AsteroidsHandle {
 
       asteroids.push({
         mesh,
-        orbitRadius,
-        orbitSpeed,
-        orbitAngle,
+        velocity,
         rotationSpeed,
-        inclination,
+        radius: sizeConfig.scale,
+        collisionFlash: 0,
       });
 
       scene.add(mesh);
@@ -93,19 +102,86 @@ export function createAsteroids(ctx: SceneContext): AsteroidsHandle {
   });
 
   function tick(elapsed: number) {
+    const boundary = 45;
+    
     asteroids.forEach((asteroid) => {
-      asteroid.orbitAngle += asteroid.orbitSpeed * 0.01;
+      asteroid.mesh.position.add(asteroid.velocity);
 
-      const x = Math.cos(asteroid.orbitAngle) * asteroid.orbitRadius;
-      const z = Math.sin(asteroid.orbitAngle) * asteroid.orbitRadius;
-      const y = Math.sin(asteroid.orbitAngle) * asteroid.inclination * asteroid.orbitRadius * 0.3;
-
-      asteroid.mesh.position.set(x, y, z);
+      if (Math.abs(asteroid.mesh.position.x) > boundary) {
+        asteroid.mesh.position.x = -Math.sign(asteroid.mesh.position.x) * boundary;
+      }
+      if (Math.abs(asteroid.mesh.position.y) > boundary) {
+        asteroid.mesh.position.y = -Math.sign(asteroid.mesh.position.y) * boundary;
+      }
+      if (Math.abs(asteroid.mesh.position.z) > boundary) {
+        asteroid.mesh.position.z = -Math.sign(asteroid.mesh.position.z) * boundary;
+      }
 
       asteroid.mesh.rotation.x += asteroid.rotationSpeed.x;
       asteroid.mesh.rotation.y += asteroid.rotationSpeed.y;
       asteroid.mesh.rotation.z += asteroid.rotationSpeed.z;
+
+      if (asteroid.collisionFlash > 0) {
+        asteroid.collisionFlash -= 0.016;
+        const material = asteroid.mesh.material as THREE.MeshStandardMaterial;
+        const baseIntensity = material.emissive.equals(new THREE.Color(0x505050)) ? 0.2 : 
+                              material.emissive.equals(new THREE.Color(0x404040)) ? 0.15 : 0.1;
+        material.emissiveIntensity = baseIntensity + (asteroid.collisionFlash * 2);
+      }
     });
+
+    for (let i = 0; i < asteroids.length; i++) {
+      for (let j = i + 1; j < asteroids.length; j++) {
+        const a = asteroids[i];
+        const b = asteroids[j];
+        
+        const dx = b.mesh.position.x - a.mesh.position.x;
+        const dy = b.mesh.position.y - a.mesh.position.y;
+        const dz = b.mesh.position.z - a.mesh.position.z;
+        const distanceSq = dx * dx + dy * dy + dz * dz;
+        const minDist = a.radius + b.radius;
+        
+        if (distanceSq < minDist * minDist && distanceSq > 0.001) {
+          const distance = Math.sqrt(distanceSq);
+          const nx = dx / distance;
+          const ny = dy / distance;
+          const nz = dz / distance;
+          
+          const dvx = a.velocity.x - b.velocity.x;
+          const dvy = a.velocity.y - b.velocity.y;
+          const dvz = a.velocity.z - b.velocity.z;
+          
+          const velocityAlongNormal = dvx * nx + dvy * ny + dvz * nz;
+          
+          if (velocityAlongNormal > 0) {
+            const restitution = 0.8;
+            const impulse = (1 + restitution) * velocityAlongNormal;
+            
+            a.velocity.x -= impulse * nx;
+            a.velocity.y -= impulse * ny;
+            a.velocity.z -= impulse * nz;
+            
+            b.velocity.x += impulse * nx;
+            b.velocity.y += impulse * ny;
+            b.velocity.z += impulse * nz;
+            
+            const overlap = minDist - distance;
+            const separationDist = overlap * 0.55;
+            
+            a.mesh.position.x -= nx * separationDist;
+            a.mesh.position.y -= ny * separationDist;
+            a.mesh.position.z -= nz * separationDist;
+            
+            b.mesh.position.x += nx * separationDist;
+            b.mesh.position.y += ny * separationDist;
+            b.mesh.position.z += nz * separationDist;
+            
+            a.collisionFlash = 0.3;
+            b.collisionFlash = 0.3;
+          }
+        }
+      }
+    }
   }
 
   function dispose() {
