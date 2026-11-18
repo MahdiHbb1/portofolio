@@ -18,7 +18,11 @@ export const content = {
     achievements: {
       label: 'Pencapaian',
       heading: 'Achievements',
+      certificate: 'Lihat sertifikat',
       items: {
+        pkmkcSilver: {
+          desc: 'Medali perak Room KC 1 pada PKM Asosiasi MIPA LPTK Indonesia 2026 untuk SIGAP MBG.',
+        },
         pkmkc: {
           desc: 'Pendanaan nasional untuk sistem monitoring berbasis ML SIGAP MBG',
         },
@@ -89,7 +93,11 @@ export const content = {
     achievements: {
       label: 'Recognition',
       heading: 'Achievements',
+      certificate: 'View certificate',
       items: {
+        pkmkcSilver: {
+          desc: 'Silver medal in Room KC 1 at PKM Asosiasi MIPA LPTK Indonesia 2026 for SIGAP MBG.',
+        },
         pkmkc: {
           desc: 'National funding for SIGAP MBG ML-powered monitoring system',
         },

@@ -99,6 +99,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin)
       // Achievements
       document.querySelectorAll('[data-i18n="achievements.label"]').forEach(el => el.textContent = t.achievements.label);
       document.querySelectorAll('[data-i18n="achievements.heading"]').forEach(el => el.textContent = t.achievements.heading);
+      document.querySelectorAll('[data-i18n="achievements.certificate"]').forEach(el => el.textContent = t.achievements.certificate);
       
       // Achievement items
       Object.keys(t.achievements.items).forEach(key => {
