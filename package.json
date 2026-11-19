@@ -14,8 +14,8 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",
-    "@astrojs/node": "^11.1.8",
     "@astrojs/sitemap": "^3.7.4",
+    "@astrojs/vercel": "^11.0.22",
     "@fontsource-variable/space-grotesk": "^5.3.0",
     "@fontsource/jetbrains-mono": "^5.3.0",
     "astro": "^7.3.2",

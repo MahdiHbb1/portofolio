@@ -3,7 +3,7 @@ import type { APIRoute } from 'astro';
 // robots.txt dinamis: URL sitemap selalu mengikuti `site` di astro.config.mjs,
 // jadi tidak perlu diedit manual saat domain final dipasang.
 export const GET: APIRoute = ({ site }) => {
-  const base = site ?? new URL('https://mahdihabibi.example');
+  const base = site ?? new URL('https://mahdihabibi.vercel.app');
   const body = [
     'User-agent: *',
     'Allow: /',

@@ -6,7 +6,11 @@ import { projects } from '../src/data/projects.ts';
 
 const ROOT = process.cwd();
 const DIST_DIR = path.join(ROOT, 'dist');
-const CLIENT_DIR = path.join(DIST_DIR, 'client');
+const VERCEL_OUT_DIR = path.join(ROOT, '.vercel', 'output');
+const VERCEL_STATIC_DIR = path.join(VERCEL_OUT_DIR, 'static');
+const CLIENT_DIR = fs.existsSync(VERCEL_STATIC_DIR)
+  ? VERCEL_STATIC_DIR
+  : path.join(DIST_DIR, 'client');
 
 function walkFiles(dir: string): string[] {
   if (!fs.existsSync(dir)) return [];
@@ -123,12 +127,12 @@ test('all 7 project detail pages include preview screenshots showcase and Projec
   }
 });
 
-test('no OPENAI_API_KEY secret value or client exposure appears anywhere in dist/', () => {
+test('no OPENAI_API_KEY secret value or client exposure appears anywhere in dist/ or .vercel/output/', () => {
   const secrets = getConfiguredOpenAiSecrets();
-  const distFiles = walkFiles(DIST_DIR);
-  assert.ok(distFiles.length > 0, 'dist/ must contain built files');
+  const buildFiles = [...walkFiles(DIST_DIR), ...walkFiles(VERCEL_OUT_DIR)];
+  assert.ok(buildFiles.length > 0, 'build output must contain built files');
 
-  for (const file of distFiles) {
+  for (const file of buildFiles) {
     const content = fs.readFileSync(file, 'utf8');
     for (const secret of secrets) {
       assert.equal(
@@ -137,7 +141,7 @@ test('no OPENAI_API_KEY secret value or client exposure appears anywhere in dist
         `OPENAI_API_KEY secret leaked into ${path.relative(ROOT, file)}`,
       );
     }
-    if (file.startsWith(CLIENT_DIR)) {
+    if (file.startsWith(CLIENT_DIR) || file.startsWith(VERCEL_STATIC_DIR)) {
       assert.equal(
         content.includes('OPENAI_API_KEY') || /sk-proj-[A-Za-z0-9_-]{10,}/.test(content),
         false,
@@ -185,4 +189,20 @@ test('navigation parity, accessible inputs, Space Grotesk Variable canvas font, 
   const jsFiles = walkFiles(path.join(CLIENT_DIR, '_astro')).filter((f) => f.endsWith('.js'));
   const hasPanelFont = jsFiles.some((f) => fs.readFileSync(f, 'utf8').includes('Space Grotesk Variable'));
   assert.ok(hasPanelFont, '3D card texture renderer must use Space Grotesk Variable font family');
+});
+
+test('Vercel Build Output API bundle contains static index, /api/chat route, and serverless _render function', () => {
+  const configPath = path.join(VERCEL_OUT_DIR, 'config.json');
+  assert.equal(fs.existsSync(configPath), true, '.vercel/output/config.json must exist');
+  const config = JSON.parse(fs.readFileSync(configPath, 'utf8')) as {
+    version: number;
+    routes: Array<{ src?: string; dest?: string }>;
+  };
+  assert.equal(config.version, 3);
+  assert.ok(
+    config.routes.some((r) => r.dest === '_render' && (r.src ?? '').includes('chat')),
+    'Vercel routes must map /api/chat to _render serverless function',
+  );
+  assert.equal(fs.existsSync(path.join(VERCEL_STATIC_DIR, 'index.html')), true);
+  assert.equal(fs.existsSync(path.join(VERCEL_OUT_DIR, 'functions', '_render.func')), true);
 });

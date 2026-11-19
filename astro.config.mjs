@@ -1,17 +1,14 @@
 // @ts-check
 import { defineConfig, envField } from 'astro/config';
-import node from '@astrojs/node';
+import vercel from '@astrojs/vercel';
 import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  // TODO(deploy): ganti dengan domain final sebelum deploy.
-  // Dipakai untuk canonical URL, og:url, robots.txt, dan sitemap.xml.
-  site: 'https://mahdihabibi.example',
+  site: 'https://mahdihabibi.vercel.app',
   integrations: [sitemap()],
-  // Node adapter: on-demand API routes (AI chat assistant) while
-  // all pages remain statically prerendered.
-  adapter: node({ mode: 'standalone' }),
+  // Vercel adapter: static prerendered pages + serverless /api/chat route.
+  adapter: vercel(),
   env: {
     // Runtime secrets for the AI chat. Declared here so Astro reads
     // them from the host environment at runtime instead of inlining
