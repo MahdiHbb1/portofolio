@@ -32,11 +32,25 @@ def main():
             nav = page.evaluate(
                 """(() => {
                   const n = document.querySelector('.mobile-nav');
-                  return { sw: n.scrollWidth, cw: n.clientWidth, items: n.querySelectorAll('.mobile-nav__item').length };
+                  const items = [...n.querySelectorAll('.mobile-nav__item')];
+                  const visibleItems = items.filter((el) => getComputedStyle(el).display !== 'none');
+                  return {
+                    sw: n.scrollWidth,
+                    cw: n.clientWidth,
+                    pageSw: document.documentElement.scrollWidth,
+                    pageCw: document.documentElement.clientWidth,
+                    domItems: items.length,
+                    visibleItems: visibleItems.length,
+                  };
                 })()"""
             )
-            check(f"{w}px: five nav items", nav["items"] == 5, str(nav))
-            check(f"{w}px: no horizontal overflow", nav["sw"] <= nav["cw"] + 1, str(nav))
+            visible_count = sum(1 for item in page.locator(".mobile-nav__item").all() if item.is_visible())
+            check(f"{w}px: five visible nav items", nav["visibleItems"] == 5 and visible_count == 5, str(nav))
+            check(
+                f"{w}px: no horizontal overflow",
+                nav["sw"] <= nav["cw"] + 1 and nav["pageSw"] <= nav["pageCw"] + 1,
+                str(nav),
+            )
             page.close()
 
         # tap test at 390 (dev toolbar would intercept real clicks, hide it)

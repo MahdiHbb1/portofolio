@@ -39,7 +39,7 @@ with sync_playwright() as p:
             bad.append(f"{href}->{resp.status}")
     check("semua link proyek 200", not bad, ", ".join(bad) if bad else f"{len(hrefs)} link OK")
 
-    # 2. About stats: 4 in one row on desktop
+    # 2. About stats & photo layout + PKM-KC 2026 certificate check
     page.locator("#about").scroll_into_view_if_needed()
     page.wait_for_timeout(600)
     tops = page.eval_on_selector_all(
@@ -49,9 +49,39 @@ with sync_playwright() as p:
     cols = page.evaluate(
         "() => getComputedStyle(document.querySelector('.about__stats')).gridTemplateColumns"
     )
+    no_overlap = page.evaluate(
+        """() => {
+          const p = document.querySelector('.about__photo')?.getBoundingClientRect();
+          const s = document.querySelector('.about__stats')?.getBoundingClientRect();
+          if (!p || !s) return false;
+          return p.right <= s.left + 1 || p.left >= s.right - 1 || p.bottom <= s.top + 1 || p.top >= s.bottom - 1;
+        }"""
+    )
     check("stats 4 sejajar satu baris", same_row, f"tops={tops}")
     check("grid stats 4 kolom", len(cols.split(" ")) == 4, cols)
+    check("foto profil tidak menumpuk stats", no_overlap)
     page.screenshot(path=OUT + r"\shot-about-stats.png")
+
+    # 2b. PKM-KC 2026 Silver Medal & clickable PDF certificate
+    page.locator("#achievements").scroll_into_view_if_needed()
+    page.wait_for_timeout(400)
+    cert_selector = "a.achievement-card__link[href='/certificates/pkm-kc-2026-medali-perak.pdf']"
+    cert_loc = page.locator(cert_selector)
+    cert_clickable = False
+    if cert_loc.count() == 1:
+        cert_loc.scroll_into_view_if_needed()
+        cbox = cert_loc.bounding_box()
+        if cbox:
+            cert_clickable = page.evaluate(
+                """({x, y, sel}) => {
+                  const hit = document.elementFromPoint(x, y);
+                  return Boolean(hit && hit.closest(sel));
+                }""",
+                {"x": cbox["x"] + cbox["width"] / 2, "y": cbox["y"] + cbox["height"] / 2, "sel": cert_selector},
+            )
+    cert_resp = ctx.request.get(BASE.rstrip("/") + "/certificates/pkm-kc-2026-medali-perak.pdf")
+    check("link sertifikat PKM-KC 2026 bisa diklik", cert_clickable)
+    check("PDF sertifikat PKM-KC 2026 HTTP 200", cert_resp.status == 200, f"status={cert_resp.status}")
 
     # 3. i18n still swaps project descriptions (hyphenated keys)
     before = page.locator("[data-i18n='projects.items.sigap-mbg.desc']").inner_text()

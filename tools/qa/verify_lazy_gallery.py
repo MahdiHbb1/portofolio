@@ -34,6 +34,9 @@ with sync_playwright() as p:
 
     box = pg.locator(".orbit-canvas").bounding_box()
     dragged = False
+    modal_opened = False
+    modal_desc_ok = False
+    modal_href_ok = False
     if box:
         x = box["x"] + box["width"] / 2
         y = box["y"] + box["height"] / 2
@@ -43,20 +46,59 @@ with sync_playwright() as p:
         pg.mouse.up()
         pg.wait_for_timeout(900)
         dragged = True
+
+        # Probe ring sample points on orbit canvas until a 3D card opens #panel-modal
+        for fx, fy in (
+            (0.5, 0.52),
+            (0.35, 0.52),
+            (0.65, 0.52),
+            (0.25, 0.5),
+            (0.75, 0.5),
+            (0.42, 0.44),
+            (0.58, 0.44),
+            (0.42, 0.6),
+            (0.58, 0.6),
+        ):
+            pg.mouse.click(box["x"] + box["width"] * fx, box["y"] + box["height"] * fy)
+            pg.wait_for_timeout(350)
+            if pg.locator("#panel-modal.is-open").count() == 1:
+                modal_opened = True
+                break
+
+        if modal_opened:
+            desc = pg.locator("#modal-description").inner_text().strip()
+            href = pg.locator("#modal-action").get_attribute("href") or ""
+            modal_desc_ok = len(desc) > 20 and not desc.startswith("Placeholder")
+            modal_href_ok = href.startswith("/projects/") and len(href) > len("/projects/")
+            print("modal opened:", modal_opened, "href:", href, "desc ok:", modal_desc_ok)
+
     print("drag kamera dilakukan:", dragged)
 
     m = b.new_page(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True)
     m.goto(BASE, wait_until="load")
     m.wait_for_timeout(1200)
-    m.evaluate("() => document.querySelector('#gallery').scrollIntoView()")
-    m.wait_for_timeout(2000)
+    m_gallery_display = m.evaluate(
+        "() => getComputedStyle(document.querySelector('#gallery')).display"
+    )
+    m.evaluate("() => window.scrollTo(0, 600)")
+    m.wait_for_timeout(1500)
     mscene = m.evaluate(
         "() => performance.getEntriesByType('resource').some(r => r.name.includes('scene.'))"
     )
+    print("mobile: #gallery display (harus none):", m_gallery_display)
     print("mobile: scene dimuat (harus False):", mscene)
 
     print("page errors:", errors if errors else "tidak ada")
-    ok = late and not early and not mscene and not errors
+    ok = (
+        late
+        and not early
+        and m_gallery_display == "none"
+        and not mscene
+        and modal_opened
+        and modal_desc_ok
+        and modal_href_ok
+        and not errors
+    )
     print("VERDICT:", "PASS" if ok else "CHECK MANUAL")
     b.close()
     sys.exit(0 if ok else 1)

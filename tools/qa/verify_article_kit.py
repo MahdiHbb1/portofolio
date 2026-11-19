@@ -51,9 +51,10 @@ def main():
             else None,
         )
 
-        # 1. project page: no headings yet -> no TOC, nav with only Next
+        # 1. project page: no headings yet -> no TOC, screenshots showcase present, nav with only Next
         page.goto(BASE + "/projects/sigap-mbg/", wait_until="domcontentloaded")
         page.wait_for_timeout(2200)
+        check("screenshots section present", page.locator(".project-page__screenshots").count() == 1)
         check("no TOC without headings", page.locator(".toc").count() == 0)
         check("nav present", page.locator(".article-nav").count() == 1)
         check(
@@ -140,6 +141,10 @@ def main():
             nnext_title,
         )
         check("no TOC on fraudlens", page.locator(".toc").count() == 0)
+        check(
+            "fraudlens screenshots section present",
+            page.locator(".project-page__screenshots").count() == 1,
+        )
 
         # 6. writeup page
         page.goto(BASE + "/writeups/itsecdevx26-web/", wait_until="domcontentloaded")

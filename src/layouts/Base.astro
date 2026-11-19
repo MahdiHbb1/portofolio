@@ -67,6 +67,7 @@ const jsonLd: Record<string, unknown>[] = [
       ...portfolio.skills.web,
       ...portfolio.skills.tools,
     ],
+    award: portfolio.achievements.map((a) => a.title),
   },
 ];
 
