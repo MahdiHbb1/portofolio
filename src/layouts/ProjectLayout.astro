@@ -1,20 +1,48 @@
 ---
 import Base from './Base.astro';
+import {
+  getProjectById,
+  type LocalizedText,
+  type ProjectScreenshot,
+} from '../data/projects.ts';
 
 interface Props {
-  title: string;
-  category: string;
-  year: string;
-  tags: string[];
+  projectId?: string;
+  title?: string;
+  category?: string | LocalizedText;
+  year?: string;
+  tags?: string[];
   description: string;
-  readingTime?: string;   // e.g. "8 min read"
-  date?: string;          // e.g. "Jan 2025"
+  readingTime?: string;
+  date?: string;
+  screenshots?: ProjectScreenshot[];
 }
 
-const { title, category, year, tags, description, readingTime, date } = Astro.props;
+const {
+  projectId,
+  title,
+  category,
+  year,
+  tags,
+  description,
+  readingTime,
+  date,
+  screenshots,
+} = Astro.props;
+
+const project = projectId ? getProjectById(projectId) : undefined;
+const resolvedTitle = title ?? project?.name ?? 'Project';
+const rawCategory = category ?? project?.category ?? '';
+const resolvedCategory: LocalizedText =
+  typeof rawCategory === 'string'
+    ? { id: rawCategory, en: rawCategory }
+    : rawCategory;
+const resolvedYear = year ?? project?.year ?? '';
+const resolvedTags = tags ?? project?.tags ?? [];
+const resolvedScreenshots = screenshots ?? project?.screenshots ?? [];
 ---
 
-<Base title={`${title} — Mahdi Habibi`} description={description}>
+<Base title={`${resolvedTitle} · Mahdi Habibi`} description={description}>
   <main class="project-page">
 
     <!-- Back link -->
@@ -24,7 +52,7 @@ const { title, category, year, tags, description, readingTime, date } = Astro.pr
           <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5"
                 stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        All projects
+        <span data-i18n="project.back">Semua project</span>
       </a>
     </nav>
 
@@ -33,18 +61,66 @@ const { title, category, year, tags, description, readingTime, date } = Astro.pr
       <!-- Header -->
       <header class="project-page__header">
         <div class="project-page__meta">
-          <span class="label">{category}</span>
-          <span class="project-page__year">{year}</span>
+          <span
+            class="label"
+            data-i18n-id={resolvedCategory.id}
+            data-i18n-en={resolvedCategory.en}
+          >
+            {resolvedCategory.id}
+          </span>
+          {resolvedYear && <span class="project-page__year">{resolvedYear}</span>}
           {date && <span class="project-page__date">{date}</span>}
           {readingTime && <span class="project-page__reading">{readingTime}</span>}
         </div>
-        <h1 class="project-page__title">{title}</h1>
+        <h1 class="project-page__title">{resolvedTitle}</h1>
         <ul class="project-page__tags" aria-label="Tags">
-          {tags.map(t => <li>{t}</li>)}
+          {resolvedTags.map((tag) => <li>{tag}</li>)}
         </ul>
       </header>
 
-      <!-- Konten — diisi via slot dari tiap halaman project -->
+      <!-- Preview screenshots showcase (sibling outside .project-page__body so article.ts TOC stays scoped to prose) -->
+      <section class="project-page__screenshots" aria-label="Project preview screenshots">
+        <p class="label project-page__screenshots-label" data-i18n="project.screenshotsLabel">
+          Preview
+        </p>
+
+        {resolvedScreenshots.length > 0 ? (
+          <div class={`project-shots ${resolvedScreenshots.length === 1 ? 'project-shots--single' : ''}`}>
+            {resolvedScreenshots.map((shot) => (
+              <figure class="project-shot">
+                <img
+                  src={shot.src}
+                  alt={shot.alt.id}
+                  data-i18n-alt-id={shot.alt.id}
+                  data-i18n-alt-en={shot.alt.en}
+                  loading="lazy"
+                  decoding="async"
+                />
+                {shot.caption && (
+                  <figcaption
+                    class="project-shot__caption"
+                    data-i18n-id={shot.caption.id}
+                    data-i18n-en={shot.caption.en}
+                  >
+                    {shot.caption.id}
+                  </figcaption>
+                )}
+              </figure>
+            ))}
+          </div>
+        ) : (
+          <div class="project-shots__empty" role="status">
+            <p class="project-shots__empty-title" data-i18n="project.screenshotsEmptyTitle">
+              Cuplikan Preview: Segera hadir
+            </p>
+            <p class="project-shots__empty-hint" data-i18n="project.screenshotsEmptyHint">
+              Screenshot untuk project ini akan tampil di sini setelah ditambahkan ke public/images/projects/.
+            </p>
+          </div>
+        )}
+      </section>
+
+      <!-- Konten diisi via slot dari tiap halaman project -->
       <div class="project-page__body">
         <slot />
       </div>
@@ -53,42 +129,43 @@ const { title, category, year, tags, description, readingTime, date } = Astro.pr
   </main>
 </Base>
 
-
-
 <style>
   .project-page {
     min-height: 100dvh;
-    padding-top: 5rem; /* clearance untuk navbar */
+    padding-top: 5rem;
     padding-bottom: 6rem;
   }
 
   .project-page__back {
     padding-top: 1.5rem;
-    padding-bottom: 2rem;
+    padding-bottom: 1.5rem;
   }
 
   .back-link {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
+    min-height: 44px;
+    padding-block: 0.5rem;
     font-family: var(--font-mono);
     font-size: 0.78rem;
     color: var(--fg-muted);
     transition: color 160ms ease;
   }
 
-  .back-link:hover { color: var(--accent); }
+  .back-link:hover { color: var(--accent-bright); }
 
   .project-page__header {
-    padding-bottom: 2.5rem;
+    padding-bottom: 2.25rem;
     border-bottom: 1px solid var(--border);
-    margin-bottom: 2.5rem;
+    margin-bottom: 2.25rem;
   }
 
   .project-page__meta {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
     margin-bottom: 1rem;
   }
 
@@ -100,12 +177,7 @@ const { title, category, year, tags, description, readingTime, date } = Astro.pr
     color: var(--fg-faint);
   }
 
-  .project-page__reading::before {
-    content: '·';
-    margin-right: 0.5rem;
-    opacity: 0.4;
-  }
-
+  .project-page__reading::before,
   .project-page__date::before {
     content: '·';
     margin-right: 0.5rem;
@@ -133,7 +205,75 @@ const { title, category, year, tags, description, readingTime, date } = Astro.pr
     border-radius: 2px;
   }
 
-  /* Body konten */
+  .project-page__screenshots {
+    margin-bottom: 2.5rem;
+    max-width: 72ch;
+  }
+
+  .project-page__screenshots-label {
+    margin-bottom: 0.85rem;
+    display: block;
+  }
+
+  .project-shots {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+    gap: 1.25rem;
+  }
+
+  .project-shots--single {
+    grid-template-columns: 1fr;
+  }
+
+  .project-shot {
+    margin: 0;
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .project-shot img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+  }
+
+  .project-shot__caption {
+    padding: 0.75rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    color: var(--fg-muted);
+    border-top: 1px solid var(--border);
+  }
+
+  .project-shots__empty {
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+    background: var(--bg-raised);
+    border: 1px dashed var(--border-accent);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .project-shots__empty-title {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--accent-bright);
+    margin: 0;
+  }
+
+  .project-shots__empty-hint {
+    font-size: 0.875rem;
+    color: var(--fg-muted);
+    line-height: 1.6;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
   .project-page__body {
     display: flex;
     flex-direction: column;
@@ -157,7 +297,7 @@ const { title, category, year, tags, description, readingTime, date } = Astro.pr
   }
 
   .project-page__body a {
-    color: var(--accent);
+    color: var(--accent-bright);
     text-decoration: underline;
     text-underline-offset: 3px;
   }
