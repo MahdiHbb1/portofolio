@@ -3,19 +3,24 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import type { SceneContext } from './scene';
 import type { PanelHandle } from './panels';
 import { animateCameraToTarget } from './camera-animator';
-import { PROJECTS } from './panels';
+import { getProjectById, getLocalizedProject } from '../../data/projects.ts';
+import { content } from '../../data/content.ts';
+import { computePanelCameraTarget } from './camera-math.ts';
 
 const INITIAL_CAMERA_POS = new THREE.Vector3(0, 0, 7);
-const INITIAL_TARGET     = new THREE.Vector3(0, 0, 0);
+const INITIAL_TARGET = new THREE.Vector3(0, 0, 0);
 
-enum ViewState {
-  ORBIT = 'orbit',
-  TRANSITIONING = 'transitioning',
-  DETAIL = 'detail'
-}
+const ViewState = {
+  ORBIT: 'orbit',
+  TRANSITIONING: 'transitioning',
+  DETAIL: 'detail',
+} as const;
+
+type ViewStateValue = (typeof ViewState)[keyof typeof ViewState];
 
 export interface ControlHandle {
   tick: () => void;
+  isInspecting: () => boolean;
   dispose: () => void;
 }
 
@@ -23,41 +28,39 @@ export function createControls(
   ctx: SceneContext,
   resetBtn: HTMLElement | null,
   panels: PanelHandle,
+  options: { lang?: 'id' | 'en' } = {},
 ): ControlHandle {
-  const { camera, canvas, scene } = ctx;
+  const { camera, canvas } = ctx;
+  const lang = options.lang ?? 'id';
 
   const controls = new OrbitControls(camera, canvas);
-  controls.enableDamping   = true;
-  controls.dampingFactor   = 0.06;
-  controls.enablePan       = false;
-  controls.minDistance     = 3.5;
-  controls.maxDistance     = 10;
-  controls.rotateSpeed     = 0.55;
-  controls.zoomSpeed       = 0.7;
-  controls.minPolarAngle   = Math.PI * 0.1;
-  controls.maxPolarAngle   = Math.PI * 0.9;
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.06;
+  controls.enablePan = false;
+  controls.minDistance = 3.5;
+  controls.maxDistance = 10;
+  controls.rotateSpeed = 0.55;
+  controls.zoomSpeed = 0.7;
+  controls.minPolarAngle = Math.PI * 0.1;
+  controls.maxPolarAngle = Math.PI * 0.9;
 
-  // State management
-  let currentState = ViewState.ORBIT;
+  let currentState: ViewStateValue = ViewState.ORBIT;
   let cancelAnimation: (() => void) | null = null;
+  let lastFocusedElement: HTMLElement | null = null;
   const savedCameraPos = new THREE.Vector3();
   const savedTarget = new THREE.Vector3();
 
-  // Reset
   function onReset() {
+    if (currentState !== ViewState.ORBIT) return;
     camera.position.copy(INITIAL_CAMERA_POS);
     controls.target.copy(INITIAL_TARGET);
     controls.update();
   }
   resetBtn?.addEventListener('click', onReset);
 
-  // ── Raycaster: klik panel → navigate ke project page ──────────
-  const raycaster  = new THREE.Raycaster();
-  const pointer    = new THREE.Vector2();
-
-  // Deteksi apakah pointer bergerak (drag) atau tidak (klik)
-  // Supaya drag orbit tidak salah terpicu sebagai klik panel
-  let pointerDownPos = new THREE.Vector2();
+  const raycaster = new THREE.Raycaster();
+  const pointer = new THREE.Vector2();
+  const pointerDownPos = new THREE.Vector2();
   let didDrag = false;
 
   function onPointerDown(e: PointerEvent) {
@@ -68,7 +71,6 @@ export function createControls(
   function onPointerMove(e: PointerEvent) {
     const dx = e.clientX - pointerDownPos.x;
     const dy = e.clientY - pointerDownPos.y;
-    // Threshold 4px — di bawah ini masih dianggap klik, bukan drag
     if (Math.sqrt(dx * dx + dy * dy) > 4) didDrag = true;
   }
 
@@ -77,7 +79,7 @@ export function createControls(
 
     const rect = canvas.getBoundingClientRect();
     pointer.set(
-      ((e.clientX - rect.left)  / rect.width)  * 2 - 1,
+      ((e.clientX - rect.left) / rect.width) * 2 - 1,
       -((e.clientY - rect.top) / rect.height) * 2 + 1,
     );
 
@@ -95,82 +97,115 @@ export function createControls(
 
   function zoomToPanel(panel: THREE.Mesh, projectId: string) {
     currentState = ViewState.TRANSITIONING;
-    
-    // Save current state
     savedCameraPos.copy(camera.position);
     savedTarget.copy(controls.target);
-    
-    // Disable controls
+
     controls.enabled = false;
-    
-    // Reset cursor to default
     canvas.style.cursor = 'default';
-    
-    // Calculate camera position in front of panel
-    const panelPos = panel.position.clone();
-    const direction = panelPos.clone().normalize();
-    const cameraTarget = panelPos.clone().add(direction.multiplyScalar(-2.5));
-    
-    // Animate camera
-    cancelAnimation = animateCameraToTarget(camera, cameraTarget, panelPos, 1000, () => {
-      currentState = ViewState.DETAIL;
-      showModal(projectId);
-    });
+
+    const targetVec = computePanelCameraTarget(camera.position, panel.position, 2.4);
+    const cameraTarget = new THREE.Vector3(targetVec.x, targetVec.y, targetVec.z);
+
+    cancelAnimation = animateCameraToTarget(
+      camera,
+      cameraTarget,
+      panel.position.clone(),
+      900,
+      () => {
+        currentState = ViewState.DETAIL;
+        showModal(projectId);
+      },
+    );
+  }
+
+  function getActiveLang(): 'id' | 'en' {
+    try {
+      return (localStorage.getItem('lang') as 'id' | 'en') || lang;
+    } catch {
+      return lang;
+    }
   }
 
   function showModal(projectId: string) {
     const modal = document.getElementById('panel-modal');
-    const project = PROJECTS.find(p => p.id === projectId);
-    
-    if (!modal || !project) return;
-    
-    // Populate modal
+    const rawProject = getProjectById(projectId);
+    if (!modal || !rawProject) return;
+
+    const activeLang = getActiveLang();
+    const project = getLocalizedProject(rawProject, activeLang);
+    const copy = content[activeLang].project;
+
+    const yearEl = document.getElementById('modal-year');
     const titleEl = document.getElementById('modal-title');
     const categoryEl = document.getElementById('modal-category');
-    const linkEl = document.getElementById('modal-link');
-    
-    if (titleEl) titleEl.textContent = project.label;
+    const descEl = document.getElementById('modal-description');
+    const tagsEl = document.getElementById('modal-tags');
+    const linkEl = document.getElementById('modal-link') as HTMLAnchorElement | null;
+    const backBtnEl = document.getElementById('modal-back');
+
+    if (yearEl) yearEl.textContent = project.year;
+    if (titleEl) titleEl.textContent = project.name;
     if (categoryEl) categoryEl.textContent = project.category;
-    if (linkEl) linkEl.setAttribute('href', `/projects/${projectId}`);
-    
-    // Show modal
+    if (descEl) descEl.textContent = project.desc;
+
+    if (tagsEl) {
+      tagsEl.innerHTML = '';
+      for (const tag of project.tags) {
+        const li = document.createElement('li');
+        li.className = 'panel-modal__tag';
+        li.textContent = tag;
+        tagsEl.appendChild(li);
+      }
+    }
+
+    if (linkEl) {
+      linkEl.setAttribute('href', `/projects/${project.id}/`);
+      linkEl.textContent = copy.modalView;
+    }
+    if (backBtnEl) backBtnEl.textContent = copy.modalBack;
+
+    lastFocusedElement = document.activeElement as HTMLElement | null;
     modal.setAttribute('data-state', 'visible');
+    modal.setAttribute('aria-hidden', 'false');
+
+    requestAnimationFrame(() => {
+      linkEl?.focus();
+    });
   }
 
   function returnToOverview() {
     if (currentState !== ViewState.DETAIL) return;
-    
+
     const modal = document.getElementById('panel-modal');
-    if (modal) modal.setAttribute('data-state', 'hidden');
-    
+    if (modal) {
+      modal.setAttribute('data-state', 'hidden');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+
     currentState = ViewState.TRANSITIONING;
-    
-    // Animate camera back
+
     cancelAnimation = animateCameraToTarget(
       camera,
       savedCameraPos,
       savedTarget,
-      1000,
+      900,
       () => {
         currentState = ViewState.ORBIT;
         controls.enabled = true;
         controls.update();
-        canvas.style.cursor = 'grab'; // Restore cursor
-      }
+        canvas.style.cursor = 'grab';
+        lastFocusedElement?.focus?.();
+        lastFocusedElement = null;
+      },
     );
   }
 
-  canvas.addEventListener('pointerdown', onPointerDown);
-  canvas.addEventListener('pointermove', onPointerMove);
-  canvas.addEventListener('pointerup',   onPointerUp);
-
-  // Cursor: ubah ke pointer saat hover di atas panel
   function onMouseMove(e: MouseEvent) {
     if (currentState !== ViewState.ORBIT) return;
-    
+
     const rect = canvas.getBoundingClientRect();
     pointer.set(
-      ((e.clientX - rect.left)  / rect.width)  * 2 - 1,
+      ((e.clientX - rect.left) / rect.width) * 2 - 1,
       -((e.clientY - rect.top) / rect.height) * 2 + 1,
     );
     raycaster.setFromCamera(pointer, camera);
@@ -178,45 +213,57 @@ export function createControls(
     canvas.style.cursor = hits.length > 0 ? 'pointer' : 'grab';
   }
 
-  canvas.addEventListener('mousemove', onMouseMove);
-
-  // Modal event listeners (defer to avoid SSR issues)
-  if (typeof document !== 'undefined') {
-    setTimeout(() => {
-      const backBtn = document.getElementById('modal-back');
-      const closeBtn = document.getElementById('modal-close');
-      const backdrop = document.querySelector('.panel-modal__backdrop');
-      
-      backBtn?.addEventListener('click', returnToOverview);
-      closeBtn?.addEventListener('click', returnToOverview);
-      backdrop?.addEventListener('click', returnToOverview);
-      
-      // ESC key to close
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && currentState === ViewState.DETAIL) {
-          returnToOverview();
-        }
-      });
-    }, 0);
+  function onKeyDown(e: KeyboardEvent) {
+    if (e.key === 'Escape' && currentState === ViewState.DETAIL) {
+      returnToOverview();
+    }
   }
 
+  const backBtn = document.getElementById('modal-back');
+  const closeBtn = document.getElementById('modal-close');
+  const backdrop = document.querySelector('#panel-modal .panel-modal__backdrop');
+
+  canvas.addEventListener('pointerdown', onPointerDown);
+  canvas.addEventListener('pointermove', onPointerMove);
+  canvas.addEventListener('pointerup', onPointerUp);
+  canvas.addEventListener('mousemove', onMouseMove);
+  backBtn?.addEventListener('click', returnToOverview);
+  closeBtn?.addEventListener('click', returnToOverview);
+  backdrop?.addEventListener('click', returnToOverview);
+  document.addEventListener('keydown', onKeyDown);
+
   function tick() {
-    controls.update();
+    // Only run OrbitControls while orbiting; otherwise its target overrides zoom lookAt.
+    if (currentState === ViewState.ORBIT) {
+      controls.update();
+    }
+  }
+
+  function isInspecting() {
+    return currentState !== ViewState.ORBIT;
   }
 
   function dispose() {
     resetBtn?.removeEventListener('click', onReset);
     canvas.removeEventListener('pointerdown', onPointerDown);
     canvas.removeEventListener('pointermove', onPointerMove);
-    canvas.removeEventListener('pointerup',   onPointerUp);
-    canvas.removeEventListener('mousemove',   onMouseMove);
-    
+    canvas.removeEventListener('pointerup', onPointerUp);
+    canvas.removeEventListener('mousemove', onMouseMove);
+    backBtn?.removeEventListener('click', returnToOverview);
+    closeBtn?.removeEventListener('click', returnToOverview);
+    backdrop?.removeEventListener('click', returnToOverview);
+    document.removeEventListener('keydown', onKeyDown);
+
+    const modal = document.getElementById('panel-modal');
+    if (modal) {
+      modal.setAttribute('data-state', 'hidden');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+
     canvas.style.cursor = '';
-    
-    if (cancelAnimation) cancelAnimation();
-    
+    cancelAnimation?.();
     controls.dispose();
   }
 
-  return { tick, dispose };
+  return { tick, isInspecting, dispose };
 }

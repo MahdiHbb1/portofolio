@@ -1,48 +1,61 @@
 ---
-// Panel detail modal — triggered by orbit panel click
+// Panel detail modal triggered by 3D orbit panel click
 ---
 
-<div class="panel-modal" id="panel-modal" data-state="hidden">
+<div
+  class="panel-modal"
+  id="panel-modal"
+  data-state="hidden"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+  aria-hidden="true"
+>
   <div class="panel-modal__backdrop"></div>
   <div class="panel-modal__content">
-    <button class="panel-modal__close" id="modal-close" aria-label="Close modal">
+    <button class="panel-modal__close" id="modal-close" type="button" aria-label="Close modal">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
         <path d="M15 5L5 15M5 5l10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
       </svg>
     </button>
-    
+
     <div class="panel-modal__header">
+      <div class="panel-modal__meta">
+        <p id="modal-category"></p>
+        <span id="modal-year" class="panel-modal__year"></span>
+      </div>
       <h2 id="modal-title"></h2>
-      <p id="modal-category"></p>
     </div>
-    
+
     <div class="panel-modal__body">
-      <p id="modal-description">Project details will appear here.</p>
+      <p id="modal-description"></p>
+      <ul id="modal-tags" class="panel-modal__tags" aria-label="Tags"></ul>
     </div>
-    
+
     <div class="panel-modal__actions">
-      <a href="#" id="modal-link" class="btn-primary">View Project →</a>
-      <button id="modal-back" class="btn-secondary">← Back to Overview</button>
+      <a href="#" id="modal-link" class="btn-primary">Lihat Project →</a>
+      <button id="modal-back" type="button" class="btn-secondary">← Kembali ke Galeri</button>
     </div>
   </div>
 </div>
 
 <script>
-  // Handle modal link navigation — cleanup before page transition
-  if (typeof document !== 'undefined') {
-    setTimeout(() => {
-      const modalLink = document.getElementById('modal-link');
-      
-      if (modalLink) {
-        modalLink.addEventListener('click', (e) => {
-          const modal = document.getElementById('panel-modal');
-          if (modal) modal.setAttribute('data-state', 'hidden');
-          
-          // Let Astro view transitions handle the rest
-        });
+  function initPanelModalLink() {
+    const modalLink = document.getElementById('modal-link');
+    if (!modalLink || modalLink.dataset.bound === 'true') return;
+    modalLink.dataset.bound = 'true';
+
+    modalLink.addEventListener('click', () => {
+      const modal = document.getElementById('panel-modal');
+      if (modal) {
+        modal.setAttribute('data-state', 'hidden');
+        modal.setAttribute('aria-hidden', 'true');
       }
-    }, 0);
+    });
   }
+
+  initPanelModalLink();
+  document.addEventListener('astro:page-load', initPanelModalLink);
 </script>
 
 <style>
@@ -117,31 +130,72 @@
   }
 
   .panel-modal__header {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
+    padding-right: 3rem;
+  }
+
+  .panel-modal__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.45rem;
+    flex-wrap: wrap;
+  }
+
+  .panel-modal__header p {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent-bright);
+    margin: 0;
+  }
+
+  .panel-modal__year {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--fg-muted);
   }
 
   .panel-modal__header h2 {
     font-size: 1.5rem;
     font-weight: 600;
     color: #e8e0d4;
-    margin: 0 0 0.5rem 0;
-  }
-
-  .panel-modal__header p {
-    font-size: 0.875rem;
-    color: rgba(160, 120, 80, 0.8);
     margin: 0;
   }
 
   .panel-modal__body {
     margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
   }
 
   .panel-modal__body p {
-    font-size: 0.938rem;
-    line-height: 1.6;
-    color: rgba(232, 224, 212, 0.8);
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: rgba(232, 224, 212, 0.85);
     margin: 0;
+  }
+
+  .panel-modal__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* :global needed because modal tag pills are created at runtime in controls.ts */
+  :global(.panel-modal__tag) {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    padding: 0.25rem 0.6rem;
+    background: var(--accent-dim);
+    color: var(--accent-bright);
+    border: 1px solid rgba(160, 120, 80, 0.28);
+    border-radius: 3px;
   }
 
   .panel-modal__actions {
@@ -153,9 +207,13 @@
   .btn-primary {
     flex: 1;
     min-width: 140px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background: rgba(160, 120, 80, 0.18);
     border: 1px solid rgba(160, 120, 80, 0.5);
-    color: #d0b090;
+    color: #e8e0d4;
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
     text-decoration: none;
@@ -175,9 +233,13 @@
   .btn-secondary {
     flex: 1;
     min-width: 140px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background: transparent;
     border: 1px solid rgba(232, 224, 212, 0.14);
-    color: rgba(232, 224, 212, 0.7);
+    color: rgba(232, 224, 212, 0.78);
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
     cursor: pointer;
@@ -197,7 +259,7 @@
   .btn-secondary:focus-visible,
   .btn-primary:focus-visible,
   .panel-modal__close:focus-visible {
-    outline: 2px solid rgba(160, 120, 80, 0.6);
+    outline: 2px solid rgba(160, 120, 80, 0.8);
     outline-offset: 2px;
     box-shadow: 0 0 20px rgba(160, 120, 80, 0.6);
   }
