@@ -120,7 +120,7 @@ function makeProjectCardTexture(
   g.fillText(model.category.toUpperCase(), padX, headerH + 24);
 
   const titleLines = wrapCardText(model.title, 24, 2);
-  g.font = '700 32px "Space Grotesk", sans-serif';
+  g.font = '700 32px "Space Grotesk Variable", "Space Grotesk", sans-serif';
   g.fillStyle = '#e8e0d4';
   let cursorY = headerH + 54;
   for (const line of titleLines) {
@@ -129,7 +129,7 @@ function makeProjectCardTexture(
   }
 
   cursorY += 12;
-  g.font = '400 18px "Space Grotesk", sans-serif';
+  g.font = '400 18px "Space Grotesk Variable", "Space Grotesk", sans-serif';
   g.fillStyle = 'rgba(232, 224, 212, 0.82)';
   for (const line of model.descLines) {
     g.fillText(line, padX, cursorY);

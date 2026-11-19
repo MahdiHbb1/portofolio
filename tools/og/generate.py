@@ -80,7 +80,7 @@ CARDS = [
         slug="projects-fraudlens",
         tag="PROJECT / 02",
         title="FraudLens",
-        meta="Fraud Detection | 2024",
+        meta="Fraud Detection | 2025",
         badge="02",
     ),
     dict(

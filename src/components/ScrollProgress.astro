@@ -29,8 +29,10 @@
 
 <script>
   function initScrollProgress() {
-    const bar = document.querySelector('.scroll-progress__bar') as HTMLElement;
-    if (!bar) return;
+    const barEl = document.querySelector('.scroll-progress__bar') as HTMLElement | null;
+    if (!barEl || barEl.dataset.initialized === 'true') return;
+    barEl.dataset.initialized = 'true';
+    const bar: HTMLElement = barEl;
 
     function updateProgress() {
       const scrollTop = window.scrollY;

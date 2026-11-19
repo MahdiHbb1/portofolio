@@ -14,6 +14,8 @@
         </svg>
         <input 
           type="text" 
+          id="commandPaletteInput"
+          name="command-search"
           class="command-palette__input" 
           placeholder="Type a command or search..."
           aria-label="Search commands"
@@ -331,6 +333,7 @@
 <script>
   import Fuse from 'fuse.js';
   import { nanoid } from 'nanoid';
+  import { navigate } from 'astro:transitions/client';
 
   interface Command {
     id: string;
@@ -594,14 +597,15 @@
 
       this.results.innerHTML = '';
 
+      let itemIndex = 0;
       Object.entries(grouped).forEach(([category, cmds]) => {
         const categoryEl = document.createElement('div');
         categoryEl.className = 'command-palette__category';
         categoryEl.textContent = category;
         this.results.appendChild(categoryEl);
 
-        cmds.forEach((cmd, index) => {
-          const item = this.createItem(cmd, index);
+        cmds.forEach((cmd) => {
+          const item = this.createItem(cmd, itemIndex++);
           this.results.appendChild(item);
         });
       });
@@ -699,13 +703,21 @@
       const command = this.commands.find(c => c.id === commandId);
       
       if (command) {
-        command.action();
+        void command.action();
         this.close();
       }
     }
 
     // Actions
-    private scrollTo(selector: string) {
+    private async scrollTo(selector: string) {
+      if (window.location.pathname !== '/' || !document.querySelector(selector)) {
+        await navigate('/' + selector);
+        window.setTimeout(() => {
+          document.querySelector(selector)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 350);
+        return;
+      }
+
       // Prefer the shader transition when available (desktop only)
       const transition = (window as any).sectionTransition;
       if (typeof transition === 'function' && transition(selector)) {

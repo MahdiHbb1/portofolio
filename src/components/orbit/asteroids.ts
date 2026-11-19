@@ -101,7 +101,7 @@ export function createAsteroids(ctx: SceneContext): AsteroidsHandle {
     }
   });
 
-  function tick(elapsed: number) {
+  function tick(_elapsed: number) {
     const boundary = 45;
     
     asteroids.forEach((asteroid) => {
@@ -188,6 +188,12 @@ export function createAsteroids(ctx: SceneContext): AsteroidsHandle {
     asteroids.forEach((asteroid) => {
       scene.remove(asteroid.mesh);
       asteroid.mesh.geometry.dispose();
+      const mat = asteroid.mesh.material;
+      if (Array.isArray(mat)) {
+        mat.forEach((m) => m.dispose());
+      } else {
+        mat.dispose();
+      }
     });
     materials.forEach((mat) => mat.dispose());
   }

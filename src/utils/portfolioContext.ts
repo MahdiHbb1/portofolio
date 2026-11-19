@@ -217,6 +217,28 @@ export function buildPortfolioContext(): PortfolioData {
   };
 }
 
+export interface SanitizedChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+/**
+ * Sanitize client-provided chat history before appending to system prompt.
+ */
+export function sanitizeChatHistory(history: unknown): SanitizedChatMessage[] {
+  if (!Array.isArray(history)) return [];
+  const filtered: SanitizedChatMessage[] = [];
+  for (const item of history) {
+    if (!item || typeof item !== 'object') continue;
+    const role = (item as Record<string, unknown>).role;
+    const content = (item as Record<string, unknown>).content;
+    if ((role === 'user' || role === 'assistant') && typeof content === 'string' && content.trim()) {
+      filtered.push({ role, content });
+    }
+  }
+  return filtered.slice(-10);
+}
+
 /**
  * Build system prompt for AI assistant with portfolio context
  */

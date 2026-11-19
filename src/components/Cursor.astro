@@ -111,6 +111,8 @@
       document.body.classList.remove('has-custom-cursor');
       return;
     }
+    if (cursorFound.dataset.initialized === 'true') return;
+    cursorFound.dataset.initialized = 'true';
     const cursor: HTMLElement = cursorFound;
 
     document.body.classList.add('has-custom-cursor');

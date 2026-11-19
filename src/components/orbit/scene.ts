@@ -47,6 +47,7 @@ export function createScene(canvas: HTMLCanvasElement, initialZ = 7): SceneConte
   function onResize() {
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
+    if (w === 0 || h === 0) return;
     renderer.setSize(w, h);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();

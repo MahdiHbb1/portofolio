@@ -120,7 +120,7 @@ export function createControls(
 
   function getActiveLang(): 'id' | 'en' {
     try {
-      return (localStorage.getItem('lang') as 'id' | 'en') || lang;
+      return localStorage.getItem('lang') === 'en' ? 'en' : 'id';
     } catch {
       return lang;
     }
@@ -178,6 +178,22 @@ export function createControls(
 
     const modal = document.getElementById('panel-modal');
     if (modal) {
+      // Shift focus outside the dialog before setting aria-hidden="true"
+      const active = document.activeElement;
+      if (active instanceof HTMLElement && modal.contains(active)) {
+        if (
+          lastFocusedElement &&
+          lastFocusedElement !== document.body &&
+          lastFocusedElement.isConnected &&
+          !modal.contains(lastFocusedElement)
+        ) {
+          lastFocusedElement.focus();
+        } else if (resetBtn && resetBtn.isConnected) {
+          resetBtn.focus();
+        } else {
+          active.blur();
+        }
+      }
       modal.setAttribute('data-state', 'hidden');
       modal.setAttribute('aria-hidden', 'true');
     }
@@ -194,7 +210,6 @@ export function createControls(
         controls.enabled = true;
         controls.update();
         canvas.style.cursor = 'grab';
-        lastFocusedElement?.focus?.();
         lastFocusedElement = null;
       },
     );

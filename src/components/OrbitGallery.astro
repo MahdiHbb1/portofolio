@@ -97,7 +97,16 @@ import PanelDetailModal from './PanelDetailModal.astro';
   let isInitialized = false;
   let currentCleanup: (() => void) | null = null;
   let lazyObserver: IntersectionObserver | null = null;
+  let compactMqCleanup: (() => void) | null = null;
   let isFirstLoad = true;
+
+  function getActiveLang(): 'id' | 'en' {
+    try {
+      return localStorage.getItem('lang') === 'en' ? 'en' : 'id';
+    } catch {
+      return 'id';
+    }
+  }
 
   async function initOrbitGallery() {
     if (window.matchMedia('(max-width: 640px)').matches) {
@@ -117,7 +126,7 @@ import PanelDetailModal from './PanelDetailModal.astro';
     if (isInitialized) return;
     isInitialized = true;
 
-    const lang = (localStorage.getItem('lang') as 'id' | 'en') || 'id';
+    const lang = getActiveLang();
 
     const [
       { createScene, startLoop },
@@ -207,14 +216,7 @@ import PanelDetailModal from './PanelDetailModal.astro';
     document.addEventListener('astro:before-swap', cleanup, { once: true });
   }
 
-  // Lazy-init when gallery approaches viewport to keep initial load TBT at 0ms.
-  function setupLazyInit() {
-    currentCleanup?.();
-    if (window.matchMedia('(max-width: 640px)').matches) return;
-
-    const root = document.querySelector('.orbit-root');
-    if (!(root instanceof HTMLElement)) return;
-
+  function observeRootVisibility(root: HTMLElement) {
     lazyObserver?.disconnect();
     lazyObserver = new IntersectionObserver(
       (entries) => {
@@ -226,12 +228,44 @@ import PanelDetailModal from './PanelDetailModal.astro';
       { rootMargin: '300px 0px' },
     );
     lazyObserver.observe(root);
+  }
+
+  // Lazy-init when gallery approaches viewport to keep initial load TBT at 0ms.
+  function setupLazyInit() {
+    currentCleanup?.();
+    compactMqCleanup?.();
+    lazyObserver?.disconnect();
+    lazyObserver = null;
+
+    const root = document.querySelector('.orbit-root');
+    if (!(root instanceof HTMLElement)) return;
+
+    const compactMq = window.matchMedia('(max-width: 640px)');
+    const onCompactChange = (e: MediaQueryListEvent) => {
+      if (e.matches) {
+        lazyObserver?.disconnect();
+        lazyObserver = null;
+        currentCleanup?.();
+      } else if (!isInitialized) {
+        observeRootVisibility(root);
+      }
+    };
+    compactMq.addEventListener('change', onCompactChange);
+    compactMqCleanup = () => {
+      compactMq.removeEventListener('change', onCompactChange);
+      compactMqCleanup = null;
+    };
+
+    if (!compactMq.matches) {
+      observeRootVisibility(root);
+    }
 
     document.addEventListener(
       'astro:before-swap',
       () => {
         lazyObserver?.disconnect();
         lazyObserver = null;
+        compactMqCleanup?.();
       },
       { once: true },
     );

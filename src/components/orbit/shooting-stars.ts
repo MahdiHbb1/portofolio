@@ -85,7 +85,7 @@ export function createShootingStars(ctx: SceneContext): ShootingStarsHandle {
     stars.push(createStar());
   }
 
-  function tick(elapsed: number) {
+  function tick(_elapsed: number) {
     stars.forEach((star) => {
       if (!star.active) return;
 

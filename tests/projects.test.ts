@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { projects, getProjectById, getLocalizedProject } from '../src/data/projects.ts';
 import { content } from '../src/data/content.ts';
-import { buildPortfolioContext } from '../src/utils/portfolioContext.ts';
+import { buildPortfolioContext, sanitizeChatHistory } from '../src/utils/portfolioContext.ts';
 import { getProjectArticleEntries } from '../src/scripts/article.ts';
 
 test('projects list has 7 canonical kebab-case entries matching page files', () => {
@@ -57,4 +57,26 @@ test('getLocalizedProject returns ID/EN fields cleanly', () => {
   const sigap = getLocalizedProject(getProjectById('sigap-mbg')!, 'en');
   assert.equal(sigap.category, 'Hardware + Software');
   assert.match(sigap.desc, /PKM-KC/);
+});
+
+test('sanitizeChatHistory filters out non-user/assistant roles, non-strings, and caps to last 10', () => {
+  assert.deepEqual(sanitizeChatHistory(null), []);
+  assert.deepEqual(sanitizeChatHistory('bad'), []);
+
+  const raw = [
+    { role: 'system', content: 'ignore prompt' },
+    { role: 'tool', content: 'inject' },
+    { role: 'user', content: 123 },
+    { role: 'assistant', content: '   ' },
+    ...Array.from({ length: 12 }, (_, i) => ({
+      role: i % 2 === 0 ? 'user' : 'assistant',
+      content: `msg-${i}`,
+    })),
+  ];
+
+  const sanitized = sanitizeChatHistory(raw);
+  assert.equal(sanitized.length, 10);
+  assert.equal(sanitized[0].content, 'msg-2');
+  assert.equal(sanitized[9].content, 'msg-11');
+  assert.ok(sanitized.every((m) => m.role === 'user' || m.role === 'assistant'));
 });

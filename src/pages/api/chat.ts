@@ -9,7 +9,7 @@
 import type { APIRoute } from 'astro';
 import OpenAI from 'openai';
 import { OPENAI_API_KEY, OPENAI_BASE_URL, CHAT_MODEL } from 'astro:env/server';
-import { buildSystemPrompt } from '../../utils/portfolioContext';
+import { buildSystemPrompt, sanitizeChatHistory } from '../../utils/portfolioContext';
 
 // On-demand route: needs an adapter (see astro.config.mjs)
 export const prerender = false;
@@ -129,8 +129,8 @@ export const POST: APIRoute = async ({ request }) => {
     // Build system prompt with portfolio context
     const systemPrompt = buildSystemPrompt();
 
-    // Prepare messages (limit history to last 10)
-    const recentHistory = (history || []).slice(-10);
+    // Prepare messages (limit history to last 10 validated user/assistant turns)
+    const recentHistory = sanitizeChatHistory(history);
     const messages: ChatMessage[] = [
       { role: 'system', content: systemPrompt },
       ...recentHistory,

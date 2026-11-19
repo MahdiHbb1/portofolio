@@ -146,3 +146,43 @@ test('no OPENAI_API_KEY secret value or client exposure appears anywhere in dist
     }
   }
 });
+
+test('navigation parity, accessible inputs, Space Grotesk Variable canvas font, and MobileNav CSS cascade are built cleanly', () => {
+  const indexHtml = fs.readFileSync(path.join(CLIENT_DIR, 'index.html'), 'utf8');
+
+  assert.match(indexHtml, /href="\/#hero"[^>]*class="[^"]*navbar__logo/, 'Navbar logo must point to /#hero');
+  assert.ok(indexHtml.includes('href="/#writeups"'), 'Navbar/MobileNav must link /#writeups');
+  assert.ok(indexHtml.includes('mobile-nav__item--writeups'), 'MobileNav writeups item must exist');
+  assert.ok(indexHtml.includes('mobile-nav__item--gallery'), 'MobileNav gallery item must exist');
+  assert.equal(
+    indexHtml.includes('Project details will appear here.'),
+    false,
+    'stale English modal fallback string must not appear in index.html',
+  );
+  assert.match(
+    indexHtml,
+    /<input\b(?=[^>]*\bdata-terminal-input\b)(?=[^>]*\bname=")[^>]*>/,
+    'Terminal input must have a name attribute',
+  );
+  assert.match(
+    indexHtml,
+    /<input\b(?=[^>]*\bclass="command-palette__input\b)(?=[^>]*\bname=")[^>]*>/,
+    'CommandPalette input must have a name attribute',
+  );
+
+  const cssFiles = walkFiles(path.join(CLIENT_DIR, '_astro')).filter((f) => f.endsWith('.css'));
+  const mobileNavCss = cssFiles
+    .map((f) => fs.readFileSync(f, 'utf8'))
+    .find((c) => c.includes('mobile-nav__item'));
+  assert.ok(mobileNavCss, 'built CSS must contain mobile-nav__item rules');
+  const baseMobileNavIdx = mobileNavCss.indexOf('mobile-nav__item');
+  const media360Match = /@media\s*\((?:width\s*<=|max-width:)\s*360px\)/.exec(mobileNavCss);
+  assert.ok(
+    baseMobileNavIdx >= 0 && media360Match && media360Match.index > baseMobileNavIdx,
+    '360px MobileNav media rule must appear after base .mobile-nav__item rule',
+  );
+
+  const jsFiles = walkFiles(path.join(CLIENT_DIR, '_astro')).filter((f) => f.endsWith('.js'));
+  const hasPanelFont = jsFiles.some((f) => fs.readFileSync(f, 'utf8').includes('Space Grotesk Variable'));
+  assert.ok(hasPanelFont, '3D card texture renderer must use Space Grotesk Variable font family');
+});

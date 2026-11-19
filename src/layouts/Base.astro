@@ -125,7 +125,7 @@ if (path.startsWith('/projects/') || path.startsWith('/writeups/')) {
     <title>{title}</title>
     <ClientRouter fallback="none" />
 
-    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body>
     <LoadingScreen />

@@ -47,7 +47,7 @@ with sync_playwright() as p:
         pg.wait_for_timeout(900)
         dragged = True
 
-        # Probe ring sample points on orbit canvas until a 3D card opens #panel-modal
+        # Probe ring sample points on orbit canvas until a 3D card opens #panel-modal (900ms camera transition)
         for fx, fy in (
             (0.5, 0.52),
             (0.35, 0.52),
@@ -60,17 +60,19 @@ with sync_playwright() as p:
             (0.58, 0.6),
         ):
             pg.mouse.click(box["x"] + box["width"] * fx, box["y"] + box["height"] * fy)
-            pg.wait_for_timeout(350)
-            if pg.locator("#panel-modal.is-open").count() == 1:
+            pg.wait_for_timeout(1200)
+            if pg.locator("#panel-modal[data-state='visible']").count() == 1:
                 modal_opened = True
                 break
 
         if modal_opened:
             desc = pg.locator("#modal-description").inner_text().strip()
-            href = pg.locator("#modal-action").get_attribute("href") or ""
-            modal_desc_ok = len(desc) > 20 and not desc.startswith("Placeholder")
+            href = pg.locator("#modal-link").get_attribute("href") or ""
+            modal_desc_ok = len(desc) > 10 and desc != "Project details will appear here."
             modal_href_ok = href.startswith("/projects/") and len(href) > len("/projects/")
             print("modal opened:", modal_opened, "href:", href, "desc ok:", modal_desc_ok)
+            pg.keyboard.press("Escape")
+            pg.wait_for_timeout(1000)
 
     print("drag kamera dilakukan:", dragged)
 

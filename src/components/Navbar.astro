@@ -3,7 +3,7 @@
 
 <header class="navbar" id="navbar" aria-label="Site navigation">
   <div class="navbar__inner container">
-    <a href="#hero" class="navbar__logo" aria-label="MH. Back to top">
+    <a href="/#hero" class="navbar__logo" aria-label="MH. Back to top">
       MH<span class="navbar__dot">.</span>
     </a>
 
@@ -65,6 +65,10 @@
   }
 
   .navbar__logo {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: 0.25rem;
     font-family: var(--font-mono);
     font-size: 0.9rem;
     font-weight: 700;
@@ -86,6 +90,8 @@
 
   .lang-toggle {
     display: flex;
+    align-items: center;
+    min-height: 44px;
     gap: 0.25rem;
     padding: 0.35rem;
     background: var(--bg-raised);

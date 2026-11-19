@@ -44,6 +44,7 @@ const terminalData = JSON.stringify(portfolio).replace(/</g, '\\u003c');
       <input
         class="terminal__input"
         data-terminal-input
+        name={isInline ? 'terminal-command-inline' : 'terminal-command-modal'}
         type="text"
         autocomplete="off"
         autocapitalize="off"
@@ -53,7 +54,7 @@ const terminalData = JSON.stringify(portfolio).replace(/</g, '\\u003c');
     </div>
   </div>
 
-  <script type="application/json" data-terminal-data set:html={terminalData} />
+  <script is:inline type="application/json" data-terminal-data set:html={terminalData} />
 </div>
 
 <!-- is:global: runtime-created nodes miss Astro's scoped-style attribute. -->

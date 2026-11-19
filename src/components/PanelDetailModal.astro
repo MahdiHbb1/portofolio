@@ -45,9 +45,14 @@
     if (!modalLink || modalLink.dataset.bound === 'true') return;
     modalLink.dataset.bound = 'true';
 
-    modalLink.addEventListener('click', () => {
+    modalLink.addEventListener('click', (event) => {
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) {
+        document.getElementById('modal-close')?.click();
+        return;
+      }
       const modal = document.getElementById('panel-modal');
       if (modal) {
+        (modalLink as HTMLElement).blur();
         modal.setAttribute('data-state', 'hidden');
         modal.setAttribute('aria-hidden', 'true');
       }

@@ -256,7 +256,11 @@ const stats = [
   }
 
   function initAboutCounters() {
-    const counters = document.querySelectorAll('.stat-item__value');
+    const stats = document.querySelector('.about__stats') as HTMLElement | null;
+    if (!stats || stats.dataset.initialized === 'true') return;
+    stats.dataset.initialized = 'true';
+
+    const counters = stats.querySelectorAll('.stat-item__value');
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {

@@ -78,13 +78,6 @@
     }
   }
 
-  @media (max-width: 360px) {
-    .mobile-nav__item {
-      padding: 0.5rem 0.4rem;
-      min-width: 52px;
-    }
-  }
-
   .mobile-nav__item {
     display: flex;
     flex-direction: column;
@@ -98,6 +91,14 @@
     text-decoration: none;
     border-radius: 8px;
     position: relative;
+  }
+
+  @media (max-width: 480px) {
+    .mobile-nav__item {
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 0.5rem 0.2rem;
+    }
   }
 
   .mobile-nav__item--writeups {
@@ -154,18 +155,32 @@
   .mobile-nav__item.is-active svg {
     transform: scale(1.1);
   }
+
+  @media (max-width: 360px) {
+    .mobile-nav__item {
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 0.5rem 0.15rem;
+    }
+
+    .mobile-nav__item span {
+      font-size: 0.58rem;
+      letter-spacing: 0.01em;
+    }
+  }
 </style>
 
 <script>
   let mobileNavObserver: IntersectionObserver | null = null;
 
   function initMobileNav() {
+    mobileNavObserver?.disconnect();
+    mobileNavObserver = null;
+
     const links = document.querySelectorAll('.mobile-nav__item');
     const sections = document.querySelectorAll('section[id]');
 
     if (sections.length === 0) return;
-
-    mobileNavObserver?.disconnect();
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -179,11 +194,6 @@
             
             if (linkHref === targetHref) {
               l.classList.add('is-active');
-              
-              // Haptic feedback for mobile (if supported)
-              if ('vibrate' in navigator) {
-                navigator.vibrate(10);
-              }
             } else {
               l.classList.remove('is-active');
             }
