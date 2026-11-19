@@ -1,11 +1,12 @@
 /**
  * Portfolio Context Builder
- * 
- * Extracts and structures portfolio data for AI assistant context
- * Source: src/data/content.ts, src/data/writeups.ts
+ *
+ * Extracts and structures portfolio data for AI assistant context.
+ * Source: src/data/projects.ts, src/data/writeups.ts
  */
 
-import { writeups } from "../data/writeups";
+import { projects } from "../data/projects.ts";
+import { writeups } from "../data/writeups.ts";
 
 export interface PortfolioData {
   about: {
@@ -17,7 +18,7 @@ export interface PortfolioData {
     location: string;
     email: string;
   };
-  
+
   projects: Array<{
     id: string;
     name: string;
@@ -44,7 +45,7 @@ export interface PortfolioData {
     web: string[];
     tools: string[];
   };
-  
+
   achievements: Array<{
     id: string;
     title: string;
@@ -54,20 +55,20 @@ export interface PortfolioData {
     description: string;
     tags: string[];
   }>;
-  
+
   education: {
     degree: string;
     institution: string;
     institutionShort: string;
     status: string;
   };
-  
+
   social: {
     github: string;
     linkedin: string;
     email: string;
   };
-  
+
   focus: string[];
 }
 
@@ -84,92 +85,24 @@ export function buildPortfolioContext(): PortfolioData {
         "Currently serving as Head of IT Security Division at CODELINES UKM RIPTEK UNNES",
         "Actively competing in Capture The Flag (CTF) competitions",
         "Working on ML and web development for SIGAP MBG, a PKM-KC funded project",
-        "Interested in the intersection of system security, machine learning, and building products people actually use"
+        "Interested in the intersection of system security, machine learning, and building products people actually use",
       ],
       organization: "CODELINES UKM RIPTEK UNNES",
       position: "Head of IT Security Division",
       location: "Semarang, Indonesia",
       email: "mahdihabibi31352@gmail.com",
     },
-    
-    projects: [
-      {
-        id: "sigap-mbg",
-        name: "SIGAP MBG",
-        category: "Hardware + Software (ML + IoT)",
-        description: "ML-powered monitoring system for Indonesia's national free nutritious meal program (Program Makan Bergizi Gratis). Secured PKM-KC national funding in 2025. Combines IoT sensors with machine learning for real-time monitoring and quality assurance.",
-        tags: ["PKM-KC", "Machine Learning", "IoT", "Social Impact", "Python", "TensorFlow", "Arduino", "Raspberry Pi"],
-        year: "2025",
-        featured: true,
-        achievements: [
-          "Secured PKM-KC national funding from Kemdikbud",
-          "Real-time ML-powered monitoring system",
-          "IoT hardware integration"
-        ],
-      },
-      {
-        id: "fraudlens",
-        name: "FraudLens",
-        category: "Fraud Detection",
-        description: "Machine learning-based fraud detection system for identifying suspicious transactions and patterns.",
-        tags: ["Security", "Machine Learning", "Fraud Detection"],
-        year: "2024",
-        featured: false,
-      },
-      {
-        id: "fabric-cnn",
-        name: "Fabric Defect Detection CNN",
-        category: "Computer Vision",
-        description: "CNN-based system for detecting defects in textile fabrics using computer vision. Research paper pending publication. Uses deep learning for automated quality control in textile manufacturing.",
-        tags: ["Deep Learning", "Computer Vision", "CNN", "Research", "TensorFlow", "OpenCV"],
-        year: "2024",
-        featured: false,
-        achievements: [
-          "Publication in progress",
-          "Automated textile quality control"
-        ],
-      },
-      {
-        id: "legalin",
-        name: "LegalIn",
-        category: "AI Legal Assistant",
-        description: "AI-powered legal assistant application for Indonesian law. Helps users understand legal documents and get basic legal information.",
-        tags: ["AI", "Web Development", "Legal Tech", "NLP"],
-        year: "2024",
-        featured: false,
-      },
-      {
-        id: "buktitagih",
-        name: "BuktiTagih AI",
-        category: "Hackathon Project",
-        description: "OCR-based invoice verification system built in 48 hours for AI hackathon. Automatically extracts and verifies invoice data using computer vision and OCR technology.",
-        tags: ["AI", "Hackathon", "OCR", "Computer Vision", "MVP"],
-        year: "2024",
-        featured: false,
-        achievements: [
-          "Built in 48 hours",
-          "OCR invoice verification"
-        ],
-      },
-      {
-        id: "ctf-itsecdevx26",
-        name: "CTF itsecdevx26",
-        category: "Security Challenge",
-        description: "Participated in itsecdevx26 CTF competition, solving web exploitation and forensics challenges.",
-        tags: ["CTF", "Security", "Web Exploitation", "Forensics"],
-        year: "2024",
-        featured: false,
-      },
-      {
-        id: "ctf-writeups",
-        name: "CTF Writeups Collection",
-        category: "Security Documentation",
-        description: "Collection of detailed writeups from various CTF competitions, documenting solutions to web exploitation, forensics, cryptography, and other security challenges.",
-        tags: ["CTF", "Writeups", "Security", "Documentation"],
-        year: "2024-2025",
-        featured: false,
-      },
-    ],
+
+    projects: projects.map((project) => ({
+      id: project.id,
+      name: project.fullTitle ?? project.name,
+      category: project.category.en,
+      description: project.aiSummary,
+      tags: project.tags,
+      year: project.year,
+      featured: project.featured,
+      ...(project.achievements ? { achievements: project.achievements } : {}),
+    })),
 
     writeups,
 
@@ -200,22 +133,33 @@ export function buildPortfolioContext(): PortfolioData {
       ],
       tools: [
         "Git",
-        "Linux",
+        "Kali Linux",
         "Docker",
         "VS Code",
         "Arduino",
         "Raspberry Pi",
       ],
     },
-    
+
     achievements: [
+      {
+        id: "pkmkcSilver",
+        title: "Medali Perak PKM-KC 2026 (Silver Medal)",
+        category: "National Award",
+        date: "November 2026",
+        organization: "AMLI · FMIPA UNESA",
+        description:
+          "Won Silver Medal in Room KC 1 at PKM Asosiasi MIPA LPTK Indonesia (AMLI) 2026 for SIGAP MBG.",
+        tags: ["PKM-KC", "Silver Medal", "SIGAP MBG", "National Award"],
+      },
       {
         id: "pkmkc",
         title: "PKM-KC National Grant 2025",
         category: "Research Grant",
         date: "January 2025",
         organization: "Kemdikbud (Ministry of Education)",
-        description: "Secured national funding for SIGAP MBG, an ML-powered monitoring system for Indonesia's free nutritious meal program. Competitive grant awarded to innovative student projects with social impact.",
+        description:
+          "Secured national funding for SIGAP MBG, an ML-powered monitoring system for Indonesia's free nutritious meal program. Competitive grant awarded to innovative student projects with social impact.",
         tags: ["PKM-KC", "Machine Learning", "IoT", "Social Impact", "National Grant"],
       },
       {
@@ -224,7 +168,8 @@ export function buildPortfolioContext(): PortfolioData {
         category: "Cybersecurity Competition",
         date: "November 2024",
         organization: "itsecdevx26",
-        description: "Competed in Capture The Flag competition, solving challenges in web exploitation and forensics categories.",
+        description:
+          "Competed in Capture The Flag competition, solving challenges in web exploitation and forensics categories.",
         tags: ["CTF", "Web Security", "Forensics", "Competition"],
       },
       {
@@ -233,7 +178,8 @@ export function buildPortfolioContext(): PortfolioData {
         category: "Academic Publication",
         date: "In Progress",
         organization: "Pending Conference/Journal",
-        description: "Research paper on CNN-based textile defect detection system. Publication process ongoing at academic conference or journal.",
+        description:
+          "Research paper on CNN-based textile defect detection system. Publication process ongoing at academic conference or journal.",
         tags: ["Computer Vision", "CNN", "Research", "Publication"],
       },
       {
@@ -242,24 +188,25 @@ export function buildPortfolioContext(): PortfolioData {
         category: "Hackathon",
         date: "2024",
         organization: "Hackathon Event",
-        description: "Built BuktiTagih AI, an OCR-based invoice verification system in 48 hours. Demonstrated rapid prototyping and AI integration skills.",
+        description:
+          "Built BuktiTagih AI, an OCR-based invoice verification system in 48 hours. Demonstrated rapid prototyping and AI integration skills.",
         tags: ["AI", "Hackathon", "OCR", "MVP", "48h Challenge"],
       },
     ],
-    
+
     education: {
       degree: "Computer Science (Informatika)",
       institution: "Universitas Negeri Semarang",
       institutionShort: "UNNES",
       status: "Active Student",
     },
-    
+
     social: {
       github: "https://github.com/MahdiHbb1",
       linkedin: "https://linkedin.com/in/mahdi-habibi-62a939321/",
       email: "mahdihabibi31352@gmail.com",
     },
-    
+
     focus: [
       "IT Security",
       "Machine Learning",
@@ -285,7 +232,7 @@ export function buildSystemPrompt(): string {
         `- /writeups/${writeup.id} (${writeup.category.toLowerCase()} writeup: ${writeup.title})`
     )
     .join('\n');
-  
+
   return `You are Kevin, Mahdi Habibi's portfolio assistant. Your ONLY job is to answer questions about Mahdi's work, experience, skills, and background. You are not Mahdi: always speak about him in the third person.
 
 # PORTFOLIO CONTEXT
@@ -384,7 +331,7 @@ append ONE directive as the very last line of your reply:
 [[go:<path>|<label>]]
 
 Allowed paths (never invent others):
-- /#about, /#projects, /#skills, /#achievements, /#contact (home sections)
+- /#about, /#gallery, /#projects, /#skills, /#achievements, /#writeups, /#terminal, /#contact (home sections)
 ${projectLines}
 ${writeupLines}
 
@@ -395,9 +342,8 @@ Directive rules:
 
 # EXAMPLE INTERACTIONS
 
-✅ GOOD (In-scope):
 Q: "What is SIGAP MBG?"
-A: "SIGAP MBG is Mahdi's ML-powered monitoring system for Indonesia's national free nutritious meal program. It secured PKM-KC national funding in 2025 and combines IoT sensors with machine learning for real-time monitoring."
+A: "SIGAP MBG is Mahdi's ML-powered monitoring system for Indonesia's national free nutritious meal program. It secured PKM-KC national funding in 2025, won a Silver Medal at PKM AMLI 2026, and combines IoT sensors with machine learning for real-time monitoring."
 
 Q: "What are his security skills?"
 A: "Mahdi works on CTF competitions, web exploitation, forensics, and reverse engineering, using tools like Burp Suite and Wireshark.
@@ -414,16 +360,6 @@ Q: "Show me the SIGAP MBG project"
 A: "SIGAP MBG is Mahdi's ML-powered monitoring system for Indonesia's national free nutritious meal program, funded through PKM-KC in 2025.
 [[go:/projects/sigap-mbg|Open SIGAP MBG]]"
 
-❌ BAD (Out-of-scope) + Redirect:
-Q: "How do I learn Python?"
-A: "I'm Kevin, Mahdi's portfolio assistant, so I focus on his work. For Python learning, I recommend the official Python tutorial or platforms like Codecademy. Would you like to know about Mahdi's Python projects instead, like SIGAP MBG or Fabric Defect CNN?"
-
-Q: "Debug my code"
-A: "I specialize in Mahdi's portfolio information. For debugging help, try Stack Overflow or developer communities. Can I tell you about Mahdi's development projects or technical skills instead?"
-
-Q: "What is machine learning?"
-A: "I'm here to discuss Mahdi's specific ML work. For general ML concepts, I recommend courses on Coursera or Fast.ai. Would you like to know about his ML projects, like SIGAP MBG or Fabric Defect CNN?"
-
 ---
 
 Remember: stay in scope, speak about Mahdi in the third person, keep formatting plain and readable, redirect gracefully.`;
@@ -434,5 +370,5 @@ Remember: stay in scope, speak about Mahdi in the third person, keep formatting 
  */
 export function getCompactContext(): string {
   const data = buildPortfolioContext();
-  return JSON.stringify(data, null, 0); // No formatting for compact size
+  return JSON.stringify(data, null, 0);
 }

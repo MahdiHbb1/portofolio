@@ -6,22 +6,22 @@
 // Aktif otomatis kalau kontainer artikel ada; kalau tidak, no-op.
 // Gaya visualnya di global.css (.toc, .copy-code, .article-nav).
 
-import { writeups } from '../data/writeups';
+import { projects } from '../data/projects.ts';
+import { writeups } from '../data/writeups.ts';
 
-interface ArticleEntry {
+export interface ArticleEntry {
   slug: string;
   title: string;
 }
 
-const PROJECTS: ArticleEntry[] = [
-  { slug: 'sigap-mbg', title: 'SIGAP MBG' },
-  { slug: 'fraudlens', title: 'FraudLens' },
-  { slug: 'fabric-cnn', title: 'Fabric Defect Detection CNN' },
-  { slug: 'legalin', title: 'LegalIn' },
-  { slug: 'buktitagih', title: 'BuktiTagih AI' },
-  { slug: 'ctf-itsecdevx26', title: 'CTF itsecdevx26' },
-  { slug: 'ctf-writeups', title: 'CTF Writeups Collection' },
-];
+export function getProjectArticleEntries(): ArticleEntry[] {
+  return projects.map((project) => ({
+    slug: project.id,
+    title: project.fullTitle ?? project.name,
+  }));
+}
+
+const PROJECTS: ArticleEntry[] = getProjectArticleEntries();
 
 const WRITEUPS: ArticleEntry[] = writeups.map((writeup) => ({
   slug: writeup.id,

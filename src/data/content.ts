@@ -1,9 +1,23 @@
+import { projects } from './projects.ts';
+
+export type Lang = 'id' | 'en';
+
+function buildProjectDescMap(lang: Lang): Record<string, { desc: string }> {
+  const map: Record<string, { desc: string }> = {};
+  for (const project of projects) {
+    map[project.id] = { desc: project.desc[lang] };
+  }
+  return map;
+}
+
 export const content = {
   id: {
     hero: {
       name: 'Mahdi Habibi',
       title: 'Security & ML Engineer',
       subtitle: 'Informatika UNNES · CTF · PKM-KC',
+      ctaWork: 'Lihat Karya',
+      ctaContact: 'Hubungi Saya',
     },
     about: {
       label: 'Tentang',
@@ -18,47 +32,39 @@ export const content = {
     achievements: {
       label: 'Pencapaian',
       heading: 'Achievements',
+      certificate: 'Lihat sertifikat',
       items: {
+        pkmkcSilver: {
+          desc: 'Medali perak Room KC 1 pada PKM Asosiasi MIPA LPTK Indonesia 2026 untuk SIGAP MBG.',
+        },
         pkmkc: {
           desc: 'Pendanaan nasional untuk sistem monitoring berbasis ML SIGAP MBG',
         },
         ctf: {
-          desc: 'Kompetisi CTF - web exploitation & forensics',
+          desc: 'Kompetisi CTF: web exploitation & forensics',
         },
         fabricCnn: {
-          desc: 'Deteksi cacat tekstil berbasis CNN - publikasi dalam proses',
+          desc: 'Deteksi cacat tekstil berbasis CNN: publikasi dalam proses',
         },
         aiHackathon: {
-          desc: 'BuktiTagih AI - verifikasi invoice OCR dalam 48 jam',
+          desc: 'BuktiTagih AI: verifikasi invoice OCR dalam 48 jam',
         },
       },
     },
     projects: {
       label: 'Karya',
       heading: 'Projects',
-      items: {
-        'sigap-mbg': {
-          desc: 'Sistem monitoring berbasis ML untuk program makan bergizi gratis nasional. Mendapat pendanaan PKM-KC nasional.',
-        },
-        fraudlens: {
-          desc: 'Placeholder — tambahkan deskripsi project.',
-        },
-        'fabric-cnn': {
-          desc: 'Placeholder — tambahkan deskripsi project.',
-        },
-        legalin: {
-          desc: 'Placeholder — tambahkan deskripsi project.',
-        },
-        buktitagih: {
-          desc: 'Placeholder — tambahkan deskripsi project.',
-        },
-        'ctf-itsecdevx26': {
-          desc: 'Placeholder — tambahkan deskripsi challenge.',
-        },
-        'ctf-writeups': {
-          desc: 'Kumpulan writeup dari berbagai kompetisi CTF.',
-        },
-      },
+      items: buildProjectDescMap('id'),
+    },
+    project: {
+      back: 'Semua project',
+      screenshotsLabel: 'Preview',
+      screenshotsHeading: 'Cuplikan Preview',
+      screenshotsEmptyTitle: 'Cuplikan Preview: Segera hadir',
+      screenshotsEmptyHint: 'Screenshot untuk project ini akan tampil di sini setelah ditambahkan ke public/images/projects/.',
+      modalView: 'Lihat Project →',
+      modalBack: '← Kembali ke Galeri',
+      featuredBadge: 'UNGGULAN',
     },
     writeups: {
       label: 'Keamanan',
@@ -80,6 +86,8 @@ export const content = {
       name: 'Mahdi Habibi',
       title: 'Security & ML Engineer',
       subtitle: 'Computer Science UNNES · CTF · PKM-KC',
+      ctaWork: 'View Work',
+      ctaContact: 'Get in Touch',
     },
     about: {
       label: 'About',
@@ -94,47 +102,39 @@ export const content = {
     achievements: {
       label: 'Recognition',
       heading: 'Achievements',
+      certificate: 'View certificate',
       items: {
+        pkmkcSilver: {
+          desc: 'Silver medal in Room KC 1 at PKM Asosiasi MIPA LPTK Indonesia 2026 for SIGAP MBG.',
+        },
         pkmkc: {
           desc: 'National funding for SIGAP MBG ML-powered monitoring system',
         },
         ctf: {
-          desc: 'CTF competition - web exploitation & forensics',
+          desc: 'CTF competition: web exploitation & forensics',
         },
         fabricCnn: {
-          desc: 'CNN-based textile defect detection - pending publication',
+          desc: 'CNN-based textile defect detection: pending publication',
         },
         aiHackathon: {
-          desc: 'BuktiTagih AI - OCR invoice verification in 48h',
+          desc: 'BuktiTagih AI: OCR invoice verification in 48h',
         },
       },
     },
     projects: {
       label: 'Work',
       heading: 'Projects',
-      items: {
-        'sigap-mbg': {
-          desc: 'ML-powered monitoring system for national free nutritious meal program. Secured PKM-KC national funding.',
-        },
-        fraudlens: {
-          desc: 'Placeholder — add project description.',
-        },
-        'fabric-cnn': {
-          desc: 'Placeholder — add project description.',
-        },
-        legalin: {
-          desc: 'Placeholder — add project description.',
-        },
-        buktitagih: {
-          desc: 'Placeholder — add project description.',
-        },
-        'ctf-itsecdevx26': {
-          desc: 'Placeholder — add challenge description.',
-        },
-        'ctf-writeups': {
-          desc: 'Collection of writeups from various CTF competitions.',
-        },
-      },
+      items: buildProjectDescMap('en'),
+    },
+    project: {
+      back: 'All projects',
+      screenshotsLabel: 'Preview',
+      screenshotsHeading: 'Preview Screenshots',
+      screenshotsEmptyTitle: 'Preview Screenshots: Coming soon',
+      screenshotsEmptyHint: 'Screenshots for this project will appear here once added to public/images/projects/.',
+      modalView: 'View Project →',
+      modalBack: '← Back to Overview',
+      featuredBadge: 'FEATURED',
     },
     writeups: {
       label: 'Security',
@@ -152,5 +152,3 @@ export const content = {
     },
   },
 };
-
-export type Lang = 'id' | 'en';
