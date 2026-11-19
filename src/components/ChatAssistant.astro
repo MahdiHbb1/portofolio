@@ -931,7 +931,7 @@
     private isSafeGoPath(href: string): boolean {
       return (
         href === '/' ||
-        /^\/#(about|projects|skills|achievements|contact)$/.test(href) ||
+        /^\/#(about|gallery|projects|skills|achievements|writeups|terminal|contact)$/.test(href) ||
         /^\/projects\/[a-z0-9-]+$/.test(href) ||
         /^\/writeups\/[a-z0-9-]+$/.test(href)
       );
@@ -953,7 +953,11 @@
       this.close();
 
       if (href.startsWith('/#')) {
-        const hash = href.slice(1);
+        let hash = href.slice(1);
+        // Gallery3D is hidden below 640px; route compact users to the Projects list instead.
+        if (hash === '#gallery' && window.matchMedia('(max-width: 640px)').matches) {
+          hash = '#projects';
+        }
         if (window.location.pathname === '/') {
           document.querySelector(hash)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
           history.pushState(null, '', hash);

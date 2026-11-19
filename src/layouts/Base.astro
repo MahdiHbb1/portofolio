@@ -26,7 +26,7 @@ const {
   ogImage,
 } = Astro.props;
 
-const siteURL = Astro.site ?? Astro.url.origin;
+const siteURL = new URL(Astro.site ?? Astro.url.origin);
 const canonicalURL = new URL(Astro.url.pathname, siteURL);
 
 // Prefer a generated per-page OG card (public/og/) when one exists.
@@ -140,44 +140,50 @@ if (path.startsWith('/projects/') || path.startsWith('/writeups/')) {
     <MobileNav />
   </body>
 
-  <script type="module">
+  <script>
     import { initReveal } from '../scripts/reveal.ts';
     initReveal();
     document.addEventListener('astro:page-load', initReveal);
   </script>
 
-  <script type="module">
+  <script>
     import { initParallax } from '../scripts/parallax.ts';
     initParallax();
     document.addEventListener('astro:page-load', initParallax);
   </script>
 
-  <script type="module">
+  <script>
     import { initSectionTransition } from '../scripts/sectionTransition.ts';
     initSectionTransition();
   </script>
 
-  <script type="module">
+  <script>
     import { initArticle } from '../scripts/article.ts';
     initArticle();
     document.addEventListener('astro:page-load', initArticle);
   </script>
 
-  <script type="module">
+  <script>
     import { content } from '../data/content';
-    
-    const currentLang = (localStorage.getItem('lang') as 'id' | 'en') || 'id';
-    const t = content[currentLang];
+
+    function getActiveLang(): 'id' | 'en' {
+      return localStorage.getItem('lang') === 'en' ? 'en' : 'id';
+    }
 
     // Update lang toggle active state
     function updateLangToggle() {
-      document.querySelectorAll('.lang-toggle__option').forEach(el => {
-        el.setAttribute('data-active', el.dataset.lang === currentLang ? 'true' : 'false');
+      const activeLang = getActiveLang();
+      document.querySelectorAll<HTMLElement>('.lang-toggle__option').forEach(el => {
+        el.setAttribute('data-active', el.dataset.lang === activeLang ? 'true' : 'false');
       });
     }
 
     // Replace text content AND data-text for decrypt
     function applyTranslations() {
+      const activeLang = getActiveLang();
+      const t = content[activeLang];
+      document.documentElement.lang = activeLang;
+
       // Hero - update both textContent and data-text attribute
       document.querySelectorAll('[data-i18n="hero.name"]').forEach(el => {
         el.textContent = t.hero.name;
@@ -187,48 +193,67 @@ if (path.startsWith('/projects/') || path.startsWith('/writeups/')) {
       });
       document.querySelectorAll('[data-i18n="hero.title"]').forEach(el => el.textContent = t.hero.title);
       document.querySelectorAll('[data-i18n="hero.subtitle"]').forEach(el => el.textContent = t.hero.subtitle);
-      
+      document.querySelectorAll('[data-i18n="hero.ctaWork"]').forEach(el => el.textContent = t.hero.ctaWork);
+      document.querySelectorAll('[data-i18n="hero.ctaContact"]').forEach(el => el.textContent = t.hero.ctaContact);
+
       // About
       document.querySelectorAll('[data-i18n="about.label"]').forEach(el => el.textContent = t.about.label);
       document.querySelectorAll('[data-i18n="about.heading"]').forEach(el => el.textContent = t.about.heading);
       document.querySelectorAll('[data-i18n="about.bio1"]').forEach(el => el.textContent = t.about.bio1);
       document.querySelectorAll('[data-i18n="about.bio2"]').forEach(el => el.textContent = t.about.bio2);
-      
+
       // Skills
       document.querySelectorAll('[data-i18n="skills.label"]').forEach(el => el.textContent = t.skills.label);
       document.querySelectorAll('[data-i18n="skills.heading"]').forEach(el => el.textContent = t.skills.heading);
-      
+
       // Achievements
       document.querySelectorAll('[data-i18n="achievements.label"]').forEach(el => el.textContent = t.achievements.label);
       document.querySelectorAll('[data-i18n="achievements.heading"]').forEach(el => el.textContent = t.achievements.heading);
-      
+      document.querySelectorAll('[data-i18n="achievements.certificate"]').forEach(el => el.textContent = t.achievements.certificate);
+
       // Achievement items
-      Object.keys(t.achievements.items).forEach(key => {
+      Object.entries(t.achievements.items).forEach(([key, item]) => {
         document.querySelectorAll(`[data-i18n="achievements.items.${key}.desc"]`).forEach(el => {
-          el.textContent = t.achievements.items[key].desc;
+          el.textContent = item.desc;
         });
       });
-      
+
       // Projects
       document.querySelectorAll('[data-i18n="projects.label"]').forEach(el => el.textContent = t.projects.label);
       document.querySelectorAll('[data-i18n="projects.heading"]').forEach(el => el.textContent = t.projects.heading);
-      
+
       // Project items
-      Object.keys(t.projects.items).forEach(key => {
+      Object.entries(t.projects.items).forEach(([key, item]) => {
         document.querySelectorAll(`[data-i18n="projects.items.${key}.desc"]`).forEach(el => {
-          el.textContent = t.projects.items[key].desc;
+          el.textContent = item.desc;
         });
       });
-      
+
+      // Project detail layout chrome
+      document.querySelectorAll('[data-i18n="project.back"]').forEach(el => el.textContent = t.project.back);
+      document.querySelectorAll('[data-i18n="project.screenshotsLabel"]').forEach(el => el.textContent = t.project.screenshotsLabel);
+      document.querySelectorAll('[data-i18n="project.screenshotsEmptyTitle"]').forEach(el => el.textContent = t.project.screenshotsEmptyTitle);
+      document.querySelectorAll('[data-i18n="project.screenshotsEmptyHint"]').forEach(el => el.textContent = t.project.screenshotsEmptyHint);
+
+      // Inline bilingual data attributes (categories, screenshot captions/alt)
+      document.querySelectorAll<HTMLElement>('[data-i18n-id]').forEach(el => {
+        const localized = activeLang === 'en' ? el.dataset.i18nEn : el.dataset.i18nId;
+        if (localized) el.textContent = localized;
+      });
+      document.querySelectorAll<HTMLImageElement>('[data-i18n-alt-id]').forEach(el => {
+        const localized = activeLang === 'en' ? el.dataset.i18nAltEn : el.dataset.i18nAltId;
+        if (localized) el.setAttribute('alt', localized);
+      });
+
       // Writeups
       document.querySelectorAll('[data-i18n="writeups.label"]').forEach(el => el.textContent = t.writeups.label);
       document.querySelectorAll('[data-i18n="writeups.heading"]').forEach(el => el.textContent = t.writeups.heading);
-      
+
       // Terminal playground
       document.querySelectorAll('[data-i18n="terminal.label"]').forEach(el => el.textContent = t.terminal.label);
       document.querySelectorAll('[data-i18n="terminal.heading"]').forEach(el => el.textContent = t.terminal.heading);
       document.querySelectorAll('[data-i18n="terminal.hint"]').forEach(el => el.textContent = t.terminal.hint);
-      
+
       // Contact
       document.querySelectorAll('[data-i18n="contact.label"]').forEach(el => el.textContent = t.contact.label);
       document.querySelectorAll('[data-i18n="contact.heading"]').forEach(el => el.textContent = t.contact.heading);
@@ -239,8 +264,7 @@ if (path.startsWith('/projects/') || path.startsWith('/writeups/')) {
     document.addEventListener('click', (e) => {
       const target = e.target as Element | null;
       if (!target?.closest('#langToggle')) return;
-      const activeLang = (localStorage.getItem('lang') as 'id' | 'en') || 'id';
-      const newLang = activeLang === 'id' ? 'en' : 'id';
+      const newLang = getActiveLang() === 'id' ? 'en' : 'id';
       localStorage.setItem('lang', newLang);
       window.location.reload();
     });
@@ -248,7 +272,7 @@ if (path.startsWith('/projects/') || path.startsWith('/writeups/')) {
     // Init - run BEFORE decrypt animation
     updateLangToggle();
     applyTranslations();
-    
+
     document.addEventListener('astro:page-load', () => {
       updateLangToggle();
       applyTranslations();

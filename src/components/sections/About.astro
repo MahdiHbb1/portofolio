@@ -1,6 +1,4 @@
 ---
-import { t } from '../../data/content';
-
 const stats = [
   { value: '2+', label: 'Years Experience', id: 'years' },
   { value: '10+', label: 'Projects', id: 'projects' },
@@ -16,9 +14,15 @@ const stats = [
       <div class="about__header-sticky">
         <p class="label" data-i18n="about.label">Tentang</p>
         <h2 class="about__heading" data-i18n="about.heading">Siapa Saya</h2>
-        <div class="about__photo-placeholder" aria-label="Foto placeholder">
-          <span class="photo-hint">Foto</span>
-        </div>
+        <img
+          src="/images/profile.jpg"
+          alt="Mahdi Habibi"
+          class="about__photo"
+          width="768"
+          height="1024"
+          loading="lazy"
+          decoding="async"
+        />
       </div>
     </header>
 
@@ -44,9 +48,8 @@ const stats = [
       </ul>
     </div>
 
-    <!-- Stats counter -->
     <div class="about__stats">
-      {stats.map(stat => (
+      {stats.map((stat) => (
         <div class="stat-item">
           <div class="stat-item__value" data-target={stat.value}>{stat.value}</div>
           <div class="stat-item__label">{stat.label}</div>
@@ -84,63 +87,21 @@ const stats = [
     margin-bottom: 0;
   }
 
-  .about__photo-placeholder {
+  .about__photo {
+    display: block;
     margin-top: 1rem;
     width: 100%;
-    aspect-ratio: 3 / 4;
     max-width: 16rem;
-    border: 2px solid rgba(232, 224, 212, 0.3);
+    height: auto;
+    aspect-ratio: 3 / 4;
+    border: 1px solid var(--border-accent);
     border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, rgba(160, 120, 80, 0.05) 0%, rgba(232, 224, 212, 0.03) 100%);
-    position: relative;
-    overflow: hidden;
-    box-shadow: 
+    object-fit: cover;
+    box-shadow:
       0 0 20px rgba(160, 120, 80, 0.15),
-      inset 0 0 20px rgba(232, 224, 212, 0.05);
+      0 18px 40px rgba(0, 0, 0, 0.35);
   }
 
-  .about__photo-placeholder::before {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border-radius: 8px;
-    padding: 2px;
-    background: linear-gradient(135deg, 
-      rgba(232, 224, 212, 0.4) 0%, 
-      rgba(160, 120, 80, 0.6) 50%, 
-      rgba(232, 224, 212, 0.4) 100%);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0.7;
-    animation: glow-pulse 3s ease-in-out infinite;
-  }
-
-  @keyframes glow-pulse {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 0.9; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .about__photo-placeholder::before {
-      animation: none;
-      opacity: 0.7;
-    }
-  }
-
-  .photo-hint {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--fg-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    z-index: 1;
-  }
-
-  /* Stats counter */
   .about__stats {
     grid-column: 1 / -1;
     display: grid;
@@ -168,7 +129,7 @@ const stats = [
     font-family: var(--font-mono);
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--accent);
+    color: var(--accent-bright);
     line-height: 1;
     margin-bottom: 0.25rem;
   }
@@ -214,7 +175,7 @@ const stats = [
     padding: 0.3rem 0.75rem;
     border: 1px solid var(--border);
     border-radius: 3px;
-    color: var(--accent);
+    color: var(--accent-bright);
     transition: all 180ms ease;
   }
 
@@ -241,7 +202,7 @@ const stats = [
       position: static;
     }
 
-    .about__photo-placeholder {
+    .about__photo {
       margin-top: 1.5rem;
       margin-inline: auto;
     }
@@ -264,27 +225,23 @@ const stats = [
 </style>
 
 <script>
-  // Animated counter for stats
   function animateCounter(element: HTMLElement) {
     const target = element.dataset.target || element.textContent || '0';
     const isNumeric = /^\d+$/.test(target);
-    
+
     if (!isNumeric) {
       element.textContent = target;
       return;
     }
 
     const duration = 2000;
-    const targetNum = parseInt(target);
+    const targetNum = parseInt(target, 10);
     const startTime = performance.now();
 
     function update(currentTime: number) {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      
-      // Easing function
       const easeOutExpo = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-      
       const current = Math.floor(easeOutExpo * targetNum);
       element.textContent = current.toString();
 
@@ -300,17 +257,19 @@ const stats = [
 
   function initAboutCounters() {
     const counters = document.querySelectorAll('.stat-item__value');
-    
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          animateCounter(entry.target as HTMLElement);
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.5 });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            animateCounter(entry.target as HTMLElement);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.5 },
+    );
 
-    counters.forEach(counter => observer.observe(counter));
+    counters.forEach((counter) => observer.observe(counter));
   }
 
   initAboutCounters();

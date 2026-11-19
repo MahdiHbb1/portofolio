@@ -10,13 +10,20 @@
     <span>About</span>
   </a>
 
-  <a href="/#gallery" class="mobile-nav__item">
+  <a href="/#gallery" class="mobile-nav__item mobile-nav__item--gallery">
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
       <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/>
       <circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/>
       <path d="M10 3v2M10 15v2M3 10h2M15 10h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
     </svg>
     <span>Gallery</span>
+  </a>
+
+  <a href="/#writeups" class="mobile-nav__item mobile-nav__item--writeups">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <path d="M10 2.5l6.5 2.7v4.5c0 3.7-2.8 7-6.5 7.8-3.7-.8-6.5-4.1-6.5-7.8V5.2L10 2.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+    </svg>
+    <span>Writeups</span>
   </a>
 
   <a href="/#projects" class="mobile-nav__item">
@@ -93,6 +100,21 @@
     position: relative;
   }
 
+  .mobile-nav__item--writeups {
+    display: none;
+  }
+
+  /* Match Gallery3D compact cutoff so all 5 bottom tabs map to visible sections */
+  @media (max-width: 640px) {
+    .mobile-nav__item--gallery {
+      display: none;
+    }
+
+    .mobile-nav__item--writeups {
+      display: flex;
+    }
+  }
+
   .mobile-nav__item::before {
     content: '';
     position: absolute;
@@ -134,7 +156,7 @@
   }
 </style>
 
-<script type="module">
+<script>
   let mobileNavObserver: IntersectionObserver | null = null;
 
   function initMobileNav() {

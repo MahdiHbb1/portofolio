@@ -103,7 +103,7 @@ class ParallaxScroll {
 
     // About photo - subtle lag, clamped so it can never drift over the
     // stats row below it
-    const aboutPhoto = document.querySelector('.about__photo-placeholder') as HTMLElement;
+    const aboutPhoto = document.querySelector('.about__photo') as HTMLElement | null;
     if (aboutPhoto && !aboutPhoto.dataset.parallax) {
       aboutPhoto.dataset.parallax = '0.8';
       aboutPhoto.dataset.parallaxMax = '24';
@@ -131,9 +131,12 @@ class ParallaxScroll {
     }
   }
 
+  private handleScroll = () => this.onScroll();
+  private handleResize = () => this.onResize();
+
   private setupEventListeners() {
-    window.addEventListener('scroll', () => this.onScroll(), { passive: true });
-    window.addEventListener('resize', () => this.onResize());
+    window.addEventListener('scroll', this.handleScroll, { passive: true });
+    window.addEventListener('resize', this.handleResize);
   }
 
   private onScroll() {
@@ -202,8 +205,8 @@ class ParallaxScroll {
 
   public destroy() {
     this.disable();
-    window.removeEventListener('scroll', () => this.onScroll());
-    window.removeEventListener('resize', () => this.onResize());
+    window.removeEventListener('scroll', this.handleScroll);
+    window.removeEventListener('resize', this.handleResize);
   }
 }
 

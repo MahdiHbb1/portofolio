@@ -1,5 +1,4 @@
 ---
-import { t } from '../../data/content';
 import ParticleField from '../ParticleField.astro';
 ---
 
@@ -21,8 +20,8 @@ import ParticleField from '../ParticleField.astro';
       </p>
 
       <div class="hero__cta">
-        <a href="#gallery" class="btn btn--primary">View Work</a>
-        <a href="#contact" class="btn btn--secondary">Get in Touch</a>
+        <a href="#gallery" class="btn btn--primary" data-hero-work-cta data-i18n="hero.ctaWork">Lihat Karya</a>
+        <a href="#contact" class="btn btn--secondary" data-i18n="hero.ctaContact">Hubungi Saya</a>
       </div>
     </div>
 
@@ -46,7 +45,6 @@ import ParticleField from '../ParticleField.astro';
     overflow: hidden;
   }
 
-  /* Animated background */
   .hero__bg {
     position: absolute;
     inset: 0;
@@ -56,7 +54,7 @@ import ParticleField from '../ParticleField.astro';
   .hero__grid {
     position: absolute;
     inset: 0;
-    background-image: 
+    background-image:
       linear-gradient(rgba(232, 224, 212, 0.03) 1px, transparent 1px),
       linear-gradient(90deg, rgba(232, 224, 212, 0.03) 1px, transparent 1px);
     background-size: 50px 50px;
@@ -134,7 +132,6 @@ import ParticleField from '../ParticleField.astro';
     margin-bottom: 2.5rem;
   }
 
-  /* CTA Buttons */
   .hero__cta {
     display: flex;
     gap: 1rem;
@@ -187,7 +184,6 @@ import ParticleField from '../ParticleField.astro';
     outline-offset: 2px;
   }
 
-  /* Scroll cue */
   .hero__scroll {
     position: absolute;
     bottom: 2rem;
@@ -225,12 +221,10 @@ import ParticleField from '../ParticleField.astro';
     .hero__scroll { animation: none; }
   }
 
-  /* Decrypt spans */
   .decrypt {
     display: inline-block;
   }
 
-  /* Mobile */
   @media (max-width: 640px) {
     .hero {
       min-height: 85dvh;
@@ -252,21 +246,24 @@ import ParticleField from '../ParticleField.astro';
   }
 </style>
 
-<script type="module">
-  (function () {
+<script>
+  function syncHeroWorkTarget() {
+    const workLink = document.querySelector<HTMLAnchorElement>('[data-hero-work-cta]');
+    if (!workLink) return;
+    const isPhone = window.matchMedia('(max-width: 640px)').matches;
+    workLink.setAttribute('href', isPhone ? '#projects' : '#gallery');
+  }
+
+  function initHeroDecrypt() {
     const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&';
-    const FRAME_MS = 36;
-    const RESOLVE_PER_FRAME = 1; // berapa karakter resolve tiap frame
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const prefersReduced = window.matchMedia(
-      '(prefers-reduced-motion: reduce)'
-    ).matches;
+    document.querySelectorAll<HTMLElement>('.decrypt').forEach((el) => {
+      if (el.dataset.decryptInit === 'true') return;
+      el.dataset.decryptInit = 'true';
 
-    document.querySelectorAll('.decrypt').forEach((el) => {
       const target = el.dataset.text || el.textContent || '';
-      const delay  = parseInt(
-        getComputedStyle(el).getPropertyValue('--delay') || '0'
-      ) || 0;
+      const delay = parseInt(getComputedStyle(el).getPropertyValue('--delay') || '0', 10) || 0;
 
       if (prefersReduced) {
         el.textContent = target;
@@ -274,22 +271,18 @@ import ParticleField from '../ParticleField.astro';
       }
 
       let resolved = 0;
-      let frame    = 0;
-      // Scramble beberapa frame dulu sebelum mulai resolve
-      // SCRAMBLE_LEAD: frame murni acak sebelum karakter pertama dikunci
-      const SCRAMBLE_LEAD   = 18;
-      // Resolve 1 karakter tiap N frame — lebih besar = lebih lambat
-      const RESOLVE_EVERY   = 4;
+      let frame = 0;
+      const SCRAMBLE_LEAD = 18;
+      const RESOLVE_EVERY = 4;
 
       function scramble() {
         let display = '';
         for (let i = 0; i < target.length; i++) {
-          if (target[i] === ' ') { display += ' '; continue; }
-          if (i < resolved) {
-            display += target[i];
-          } else {
-            display += CHARS[Math.floor(Math.random() * CHARS.length)];
+          if (target[i] === ' ') {
+            display += ' ';
+            continue;
           }
+          display += i < resolved ? target[i] : CHARS[Math.floor(Math.random() * CHARS.length)];
         }
         el.textContent = display;
         frame++;
@@ -303,7 +296,18 @@ import ParticleField from '../ParticleField.astro';
         }
       }
 
-      setTimeout(() => requestAnimationFrame(scramble), delay);
+      window.setTimeout(() => requestAnimationFrame(scramble), delay);
     });
-  })();
+  }
+
+  const mq = window.matchMedia('(max-width: 640px)');
+  mq.addEventListener('change', syncHeroWorkTarget);
+
+  function initHero() {
+    syncHeroWorkTarget();
+    initHeroDecrypt();
+  }
+
+  initHero();
+  document.addEventListener('astro:page-load', initHero);
 </script>

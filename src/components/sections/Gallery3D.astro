@@ -68,18 +68,9 @@ import OrbitGallery from '../OrbitGallery.astro';
     position: relative;
   }
 
-  /* Mobile: hide 3D, show text-only */
+  /* Mobile: hide entire section so phones see no empty heading over hidden canvas */
   @media (max-width: 640px) {
     .gallery3d {
-      min-height: auto;
-      padding-block: clamp(2rem, 6vw, 3rem);
-    }
-
-    .gallery3d__canvas-wrapper {
-      min-height: auto;
-    }
-
-    .gallery3d__hint {
       display: none;
     }
   }

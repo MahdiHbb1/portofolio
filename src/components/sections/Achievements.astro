@@ -1,7 +1,18 @@
 ---
-import { t } from '../../data/content';
-
 const achievements = [
+  {
+    id: 'pkmkcSilver',
+    title: 'Medali Perak PKM-KC 2026',
+    category: 'National Award',
+    date: 'November 2026',
+    org: 'AMLI · FMIPA UNESA',
+    desc: 'Medali perak Room KC 1 pada PKM Asosiasi MIPA LPTK Indonesia 2026 untuk SIGAP MBG.',
+    tags: ['PKM-KC', 'Silver Medal', 'SIGAP MBG'],
+    gradient: 'from-amber-900/20 to-yellow-900/20',
+    icon: 'trophy.svg',
+    featured: true,
+    certificate: '/certificates/pkm-kc-2026-medali-perak.pdf',
+  },
   {
     id: 'pkmkc',
     title: 'PKM-KC 2025',
@@ -20,7 +31,7 @@ const achievements = [
     category: 'Cybersecurity Competition',
     date: 'November 2024',
     org: 'itsecdevx26',
-    desc: 'Kompetisi CTF - web exploitation & forensics',
+    desc: 'Kompetisi CTF: web exploitation & forensics',
     tags: ['CTF', 'Web Security', 'Forensics'],
     gradient: 'from-orange-900/20 to-red-900/20',
     icon: 'flag.svg',
@@ -32,7 +43,7 @@ const achievements = [
     category: 'Academic Publication',
     date: 'In Progress',
     org: '[Conference/Journal Name]',
-    desc: 'Deteksi cacat tekstil berbasis CNN - publikasi dalam proses',
+    desc: 'Deteksi cacat tekstil berbasis CNN: publikasi dalam proses',
     tags: ['Computer Vision', 'CNN', 'Research'],
     gradient: 'from-blue-900/20 to-stone-900/20',
     icon: 'file-check.svg',
@@ -45,7 +56,7 @@ const achievements = [
     category: 'Competition',
     date: '2024',
     org: '[Event Name]',
-    desc: 'BuktiTagih AI - verifikasi invoice OCR dalam 48 jam',
+    desc: 'BuktiTagih AI: verifikasi invoice OCR dalam 48 jam',
     tags: ['AI', 'Hackathon', 'MVP'],
     gradient: 'from-purple-900/20 to-stone-900/20',
     icon: 'lightbulb.svg',
@@ -65,12 +76,12 @@ const achievements = [
 
     <div class="achievements__grid">
       {achievements.map((ach, i) => (
-        <div 
+        <div
           class={`achievement-card reveal ${ach.featured ? 'achievement-card--featured' : ''} ${ach.pending ? 'achievement-card--pending' : ''}`}
           style={`--delay: ${i * 100}ms; --offset: ${i % 2 === 0 ? '0' : '60px'}`}
         >
           <div class={`achievement-card__inner ${ach.gradient}`}>
-            
+
             {ach.pending && (
               <span class="achievement-card__badge">Details pending</span>
             )}
@@ -90,8 +101,18 @@ const achievements = [
               <p class="achievement-card__desc" data-i18n={`achievements.items.${ach.id}.desc`}>{ach.desc}</p>
 
               <ul class="achievement-card__tags" aria-label="Tags">
-                {ach.tags.map(t => <li>{t}</li>)}
+                {ach.tags.map((tag) => <li>{tag}</li>)}
               </ul>
+
+              {ach.certificate && (
+                <a
+                  class="achievement-card__link"
+                  href={ach.certificate}
+                  target="_blank"
+                  rel="noopener"
+                  data-i18n="achievements.certificate"
+                >Lihat sertifikat</a>
+              )}
             </div>
 
           </div>
@@ -148,6 +169,7 @@ const achievements = [
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     opacity: 0;
+    pointer-events: none;
     transition: opacity 280ms ease;
   }
 
@@ -173,7 +195,7 @@ const achievements = [
     font-size: 0.65rem;
     padding: 0.35rem 0.65rem;
     background: rgba(160, 120, 80, 0.15);
-    color: var(--accent);
+    color: var(--accent-bright);
     border: 1px solid var(--border-accent);
     border-radius: 4px;
     text-transform: uppercase;
@@ -204,10 +226,6 @@ const achievements = [
     gap: 1rem;
   }
 
-  .achievement-card__date {
-    /* label class styling */
-  }
-
   .achievement-card__org {
     font-family: var(--font-mono);
     font-size: 0.7rem;
@@ -224,7 +242,7 @@ const achievements = [
 
   .achievement-card__category {
     font-size: 0.8rem;
-    color: var(--accent);
+    color: var(--accent-bright);
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -249,9 +267,35 @@ const achievements = [
     font-size: 0.65rem;
     padding: 0.3rem 0.6rem;
     background: var(--accent-dim);
-    color: var(--accent);
+    color: var(--accent-bright);
     border-radius: 3px;
     border: 1px solid rgba(160, 120, 80, 0.2);
+  }
+
+  .achievement-card__link {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 0.1rem;
+    padding-block: 0.45rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--accent-bright);
+    text-decoration: underline;
+    text-decoration-color: rgba(185, 143, 96, 0.45);
+    text-underline-offset: 4px;
+    transition: color 160ms ease, text-decoration-color 160ms ease;
+  }
+
+  .achievement-card__link::after {
+    content: ' ↗';
+  }
+
+  .achievement-card__link:hover {
+    color: var(--fg);
+    text-decoration-color: var(--fg);
   }
 
   @media (min-width: 768px) {

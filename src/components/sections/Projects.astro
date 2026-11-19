@@ -1,78 +1,5 @@
 ---
-import { t } from '../../data/content';
-
-const projects = [
-  {
-    id: 'sigap-mbg',
-    name: 'SIGAP MBG',
-    category: 'Hardware + Software',
-    tags: ['PKM-KC', 'ML', 'IoT'],
-    desc: 'Sistem monitoring berbasis ML untuk program makan bergizi gratis nasional. Mendapat pendanaan PKM-KC nasional.',
-    year: '2025',
-    gradient: 'linear-gradient(135deg, rgba(232, 224, 212, 0.08), rgba(160, 120, 80, 0.12))',
-    featured: true,
-  },
-  {
-    id: 'fraudlens',
-    name: 'FraudLens',
-    category: 'Fraud Detection',
-    tags: ['security', 'ML'],
-    desc: 'Placeholder — tambahkan deskripsi project.',
-    year: '2024',
-    gradient: 'linear-gradient(135deg, rgba(255, 120, 60, 0.08), rgba(139, 115, 85, 0.12))',
-    featured: false,
-  },
-  {
-    id: 'fabric-cnn',
-    name: 'Fabric Defect CNN',
-    category: 'Computer Vision',
-    tags: ['deep learning', 'skripsi'],
-    desc: 'Placeholder — tambahkan deskripsi project.',
-    year: '2024',
-    gradient: 'linear-gradient(135deg, rgba(100, 150, 200, 0.08), rgba(107, 93, 79, 0.12))',
-    featured: false,
-  },
-  {
-    id: 'legalin',
-    name: 'LegalIn',
-    category: 'AI Legal Assistant',
-    tags: ['AI', 'web'],
-    desc: 'Placeholder — tambahkan deskripsi project.',
-    year: '2024',
-    gradient: 'linear-gradient(135deg, rgba(120, 180, 120, 0.08), rgba(107, 93, 79, 0.12))',
-    featured: false,
-  },
-  {
-    id: 'buktitagih',
-    name: 'BuktiTagih AI',
-    category: 'Hackathon',
-    tags: ['AI', 'hackathon'],
-    desc: 'Placeholder — tambahkan deskripsi project.',
-    year: '2024',
-    gradient: 'linear-gradient(135deg, rgba(160, 100, 200, 0.08), rgba(107, 93, 79, 0.12))',
-    featured: false,
-  },
-  {
-    id: 'ctf-itsecdevx26',
-    name: 'CTF itsecdevx26',
-    category: 'Security Challenge',
-    tags: ['CTF', 'security'],
-    desc: 'Placeholder — tambahkan deskripsi challenge.',
-    year: '2024',
-    gradient: 'linear-gradient(135deg, rgba(200, 80, 80, 0.08), rgba(139, 115, 85, 0.12))',
-    featured: false,
-  },
-  {
-    id: 'ctf-writeups',
-    name: 'CTF Writeups',
-    category: 'Writeups',
-    tags: ['CTF', 'writeups'],
-    desc: 'Kumpulan writeup dari berbagai kompetisi CTF.',
-    year: '2024–2025',
-    gradient: 'linear-gradient(135deg, rgba(255, 180, 100, 0.08), rgba(139, 115, 85, 0.12))',
-    featured: false,
-  },
-];
+import { projects } from '../../data/projects.ts';
 ---
 
 <section class="section projects" id="projects">
@@ -84,23 +11,27 @@ const projects = [
     </header>
 
     <ul class="projects__grid reveal" style="--delay: 120ms" role="list">
-      {projects.map((p, i) => (
+      {projects.map((p) => (
         <li class={`project-card ${p.featured ? 'project-card--featured' : ''}`}>
-          <a 
-            href={`/projects/${p.id}`} 
+          <a
+            href={`/projects/${p.id}`}
             class="project-card__link"
             style={`--placeholder-gradient: ${p.gradient}`}
           >
             <div class="project-card__top">
               <span class="project-card__year label">{p.year}</span>
-              <span class="project-card__cat">{p.category}</span>
+              <span
+                class="project-card__cat"
+                data-i18n-id={p.category.id}
+                data-i18n-en={p.category.en}
+              >{p.category.id}</span>
             </div>
 
             <h3 class="project-card__name">{p.name}</h3>
-            <p class="project-card__desc" data-i18n={`projects.items.${p.id}.desc`}>{p.desc}</p>
+            <p class="project-card__desc" data-i18n={`projects.items.${p.id}.desc`}>{p.desc.id}</p>
 
             <ul class="project-card__tags" aria-label="Tags">
-              {p.tags.map(t => <li>{t}</li>)}
+              {p.tags.map((tag) => <li>{tag}</li>)}
             </ul>
 
             <span class="project-card__arrow" aria-hidden="true">→</span>
@@ -146,7 +77,7 @@ const projects = [
     .project-card {
       grid-column: span 6;
     }
-    
+
     .project-card--featured {
       grid-column: span 12;
     }
@@ -215,10 +146,6 @@ const projects = [
     justify-content: space-between;
   }
 
-  .project-card__year {
-    /* label class sudah handle font/size/color */
-  }
-
   .project-card__cat {
     font-family: var(--font-mono);
     font-size: 0.68rem;
@@ -266,7 +193,7 @@ const projects = [
     font-size: 0.65rem;
     padding: 0.2rem 0.5rem;
     background: var(--accent-dim);
-    color: var(--accent);
+    color: var(--accent-bright);
     border-radius: 2px;
   }
 
@@ -281,7 +208,7 @@ const projects = [
   }
 
   .project-card__link:hover .project-card__arrow {
-    color: var(--accent);
+    color: var(--accent-bright);
     transform: translateX(4px) scale(1.1);
   }
 </style>
