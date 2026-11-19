@@ -34,3 +34,5 @@ cv/
 /scripts/
 skills/
 _archive
+.worktrees/
+.superpowers/
