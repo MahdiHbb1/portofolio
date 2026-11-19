@@ -1,0 +1,290 @@
+---
+// Loading Screen - Progress bar untuk Three.js Gallery loading
+---
+
+<div class="loading-screen" id="loadingScreen" aria-live="polite" aria-busy="true">
+  <div class="loading-screen__content">
+    <div class="loading-screen__logo">
+      <span class="loading-screen__logo-text">MH<span class="loading-screen__dot">.</span></span>
+    </div>
+
+    <div class="loading-screen__progress">
+      <div class="loading-screen__progress-bar" id="loadingProgressBar"></div>
+    </div>
+
+    <div class="loading-screen__status">
+      <p class="loading-screen__message" id="loadingMessage">Initializing...</p>
+      <p class="loading-screen__percentage" id="loadingPercentage">0%</p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .loading-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    pointer-events: all;
+    transition: opacity 500ms ease, visibility 500ms ease;
+  }
+
+  .loading-screen.is-complete {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .loading-screen__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    max-width: 400px;
+    padding: 2rem;
+  }
+
+  /* Logo */
+  .loading-screen__logo {
+    position: relative;
+  }
+
+  .loading-screen__logo-text {
+    font-family: var(--font-mono);
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--fg);
+    letter-spacing: 0.08em;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .loading-screen__dot {
+    color: var(--accent);
+    animation: pulse 2s ease-in-out infinite 0.3s;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .loading-screen__logo-text,
+    .loading-screen__dot {
+      animation: none;
+    }
+  }
+
+  /* Progress */
+  .loading-screen__progress {
+    width: 280px;
+    height: 4px;
+    background: rgba(232, 224, 212, 0.08);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .loading-screen__progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent) 0%, rgba(160, 120, 80, 0.6) 100%);
+    border-radius: 2px;
+    transition: width 300ms ease;
+    position: relative;
+  }
+
+  .loading-screen__progress-bar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .loading-screen__progress-bar::after {
+      animation: none;
+    }
+  }
+
+  /* Status */
+  .loading-screen__status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .loading-screen__message {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--fg-muted);
+    letter-spacing: 0.05em;
+  }
+
+  .loading-screen__percentage {
+    font-family: var(--font-mono);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+
+  /* Mobile */
+  @media (max-width: 640px) {
+    .loading-screen__logo-text {
+      font-size: 2.5rem;
+    }
+
+    .loading-screen__progress {
+      width: 240px;
+    }
+  }
+</style>
+
+<script>
+  interface LoadingState {
+    progress: number;
+    message: string;
+    status: 'initializing' | 'loading' | 'complete';
+  }
+
+  class LoadingScreen {
+    private screen: HTMLElement;
+    private progressBar: HTMLElement;
+    private message: HTMLElement;
+    private percentage: HTMLElement;
+    private quickTimer = 0;
+    private state: LoadingState = {
+      progress: 0,
+      message: 'Initializing...',
+      status: 'initializing',
+    };
+
+    constructor() {
+      this.screen = document.getElementById('loadingScreen')!;
+      this.progressBar = document.getElementById('loadingProgressBar')!;
+      this.message = document.getElementById('loadingMessage')!;
+      this.percentage = document.getElementById('loadingPercentage')!;
+
+      this.init();
+    }
+
+    private finish(message: string) {
+      if (this.state.status === 'complete') return;
+      this.updateProgress(100, message);
+      this.complete();
+    }
+
+    private init() {
+      // Quick brand splash: complete as soon as the shell is painted
+      setTimeout(() => {
+        if (this.state.status !== 'complete') {
+          this.updateProgress(30, 'Loading...');
+        }
+      }, 120);
+
+      // Three.js gallery events can extend the splash when present
+      window.addEventListener('three-loading-start', () => {
+        window.clearTimeout(this.quickTimer);
+        this.updateProgress(30, 'Loading 3D scene...');
+      });
+
+      window.addEventListener('three-loading-progress', ((e: CustomEvent) => {
+        const { loaded, total } = e.detail;
+        const progress = 30 + (loaded / total) * 65; // 30-95%
+        this.updateProgress(progress, `Loading ${loaded}/${total}...`);
+      }) as EventListener);
+
+      window.addEventListener('three-loading-complete', () => this.finish('Ready!'));
+
+      // Quick path when no gallery loading events fire
+      this.quickTimer = window.setTimeout(() => this.finish('Ready!'), 700);
+    }
+
+    public updateProgress(progress: number, message: string) {
+      this.state.progress = Math.min(Math.max(progress, 0), 100);
+      this.state.message = message;
+      this.state.status = progress >= 100 ? 'complete' : 'loading';
+
+      this.render();
+    }
+
+    private render() {
+      this.progressBar.style.width = `${this.state.progress}%`;
+      this.message.textContent = this.state.message;
+      this.percentage.textContent = `${Math.round(this.state.progress)}%`;
+    }
+
+    private complete() {
+      setTimeout(() => {
+        this.screen.classList.add('is-complete');
+        this.screen.setAttribute('aria-busy', 'false');
+        
+        // Remove from DOM after transition
+        setTimeout(() => {
+          this.screen.remove();
+        }, 500);
+      }, 300);
+    }
+
+    // Public API
+    public show() {
+      this.screen.classList.remove('is-complete');
+      this.screen.setAttribute('aria-busy', 'true');
+    }
+
+    public hide() {
+      this.complete();
+    }
+  }
+
+  // Initialize once per session; on client-side navigation just remove the element
+  function initLoadingScreen() {
+    const screenElement = document.getElementById('loadingScreen');
+    if (!screenElement || screenElement.dataset.initialized === 'true') return;
+    screenElement.dataset.initialized = 'true';
+
+    // Show the splash only on the first load of the session
+    let seen = false;
+    try {
+      seen = sessionStorage.getItem('mh-splash-seen') === '1';
+    } catch {
+      seen = false;
+    }
+
+    if (seen) {
+      screenElement.remove();
+      return;
+    }
+
+    try {
+      sessionStorage.setItem('mh-splash-seen', '1');
+    } catch {
+      // Storage unavailable: splash still shows this once
+    }
+
+    const loadingScreen = new LoadingScreen();
+
+    // Expose to window for external control
+    (window as any).updateLoadingProgress = (progress: number, message: string) => {
+      loadingScreen.updateProgress(progress, message);
+    };
+
+    (window as any).hideLoadingScreen = () => {
+      loadingScreen.hide();
+    };
+  }
+
+  initLoadingScreen();
+  document.addEventListener('astro:page-load', initLoadingScreen);
+</script>

@@ -1,17 +1,7 @@
 ---
+import { t } from '../../data/content';
+
 const achievements = [
-  {
-    id: 'pkmkcSilver',
-    title: 'Medali Perak PKM-KC 2026',
-    category: 'National Award',
-    date: 'November 2026',
-    org: 'AMLI · FMIPA UNESA',
-    desc: 'Medali perak Room KC 1 pada PKM Asosiasi MIPA LPTK Indonesia 2026 untuk SIGAP MBG.',
-    tags: ['PKM-KC', 'Silver Medal', 'SIGAP MBG'],
-    gradient: 'from-amber-900/20 to-yellow-900/20',
-    featured: true,
-    certificate: '/certificates/pkm-kc-2026-medali-perak.pdf',
-  },
   {
     id: 'pkmkc',
     title: 'PKM-KC 2025',
@@ -21,6 +11,7 @@ const achievements = [
     desc: 'Pendanaan nasional untuk sistem monitoring berbasis ML SIGAP MBG',
     tags: ['PKM-KC', 'Machine Learning', 'IoT', 'Social Impact'],
     gradient: 'from-amber-900/20 to-orange-900/20',
+    icon: 'trophy.svg',
     featured: true,
   },
   {
@@ -32,6 +23,7 @@ const achievements = [
     desc: 'Kompetisi CTF - web exploitation & forensics',
     tags: ['CTF', 'Web Security', 'Forensics'],
     gradient: 'from-orange-900/20 to-red-900/20',
+    icon: 'flag.svg',
     featured: false,
   },
   {
@@ -43,6 +35,7 @@ const achievements = [
     desc: 'Deteksi cacat tekstil berbasis CNN - publikasi dalam proses',
     tags: ['Computer Vision', 'CNN', 'Research'],
     gradient: 'from-blue-900/20 to-stone-900/20',
+    icon: 'file-check.svg',
     pending: true,
     featured: false,
   },
@@ -55,6 +48,7 @@ const achievements = [
     desc: 'BuktiTagih AI - verifikasi invoice OCR dalam 48 jam',
     tags: ['AI', 'Hackathon', 'MVP'],
     gradient: 'from-purple-900/20 to-stone-900/20',
+    icon: 'lightbulb.svg',
     pending: true,
     featured: false,
   },
@@ -82,7 +76,7 @@ const achievements = [
             )}
 
             <div class="achievement-card__icon">
-              <img src="/icons/trophy.svg" alt="" width="32" height="32" />
+              <img src={`/icons/${ach.icon}`} alt="" width="32" height="32" />
             </div>
 
             <div class="achievement-card__content">
@@ -98,16 +92,6 @@ const achievements = [
               <ul class="achievement-card__tags" aria-label="Tags">
                 {ach.tags.map(t => <li>{t}</li>)}
               </ul>
-
-              {ach.certificate && (
-                <a
-                  class="achievement-card__link"
-                  href={ach.certificate}
-                  target="_blank"
-                  rel="noopener"
-                  data-i18n="achievements.certificate"
-                >Lihat sertifikat</a>
-              )}
             </div>
 
           </div>
@@ -164,7 +148,6 @@ const achievements = [
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     opacity: 0;
-    pointer-events: none;
     transition: opacity 280ms ease;
   }
 
@@ -269,27 +252,6 @@ const achievements = [
     color: var(--accent);
     border-radius: 3px;
     border: 1px solid rgba(160, 120, 80, 0.2);
-  }
-
-  .achievement-card__link {
-    align-self: flex-start;
-    margin-top: 0.35rem;
-    padding-bottom: 1px;
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.04em;
-    color: var(--accent);
-    border-bottom: 1px solid rgba(160, 120, 80, 0.35);
-    transition: color 160ms ease, border-color 160ms ease;
-  }
-
-  .achievement-card__link::after {
-    content: ' ↗';
-  }
-
-  .achievement-card__link:hover {
-    color: var(--fg);
-    border-color: var(--fg);
   }
 
   @media (min-width: 768px) {

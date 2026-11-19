@@ -1,0 +1,252 @@
+---
+// ParticleField: ambient particle network used as a hero background layer.
+// Purpose: reinforce the security/network identity and react subtly to the
+// cursor. Desktop runs the full set, small screens a lighter one, and
+// prefers-reduced-motion gets a single static frame.
+---
+
+<div class="particle-field" aria-hidden="true">
+  <canvas class="particle-field__canvas"></canvas>
+</div>
+
+<style>
+  .particle-field {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .particle-field__canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<script>
+  interface Particle {
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    r: number;
+    a: number;
+  }
+
+  const LINK_DISTANCE = 140;
+  const MOUSE_RADIUS = 180;
+  const ACCENT = '160, 120, 80';
+
+  function initParticleField() {
+    const canvasFound = document.querySelector('.particle-field__canvas') as HTMLCanvasElement | null;
+    if (!canvasFound || canvasFound.dataset.init === 'true') return;
+    canvasFound.dataset.init = 'true';
+
+    const ctxFound = canvasFound.getContext('2d');
+    if (!ctxFound) return;
+
+    const canvas: HTMLCanvasElement = canvasFound;
+    const ctx: CanvasRenderingContext2D = ctxFound;
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+
+    let particles: Particle[] = [];
+    let width = 0;
+    let height = 0;
+    let rafId = 0;
+    let running = false;
+    let resizeTimer = 0;
+    let mouseX = -9999;
+    let mouseY = -9999;
+
+    function particleCount(): number {
+      const viewport = window.innerWidth;
+      if (viewport <= 900) return 36;
+      if (viewport <= 1400) return 60;
+      return 80;
+    }
+
+    function makeParticles(): Particle[] {
+      const count = particleCount();
+      const list: Particle[] = [];
+      for (let i = 0; i < count; i++) {
+        list.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 0.35,
+          vy: (Math.random() - 0.5) * 0.35,
+          r: Math.random() * 1.4 + 0.6,
+          a: Math.random() * 0.3 + 0.15,
+        });
+      }
+      return list;
+    }
+
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      width = Math.max(1, rect.width);
+      height = Math.max(1, rect.height);
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      particles = makeParticles();
+      if (reducedMotion) drawFrame();
+    }
+
+    function step() {
+      for (const p of particles) {
+        // Gentle cursor repulsion
+        const dx = p.x - mouseX;
+        const dy = p.y - mouseY;
+        const distSq = dx * dx + dy * dy;
+        if (distSq < MOUSE_RADIUS * MOUSE_RADIUS && distSq > 0.01) {
+          const dist = Math.sqrt(distSq);
+          const force = (MOUSE_RADIUS - dist) / MOUSE_RADIUS;
+          p.vx += (dx / dist) * force * 0.18;
+          p.vy += (dy / dist) * force * 0.18;
+        }
+
+        const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+        if (speed > 0.4) {
+          p.vx *= 0.98;
+          p.vy *= 0.98;
+        } else if (speed < 0.06) {
+          // Keep a slow ambient drift alive
+          p.vx += (Math.random() - 0.5) * 0.02;
+          p.vy += (Math.random() - 0.5) * 0.02;
+        }
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < -12) p.x = width + 12;
+        if (p.x > width + 12) p.x = -12;
+        if (p.y < -12) p.y = height + 12;
+        if (p.y > height + 12) p.y = -12;
+      }
+    }
+
+    function drawFrame() {
+      ctx.clearRect(0, 0, width, height);
+
+      // Links between close particles, batched into 4 alpha levels so the
+      // whole network costs at most 4 stroke() calls per frame.
+      const buckets: number[][] = [[], [], [], []];
+      for (let i = 0; i < particles.length; i++) {
+        const a = particles[i];
+        for (let j = i + 1; j < particles.length; j++) {
+          const b = particles[j];
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
+          const distSq = dx * dx + dy * dy;
+          if (distSq > LINK_DISTANCE * LINK_DISTANCE) continue;
+          const t = 1 - Math.sqrt(distSq) / LINK_DISTANCE;
+          const level = Math.min(3, (t * 4) | 0);
+          buckets[level].push(a.x, a.y, b.x, b.y);
+        }
+      }
+
+      ctx.lineWidth = 1;
+      const levelAlpha = [0.03, 0.06, 0.09, 0.12];
+      for (let level = 0; level < 4; level++) {
+        const pts = buckets[level];
+        if (pts.length === 0) continue;
+        ctx.strokeStyle = `rgba(${ACCENT}, ${levelAlpha[level]})`;
+        ctx.beginPath();
+        for (let k = 0; k < pts.length; k += 4) {
+          ctx.moveTo(pts[k], pts[k + 1]);
+          ctx.lineTo(pts[k + 2], pts[k + 3]);
+        }
+        ctx.stroke();
+      }
+
+      // Dots
+      for (const p of particles) {
+        ctx.fillStyle = `rgba(${ACCENT}, ${p.a.toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function tick() {
+      step();
+      drawFrame();
+      rafId = requestAnimationFrame(tick);
+    }
+
+    function start() {
+      if (running || reducedMotion) return;
+      running = true;
+      tick();
+    }
+
+    function stop() {
+      running = false;
+      cancelAnimationFrame(rafId);
+    }
+
+    const onMouseMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top;
+    };
+
+    const onMouseLeave = () => {
+      mouseX = -9999;
+      mouseY = -9999;
+    };
+
+    let tabVisible = !document.hidden;
+    let inViewport = true;
+
+    function syncRunning() {
+      if (reducedMotion) return;
+      if (tabVisible && inViewport) start();
+      else stop();
+    }
+
+    const onVisibility = () => {
+      tabVisible = !document.hidden;
+      syncRunning();
+    };
+
+    // Pause the animation while the hero is off screen
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        inViewport = entry.isIntersecting;
+        syncRunning();
+      },
+      { threshold: 0 },
+    );
+    observer.observe(canvas);
+
+    const onResize = () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(resize, 150);
+    };
+
+    const cleanup = () => {
+      stop();
+      observer.disconnect();
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('resize', onResize);
+      document.removeEventListener('mouseleave', onMouseLeave);
+      document.removeEventListener('visibilitychange', onVisibility);
+      document.removeEventListener('astro:before-swap', cleanup);
+    };
+
+    window.addEventListener('mousemove', onMouseMove, { passive: true });
+    document.addEventListener('mouseleave', onMouseLeave);
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('resize', onResize);
+    document.addEventListener('astro:before-swap', cleanup);
+
+    resize();
+    start();
+  }
+
+  initParticleField();
+  document.addEventListener('astro:page-load', initParticleField);
+</script>

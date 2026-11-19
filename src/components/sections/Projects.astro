@@ -3,7 +3,7 @@ import { t } from '../../data/content';
 
 const projects = [
   {
-    id: 'sigapMbg',
+    id: 'sigap-mbg',
     name: 'SIGAP MBG',
     category: 'Hardware + Software',
     tags: ['PKM-KC', 'ML', 'IoT'],
@@ -23,7 +23,7 @@ const projects = [
     featured: false,
   },
   {
-    id: 'fabricCnn',
+    id: 'fabric-cnn',
     name: 'Fabric Defect CNN',
     category: 'Computer Vision',
     tags: ['deep learning', 'skripsi'],
@@ -53,7 +53,7 @@ const projects = [
     featured: false,
   },
   {
-    id: 'ctfItsecdevx26',
+    id: 'ctf-itsecdevx26',
     name: 'CTF itsecdevx26',
     category: 'Security Challenge',
     tags: ['CTF', 'security'],
@@ -63,7 +63,7 @@ const projects = [
     featured: false,
   },
   {
-    id: 'ctfWriteups',
+    id: 'ctf-writeups',
     name: 'CTF Writeups',
     category: 'Writeups',
     tags: ['CTF', 'writeups'],
@@ -178,9 +178,11 @@ const projects = [
     background: var(--bg-raised);
     border: 1px solid var(--border);
     border-radius: 8px;
-    transition: all 240ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 240ms var(--ease-smooth);
     position: relative;
     overflow: hidden;
+    transform-style: preserve-3d;
+    perspective: 1000px;
   }
 
   .project-card__link::before {
@@ -195,12 +197,16 @@ const projects = [
   .project-card__link:hover {
     background: var(--bg-subtle);
     border-color: var(--border-accent);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    transform: translateY(-4px) rotateX(2deg);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 24px rgba(160, 120, 80, 0.15);
   }
 
   .project-card__link:hover::before {
     opacity: 1;
+  }
+
+  .project-card__link:active {
+    transform: translateY(-2px) rotateX(1deg);
   }
 
   .project-card__top {
@@ -270,11 +276,12 @@ const projects = [
     right: clamp(1.25rem, 3vw, 1.75rem);
     font-size: 1rem;
     color: var(--fg-faint);
-    transition: color 180ms ease, transform 180ms ease;
+    transition: all 220ms var(--ease-spring);
+    transform-origin: center;
   }
 
   .project-card__link:hover .project-card__arrow {
     color: var(--accent);
-    transform: translateX(3px);
+    transform: translateX(4px) scale(1.1);
   }
 </style>

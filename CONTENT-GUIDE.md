@@ -518,16 +518,16 @@ Buka `http://localhost:4321` untuk cek hasil final.
 
 ## Checklist Konten
 
-- [ ] Foto profil (About section)
-- [ ] Teks hero (nama, title, subtitle)
-- [ ] Bio About (2 paragraf)
-- [ ] Email & sosmed di Contact
-- [ ] Achievements (min 3 entry)
-- [ ] Projects (min 3 project dengan detail page)
-- [ ] Writeups (min 2 writeup dengan detail page)
-- [ ] Skills level self-assessment
-- [ ] OG image & favicon
-- [ ] Build & test lokal
+- [ ] Foto profil (About section) (menunggu foto dari kamu)
+- [x] Teks hero (nama, title, subtitle)
+- [x] Bio About (2 paragraf)
+- [x] Email & sosmed di Contact
+- [x] Achievements (min 3 entry) (4 entry)
+- [x] Projects (min 3 project dengan detail page) (7 halaman)
+- [x] Writeups (min 2 writeup dengan detail page) (4 halaman, 2 masih placeholder)
+- [x] Skills level self-assessment
+- [x] OG image & favicon (og-default.png/svg + favicon.ico/svg)
+- [x] Build & test lokal
 - [ ] Deploy ke hosting
 
 ---

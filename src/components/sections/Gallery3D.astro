@@ -1,0 +1,86 @@
+---
+// Gallery3D: 3D Orbit Gallery sebagai section standalone
+// Dipindahkan dari Hero, sekarang section terpisah setelah About
+import OrbitGallery from '../OrbitGallery.astro';
+---
+
+<section class="gallery3d" id="gallery" aria-label="3D Project Gallery">
+  <div class="gallery3d__wrapper">
+    <div class="gallery3d__header">
+      <p class="label">Interactive</p>
+      <h2>Featured Projects</h2>
+      <p class="gallery3d__hint">Drag to explore • Click panels for details</p>
+    </div>
+    
+    <div class="gallery3d__canvas-wrapper">
+      <OrbitGallery />
+    </div>
+  </div>
+</section>
+
+<style>
+  .gallery3d {
+    position: relative;
+    width: 100%;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: clamp(3rem, 8vw, 6rem);
+    background: linear-gradient(180deg, var(--bg) 0%, rgba(15, 14, 13, 0.98) 50%, var(--bg) 100%);
+  }
+
+  .gallery3d__wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .gallery3d__header {
+    text-align: center;
+    padding-inline: clamp(1.25rem, 5vw, 3rem);
+    z-index: 1;
+  }
+
+  .gallery3d__header .label {
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .gallery3d__header h2 {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    margin-bottom: 0.75rem;
+    color: var(--fg);
+  }
+
+  .gallery3d__hint {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--fg-faint);
+    letter-spacing: 0.05em;
+  }
+
+  .gallery3d__canvas-wrapper {
+    flex: 1;
+    min-height: 70vh;
+    position: relative;
+  }
+
+  /* Mobile: hide 3D, show text-only */
+  @media (max-width: 640px) {
+    .gallery3d {
+      min-height: auto;
+      padding-block: clamp(2rem, 6vw, 3rem);
+    }
+
+    .gallery3d__canvas-wrapper {
+      min-height: auto;
+    }
+
+    .gallery3d__hint {
+      display: none;
+    }
+  }
+</style>

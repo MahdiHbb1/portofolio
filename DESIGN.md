@@ -178,7 +178,7 @@ lg: 12px (modals, panels)
 - ❌ Uniform section rhythm (vary composition)
 
 ### Allowed with Purpose
-- ✅ Pink accent (brand identity, consistent hierarchy)
+- ✅ Warm brown accent (brand identity, consistent hierarchy)
 - ✅ Dark theme (appropriate for tech/security portfolio)
 - ✅ Glassmorphism (used sparingly on controls only)
 - ✅ Animations (serve UX purpose: feedback, attention)
@@ -196,6 +196,58 @@ lg: 12px (modals, panels)
 
 **Identity check**: If logo/name swapped, design still feels cybersecurity/technical through:
 - Dark aesthetic
-- Pink accent (unconventional for tech, memorable)
+- Warm brown accent (unconventional for tech, memorable)
 - 3D shader work (technical showcase)
 - Security tool badges (domain specificity)
+
+---
+
+## Advanced Interaction Layer (added Oct 17, 2026)
+
+Motion systems added during the 2026 upgrade. All follow the dials above
+(ENERGY 2 / RHYTHM 2 / MOTION 2) and every one has a stated reason.
+
+### Section shader transition
+- **What**: fullscreen WebGL dissolve (value noise, accent glow at the edge)
+  played when navigating between home sections.
+- **Files**: `src/scripts/sectionTransition.ts`
+- **Why**: masks the scroll jump and reinforces the technical identity with a
+  real GLSL effect. Desktop only, skipped for prefers-reduced-motion.
+- **Duration**: 900ms total (360ms cover, instant jump, 540ms reveal).
+
+### Particle field (hero)
+- **What**: canvas 2D particle network with cursor repulsion and link lines.
+- **Files**: `src/components/ParticleField.astro`
+- **Why**: the security/network metaphor as ambient texture, interactive
+  without competing with the headline.
+- **Budget**: 80 particles desktop, 36 mobile, DPR capped at 1.75, paused when
+  the tab is hidden, static single frame for prefers-reduced-motion.
+
+### Command palette
+- **What**: Cmd/Ctrl+K or `/` opens fuzzy search over navigation, actions,
+  socials (Fuse.js).
+- **Files**: `src/components/CommandPalette.astro`
+- **Why**: developer audience expects keyboard-first navigation; also makes
+  every section reachable in two keystrokes.
+
+### Loading splash
+- **What**: brief brand moment on the first load of a session (700ms quick
+  path), with hooks to extend when the 3D gallery reports progress.
+- **Files**: `src/components/LoadingScreen.astro`
+- **Why**: covers the first-paint gap, then gets out of the way. Shown once
+  per session, never on in-page navigation.
+
+### Parallax layers
+- **What**: scroll-linked depth on hero grid (0.5x), hero glow (1.2x), about
+  photo (0.8x), gallery header (0.6x).
+- **Files**: `src/scripts/parallax.ts`
+- **Why**: depth without motion sickness; RAF-throttled, disabled on mobile
+  and for prefers-reduced-motion.
+
+### AI chat assistant
+- **What**: portfolio-scoped assistant (gpt-4o-mini) that answers questions
+  about projects, skills, experience and redirects off-topic asks.
+- **Files**: `src/components/ChatAssistant.astro`, `src/pages/api/chat.ts`,
+  `src/utils/portfolioContext.ts`
+- **Why**: recruiters get answers without hunting through sections. Rate
+  limited (20 messages/hour/session), API key stays server-side.

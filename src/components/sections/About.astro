@@ -1,21 +1,25 @@
 ---
+import { t } from '../../data/content';
+
+const stats = [
+  { value: '2+', label: 'Years Experience', id: 'years' },
+  { value: '10+', label: 'Projects', id: 'projects' },
+  { value: '5+', label: 'CTF Competitions', id: 'ctf' },
+  { value: '1', label: 'PKM Grant', id: 'pkm' },
+];
 ---
 
 <section class="section about" id="about">
   <div class="container about__inner reveal">
 
     <header class="about__header">
-      <p class="label" data-i18n="about.label">Tentang</p>
-      <h2 class="about__heading" data-i18n="about.heading">Siapa Saya</h2>
-      <img
-        src="/images/profile.jpg"
-        alt="Mahdi Habibi"
-        class="about__photo"
-        width="768"
-        height="1024"
-        loading="lazy"
-        decoding="async"
-      />
+      <div class="about__header-sticky">
+        <p class="label" data-i18n="about.label">Tentang</p>
+        <h2 class="about__heading" data-i18n="about.heading">Siapa Saya</h2>
+        <div class="about__photo-placeholder" aria-label="Foto placeholder">
+          <span class="photo-hint">Foto</span>
+        </div>
+      </div>
     </header>
 
     <div class="about__body">
@@ -40,6 +44,16 @@
       </ul>
     </div>
 
+    <!-- Stats counter -->
+    <div class="about__stats">
+      {stats.map(stat => (
+        <div class="stat-item">
+          <div class="stat-item__value" data-target={stat.value}>{stat.value}</div>
+          <div class="stat-item__label">{stat.label}</div>
+        </div>
+      ))}
+    </div>
+
   </div>
 </section>
 
@@ -47,11 +61,18 @@
   .about__inner {
     display: grid;
     grid-template-columns: 1fr 2fr;
-    gap: clamp(2rem, 6vw, 5rem);
+    column-gap: clamp(2rem, 6vw, 5rem);
+    row-gap: 2.5rem;
     align-items: start;
   }
 
   .about__header {
+    /* Fill row 1 so the sticky inner stays locked inside this row and can
+       never slide over the stats row below */
+    align-self: stretch;
+  }
+
+  .about__header-sticky {
     position: sticky;
     top: 2rem;
   }
@@ -63,19 +84,100 @@
     margin-bottom: 0;
   }
 
-  .about__photo {
-    display: block;
+  .about__photo-placeholder {
     margin-top: 1rem;
     width: 100%;
-    max-width: 16rem;
-    height: auto;
     aspect-ratio: 3 / 4;
-    border: 1px solid var(--border-accent);
+    max-width: 16rem;
+    border: 2px solid rgba(232, 224, 212, 0.3);
     border-radius: 8px;
-    object-fit: cover;
-    box-shadow:
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(160, 120, 80, 0.05) 0%, rgba(232, 224, 212, 0.03) 100%);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
       0 0 20px rgba(160, 120, 80, 0.15),
-      0 18px 40px rgba(0, 0, 0, 0.35);
+      inset 0 0 20px rgba(232, 224, 212, 0.05);
+  }
+
+  .about__photo-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 8px;
+    padding: 2px;
+    background: linear-gradient(135deg, 
+      rgba(232, 224, 212, 0.4) 0%, 
+      rgba(160, 120, 80, 0.6) 50%, 
+      rgba(232, 224, 212, 0.4) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.7;
+    animation: glow-pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.9; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .about__photo-placeholder::before {
+      animation: none;
+      opacity: 0.7;
+    }
+  }
+
+  .photo-hint {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    z-index: 1;
+  }
+
+  /* Stats counter */
+  .about__stats {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+
+  .stat-item {
+    text-align: center;
+    padding: 1rem 0.5rem;
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transition: all 220ms var(--ease-smooth);
+  }
+
+  .stat-item:hover {
+    background: var(--bg-subtle);
+    border-color: var(--border-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .stat-item__value {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-item__label {
+    font-size: 0.65rem;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .about__body {
@@ -89,7 +191,7 @@
     color: var(--fg-muted);
     font-size: 1.05rem;
     line-height: 1.75;
-    max-width: none; /* kolom 2fr sudah membatasi lebar — max-width tidak perlu */
+    max-width: none;
   }
 
   .about__bio strong {
@@ -113,6 +215,13 @@
     border: 1px solid var(--border);
     border-radius: 3px;
     color: var(--accent);
+    transition: all 180ms ease;
+  }
+
+  .about__tags li:hover {
+    background: var(--accent-dim);
+    border-color: var(--border-accent);
+    transform: translateY(-1px);
   }
 
   @media (max-width: 900px) {
@@ -122,16 +231,30 @@
     }
 
     .about__header {
-      position: static;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
     }
 
-    .about__photo {
+    .about__header-sticky {
+      position: static;
+    }
+
+    .about__photo-placeholder {
       margin-top: 1.5rem;
       margin-inline: auto;
+    }
+
+    .about__stats {
+      grid-template-columns: repeat(2, 1fr);
+      width: 100%;
+      max-width: 20rem;
+      margin-inline: auto;
+    }
+
+    .about__body {
+      padding-top: 0;
     }
 
     .about__bio {
@@ -139,3 +262,57 @@
     }
   }
 </style>
+
+<script>
+  // Animated counter for stats
+  function animateCounter(element: HTMLElement) {
+    const target = element.dataset.target || element.textContent || '0';
+    const isNumeric = /^\d+$/.test(target);
+    
+    if (!isNumeric) {
+      element.textContent = target;
+      return;
+    }
+
+    const duration = 2000;
+    const targetNum = parseInt(target);
+    const startTime = performance.now();
+
+    function update(currentTime: number) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Easing function
+      const easeOutExpo = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      
+      const current = Math.floor(easeOutExpo * targetNum);
+      element.textContent = current.toString();
+
+      if (progress < 1) {
+        requestAnimationFrame(update);
+      } else {
+        element.textContent = target;
+      }
+    }
+
+    requestAnimationFrame(update);
+  }
+
+  function initAboutCounters() {
+    const counters = document.querySelectorAll('.stat-item__value');
+    
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateCounter(entry.target as HTMLElement);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    counters.forEach(counter => observer.observe(counter));
+  }
+
+  initAboutCounters();
+  document.addEventListener('astro:page-load', initAboutCounters);
+</script>

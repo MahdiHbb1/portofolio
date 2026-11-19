@@ -1,0 +1,44 @@
+---
+import TerminalEgg from '../TerminalEgg.astro';
+---
+
+<section class="section terminal-playground" id="terminal">
+  <div class="container">
+
+    <header class="terminal-playground__header reveal">
+      <p class="label" data-i18n="terminal.label">Playground</p>
+      <h2 data-i18n="terminal.heading">Terminal</h2>
+      <p class="terminal-playground__hint" data-i18n="terminal.hint">
+        Bukan tangkapan layar, ini shell beneran. Ketik help buat mulai, intip isi filesystem-nya, siapa tahu ada yang menarik.
+      </p>
+    </header>
+
+    <div class="terminal-playground__frame reveal" style="--delay: 120ms">
+      <TerminalEgg variant="inline" />
+    </div>
+
+  </div>
+</section>
+
+<style>
+  .terminal-playground__header {
+    margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
+  }
+
+  .terminal-playground__header h2 {
+    margin-top: 0.5rem;
+  }
+
+  .terminal-playground__hint {
+    max-width: 42rem;
+    margin-top: 0.9rem;
+    color: var(--fg-muted);
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+
+  .terminal-playground__frame {
+    max-width: 56rem;
+    margin: 0 auto;
+  }
+</style>

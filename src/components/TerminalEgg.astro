@@ -1,0 +1,1049 @@
+---
+import { buildPortfolioContext } from '../utils/portfolioContext';
+
+interface Props {
+  /** "modal" floats over every page; "inline" renders in page flow (homepage playground). */
+  variant?: 'modal' | 'inline';
+}
+
+const { variant = 'modal' } = Astro.props;
+const isInline = variant === 'inline';
+
+const portfolio = buildPortfolioContext();
+// Escape "<" so the payload can never terminate the script tag early.
+const terminalData = JSON.stringify(portfolio).replace(/</g, '\\u003c');
+---
+
+<div
+  class:list={['terminal', isInline && 'terminal--inline']}
+  data-terminal-root
+  data-terminal-variant={variant}
+  hidden={!isInline}
+>
+  {!isInline && <div class="terminal__backdrop" data-terminal-backdrop></div>}
+
+  <div
+    class="terminal__window"
+    role={isInline ? 'region' : 'dialog'}
+    aria-modal={isInline ? undefined : 'true'}
+    aria-label={isInline ? 'Interactive terminal on the page' : 'Interactive terminal'}
+  >
+    <div class="terminal__bar">
+      <span class="terminal__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="terminal__title">guest@mahdi: ~</span>
+      {!isInline && (
+        <button class="terminal__close" data-terminal-close aria-label="Close terminal">esc</button>
+      )}
+      {isInline && <span class="terminal__badge" aria-hidden="true">interactive</span>}
+    </div>
+
+    <div class="terminal__body" data-terminal-body role="log" aria-live="polite"></div>
+
+    <div class="terminal__input-row">
+      <span class="terminal__prompt" aria-hidden="true">guest@mahdi:~$</span>
+      <input
+        class="terminal__input"
+        data-terminal-input
+        type="text"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        aria-label="Terminal command input"
+      />
+    </div>
+  </div>
+
+  <script type="application/json" data-terminal-data set:html={terminalData} />
+</div>
+
+<!-- is:global: runtime-created nodes miss Astro's scoped-style attribute. -->
+<style is:global>
+  .terminal {
+    --term-ok: #8fae82;
+    --term-err: #c97b6d;
+
+    position: fixed;
+    inset: 0;
+    z-index: 9998; /* below the command palette, above the chat widget */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  /* Author styles beat the UA [hidden] rule, so restate it. */
+  .terminal[hidden] {
+    display: none;
+  }
+
+  .terminal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 9, 8, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .terminal__window {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: min(680px, 100%);
+    max-height: min(72vh, 560px);
+    background: var(--bg);
+    border: 1px solid var(--border-accent);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+    animation: terminal-in 140ms var(--ease-out-expo);
+  }
+
+  @keyframes terminal-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.985);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .terminal__bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 0.85rem;
+    background: var(--bg-subtle);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .terminal__dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .terminal__dots i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .terminal__dots i:nth-child(1) {
+    background: #a85450;
+  }
+
+  .terminal__dots i:nth-child(2) {
+    background: #a8823f;
+  }
+
+  .terminal__dots i:nth-child(3) {
+    background: #6f8f62;
+  }
+
+  .terminal__title {
+    flex: 1;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--fg-faint);
+    letter-spacing: 0.02em;
+  }
+
+  .terminal__close {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    color: var(--fg-faint);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.15rem 0.4rem;
+    cursor: pointer;
+    transition: color 160ms var(--ease-smooth), border-color 160ms var(--ease-smooth);
+  }
+
+  .terminal__close:hover {
+    color: var(--fg);
+    border-color: var(--border-accent);
+  }
+
+  .terminal__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.9rem 1.05rem;
+    font-family: var(--font-mono);
+    font-size: 0.79rem;
+    line-height: 1.65;
+    color: var(--fg-muted);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .terminal__body::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .terminal__body::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+  }
+
+  .terminal__line {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .terminal__line--fg {
+    color: var(--fg);
+  }
+
+  .terminal__line--accent {
+    color: var(--accent);
+  }
+
+  .terminal__line--dim {
+    color: var(--fg-faint);
+  }
+
+  .terminal__line--ok {
+    color: var(--term-ok);
+  }
+
+  .terminal__line--error {
+    color: var(--term-err);
+  }
+
+  .terminal__line--echo .terminal__prompt-inline {
+    color: var(--accent);
+  }
+
+  .terminal__line--echo .terminal__line--cmd {
+    color: var(--fg);
+  }
+
+  .terminal__input-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.05rem;
+    background: var(--bg-subtle);
+    border-top: 1px solid var(--border);
+    transition: border-color 180ms var(--ease-smooth);
+  }
+
+  .terminal__input-row:focus-within {
+    border-top-color: var(--border-accent);
+  }
+
+  .terminal__prompt {
+    font-family: var(--font-mono);
+    font-size: 0.79rem;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .terminal__input {
+    flex: 1;
+    min-width: 0;
+    background: none;
+    border: none;
+    outline: none;
+    font-family: var(--font-mono);
+    font-size: 0.79rem;
+    color: var(--fg);
+    caret-color: var(--accent);
+  }
+
+  .terminal__confetti {
+    position: fixed;
+    inset: 0;
+    z-index: 10000; /* decorative, above every panel, pointer-events none */
+    pointer-events: none;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .terminal__badge {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-dim);
+    border: 1px solid var(--border-accent);
+    border-radius: 4px;
+    padding: 0.15rem 0.45rem;
+  }
+
+  @media (max-width: 480px) {
+    .terminal {
+      padding: 0.75rem;
+      align-items: flex-end;
+    }
+
+    .terminal__window {
+      max-height: min(78vh, 560px);
+      border-radius: 12px;
+    }
+
+    .terminal__body {
+      font-size: 0.74rem;
+    }
+
+    .terminal__input,
+    .terminal__prompt {
+      font-size: 0.74rem;
+    }
+  }
+
+  /* --- inline variant: homepage playground, sits in page flow --- */
+
+  .terminal--inline {
+    position: static;
+    inset: auto;
+    z-index: auto;
+    display: block;
+    padding: 0;
+  }
+
+  .terminal--inline .terminal__window {
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    height: clamp(320px, 52vh, 440px);
+    animation: none;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
+  }
+</style>
+
+<script>
+  interface TerminalProject {
+    id: string;
+    name: string;
+    category: string;
+    description: string;
+    tags: string[];
+    year: string;
+  }
+
+  interface TerminalWriteup {
+    id: string;
+    title: string;
+    event: string;
+    year: string;
+    category: string;
+    tags: string[];
+  }
+
+  interface TerminalAchievement {
+    title: string;
+    category: string;
+    date: string;
+    organization: string;
+  }
+
+  interface TerminalData {
+    about: {
+      name: string;
+      title: string;
+      bio: string[];
+      organization: string;
+      position: string;
+      location: string;
+      email: string;
+    };
+    projects: TerminalProject[];
+    writeups: TerminalWriteup[];
+    skills: { security: string[]; ml: string[]; web: string[]; tools: string[] };
+    achievements: TerminalAchievement[];
+    social: { github: string; linkedin: string; email: string };
+  }
+
+  class TerminalEgg {
+    private root: HTMLElement;
+    private body: HTMLElement;
+    private input: HTMLInputElement;
+    private backdrop: HTMLElement | null;
+    private closeBtn: HTMLElement | null;
+    private readonly inline: boolean;
+
+    private data: TerminalData;
+    private isOpen = false;
+    private booted = false;
+    private awaitingSudo = false;
+    private prevOverflow = '';
+    private startedAt = Date.now();
+    private history: string[] = [];
+    private historyIndex = 0;
+
+    private readonly commandNames = [
+      'help',
+      'whoami',
+      'ls',
+      'cat',
+      'neofetch',
+      'sudo',
+      'history',
+      'clear',
+      'exit',
+    ];
+
+    constructor(root: HTMLElement) {
+      this.root = root;
+      this.inline = root.dataset.terminalVariant === 'inline';
+      this.body = root.querySelector<HTMLElement>('[data-terminal-body]')!;
+      this.input = root.querySelector<HTMLInputElement>('[data-terminal-input]')!;
+      this.backdrop = root.querySelector<HTMLElement>('[data-terminal-backdrop]');
+      this.closeBtn = root.querySelector<HTMLElement>('[data-terminal-close]');
+
+      const raw = root.querySelector('[data-terminal-data]')?.textContent ?? '{}';
+      const fallback: TerminalData = {
+        about: {
+          name: 'Mahdi Habibi',
+          title: '',
+          bio: [],
+          organization: '',
+          position: '',
+          location: '',
+          email: '',
+        },
+        projects: [],
+        writeups: [],
+        skills: { security: [], ml: [], web: [], tools: [] },
+        achievements: [],
+        social: { github: '', linkedin: '', email: '' },
+      };
+      this.data = { ...fallback, ...(JSON.parse(raw) as Partial<TerminalData>) };
+
+      this.setup();
+
+      // The inline shell is visible from the start, so it boots immediately.
+      if (this.inline) {
+        this.boot();
+        this.booted = true;
+      }
+    }
+
+    private setup() {
+      this.body.addEventListener('click', () => this.input.focus());
+      this.input.addEventListener('keydown', this.onInputKeydown);
+
+      // Modal-only wiring: the inline shell never opens, closes or locks scroll.
+      if (this.inline) return;
+
+      this.backdrop?.addEventListener('click', () => this.close());
+      this.closeBtn?.addEventListener('click', () => this.close());
+      document.addEventListener('keydown', this.onDocumentKeydown);
+      window.addEventListener('terminal:open', this.onOpenEvent);
+    }
+
+    public isConnected(): boolean {
+      return this.root.isConnected;
+    }
+
+    public destroy() {
+      this.input.removeEventListener('keydown', this.onInputKeydown);
+      document.removeEventListener('keydown', this.onDocumentKeydown);
+      window.removeEventListener('terminal:open', this.onOpenEvent);
+      if (this.isOpen) {
+        document.body.style.overflow = this.prevOverflow;
+      }
+    }
+
+    // --- open / close ---
+
+    public open() {
+      if (this.inline || this.isOpen) return;
+      this.isOpen = true;
+      this.prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      this.root.hidden = false;
+
+      if (!this.booted) {
+        this.boot();
+        this.booted = true;
+      }
+
+      requestAnimationFrame(() => this.input.focus());
+    }
+
+    public close() {
+      if (this.inline || !this.isOpen) return;
+      this.isOpen = false;
+      this.root.hidden = true;
+      document.body.style.overflow = this.prevOverflow;
+      this.awaitingSudo = false;
+      this.input.type = 'text';
+      this.input.value = '';
+      window.dispatchEvent(new CustomEvent('terminal:close'));
+    }
+
+    private boot() {
+      this.print('Mahdi OS 2026.1 (web-term)', 'accent');
+      this.print(
+        this.inline
+          ? '(c) Mahdi Habibi · type `help` to look around'
+          : '(c) Mahdi Habibi · type `help` to look around · Esc closes',
+        'dim'
+      );
+      this.print('');
+    }
+
+    // --- events ---
+
+    private onOpenEvent = () => this.open();
+
+    private onDocumentKeydown = (e: KeyboardEvent) => {
+      if (
+        e.key === '`' &&
+        !e.ctrlKey &&
+        !e.metaKey &&
+        !e.altKey &&
+        !this.isOpen &&
+        !this.isTypingContext() &&
+        !document.querySelector('.command-palette.is-open')
+      ) {
+        e.preventDefault();
+        this.open();
+        return;
+      }
+
+      if (e.key === 'Escape' && this.isOpen) {
+        this.close();
+      }
+    };
+
+    private onInputKeydown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        const value = this.input.value;
+        this.input.value = '';
+        this.run(value);
+        return;
+      }
+
+      if (this.awaitingSudo) {
+        if (e.key === 'Escape' && !this.inline) this.close();
+        return;
+      }
+
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (this.history.length === 0) return;
+        this.historyIndex = Math.max(0, this.historyIndex - 1);
+        this.input.value = this.history[this.historyIndex] ?? '';
+        this.setCaretEnd();
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        this.historyIndex = Math.min(this.history.length, this.historyIndex + 1);
+        this.input.value = this.history[this.historyIndex] ?? '';
+        this.setCaretEnd();
+      } else if (e.key === 'Tab') {
+        e.preventDefault();
+        this.complete();
+      } else if (e.key === 'Escape' && !this.inline) {
+        this.close();
+      }
+    };
+
+    private isTypingContext(): boolean {
+      const el = document.activeElement as HTMLElement | null;
+      if (!el) return false;
+      return (
+        el.tagName === 'INPUT' ||
+        el.tagName === 'TEXTAREA' ||
+        el.tagName === 'SELECT' ||
+        el.isContentEditable
+      );
+    }
+
+    private setCaretEnd() {
+      requestAnimationFrame(() => {
+        const end = this.input.value.length;
+        this.input.setSelectionRange(end, end);
+      });
+    }
+
+    // --- output helpers ---
+
+    private print(text = '', variant?: 'fg' | 'accent' | 'dim' | 'ok' | 'error') {
+      const line = document.createElement('div');
+      line.className = 'terminal__line';
+      if (variant) line.classList.add(`terminal__line--${variant}`);
+      line.textContent = text;
+      this.body.appendChild(line);
+      this.scrollToBottom();
+    }
+
+    private printEcho(command: string) {
+      const line = document.createElement('div');
+      line.className = 'terminal__line terminal__line--echo';
+
+      const prompt = document.createElement('span');
+      prompt.className = 'terminal__prompt-inline';
+      prompt.textContent = 'guest@mahdi:~$';
+
+      const text = document.createElement('span');
+      text.className = 'terminal__line--cmd';
+      text.textContent = ` ${command}`;
+
+      line.append(prompt, text);
+      this.body.appendChild(line);
+      this.scrollToBottom();
+    }
+
+    private scrollToBottom() {
+      this.body.scrollTop = this.body.scrollHeight;
+    }
+
+    // --- command dispatch ---
+
+    private run(raw: string) {
+      if (this.awaitingSudo) {
+        this.awaitingSudo = false;
+        this.input.type = 'text';
+        this.print('');
+        this.print(
+          'Sorry, guest is not in the sudoers file. This incident has been reported. ;)',
+          'error'
+        );
+        return;
+      }
+
+      const value = raw.trim();
+      this.printEcho(value);
+      if (!value) return;
+
+      this.history.push(value);
+      this.historyIndex = this.history.length;
+
+      const spaceIndex = value.indexOf(' ');
+      const command = spaceIndex === -1 ? value : value.slice(0, spaceIndex);
+      const argument = spaceIndex === -1 ? '' : value.slice(spaceIndex + 1).trim();
+
+      switch (command) {
+        case 'help':
+          this.cmdHelp();
+          break;
+        case 'whoami':
+          this.cmdWhoami();
+          break;
+        case 'ls':
+          this.cmdLs(argument);
+          break;
+        case 'cat':
+          this.cmdCat(argument);
+          break;
+        case 'neofetch':
+          this.cmdNeofetch();
+          break;
+        case 'sudo':
+          this.cmdSudo(argument);
+          break;
+        case 'history':
+          this.cmdHistory();
+          break;
+        case 'clear':
+          this.body.innerHTML = '';
+          break;
+        case 'exit':
+          if (this.inline) {
+            this.print(
+              'exit: this shell lives on this page. press ` anywhere for the popup version.',
+              'dim'
+            );
+          } else {
+            this.close();
+          }
+          break;
+        case 'cd':
+          this.print('cd: permission denied. the whole portfolio fits on one page anyway.', 'dim');
+          break;
+        case 'rm':
+          this.print(
+            'rm: operation not permitted. this portfolio is immutable (so is the motivation).',
+            'dim'
+          );
+          break;
+        default:
+          this.print(`command not found: ${command}`, 'error');
+          this.print("type 'help' for available commands.", 'dim');
+      }
+    }
+
+    private cmdHelp() {
+      this.print('Available commands:', 'fg');
+      const rows: Array<[string, string]> = [
+        ['help', 'this list'],
+        ['whoami', 'short intro'],
+        ['cat about.txt', 'full bio'],
+        ['ls', 'list files'],
+        ['ls projects', 'list project folders'],
+        ['cat projects/<id>', 'open a project'],
+        ['ls writeups', 'list CTF writeups'],
+        ['cat writeups/<id>', 'open a writeup'],
+        ['cat skills.txt', 'skills overview'],
+        ['cat contact.txt', 'contact info'],
+        ['neofetch', 'system info, but personal'],
+        ['history', 'recent commands'],
+        ['clear / exit', 'housekeeping'],
+      ];
+      rows.forEach(([cmd, desc]) => this.print(`  ${cmd.padEnd(20)}${desc}`, 'dim'));
+      this.print('');
+      this.print('tab completes commands · ↑ repeats history · Esc closes', 'accent');
+    }
+
+    private cmdWhoami() {
+      const about = this.data.about;
+      this.print(about.name, 'accent');
+      this.print(`${about.title} · ${about.position}`);
+      this.print(`${about.organization} · ${about.location}`, 'dim');
+    }
+
+    private cmdLs(argument: string) {
+      const parts = argument.split(/\s+/).filter(Boolean);
+      const flags = parts.filter((part) => part.startsWith('-')).join('');
+      const targets = parts.filter((part) => !part.startsWith('-'));
+      const target = (targets[0] ?? '').replace(/\/+$/, '');
+      const showHidden = flags.includes('a') || flags.includes('l');
+
+      if (!target) {
+        if (showHidden) {
+          this.print('.bash_history   .flag.txt', 'accent');
+        }
+        this.print('about.txt   skills.txt   contact.txt   achievements.txt   projects/   writeups/', 'fg');
+        if (!showHidden) {
+          this.print('');
+          this.print('1 hidden entry. try `ls -la`', 'dim');
+        }
+        return;
+      }
+
+      if (target === 'projects') {
+        this.data.projects.forEach((project) => this.print(`  ${project.id}/`, 'accent'));
+        this.print('');
+        this.print('cat projects/<id> to open one.', 'dim');
+        return;
+      }
+
+      if (target === 'writeups') {
+        this.data.writeups.forEach((writeup) => this.print(`  ${writeup.id}/`, 'accent'));
+        this.print('');
+        this.print('cat writeups/<id> to read one.', 'dim');
+        return;
+      }
+
+      this.print(`ls: cannot access '${target}': No such file or directory`, 'error');
+    }
+
+    private cmdCat(argument: string) {
+      if (!argument) {
+        this.print('usage: cat <file>', 'dim');
+        return;
+      }
+
+      const file = argument.replace(/^\.\//, '').replace(/\/+$/, '');
+
+      switch (file) {
+        case 'about.txt':
+          this.data.about.bio.forEach((line) => this.print(`· ${line}`));
+          break;
+
+        case 'skills.txt': {
+          const skills = this.data.skills;
+          this.print(`security  ${skills.security.join(', ')}`);
+          this.print(`ml        ${skills.ml.join(', ')}`);
+          this.print(`web       ${skills.web.join(', ')}`);
+          this.print(`tools     ${skills.tools.join(', ')}`);
+          break;
+        }
+
+        case 'contact.txt': {
+          const social = this.data.social;
+          this.print(`email     ${social.email || this.data.about.email}`);
+          this.print(`github    ${social.github}`);
+          this.print(`linkedin  ${social.linkedin}`);
+          break;
+        }
+
+        case 'achievements.txt':
+          this.data.achievements.forEach((achievement) =>
+            this.print(
+              `· ${achievement.title} · ${achievement.organization} · ${achievement.date}`
+            )
+          );
+          break;
+
+        case 'projects':
+          this.print('cat: projects: Is a directory. try `ls projects`.', 'error');
+          break;
+
+        case 'writeups':
+          this.print('cat: writeups: Is a directory. try `ls writeups`.', 'error');
+          break;
+
+        case '.bash_history':
+          this.print('whoami', 'dim');
+          this.print('ls -la', 'dim');
+          this.print('cat .flag.txt   # noted, future me', 'dim');
+          break;
+
+        case '.flag.txt':
+          this.foundFlag();
+          break;
+
+        default: {
+          const projectMatch = file.match(/^projects\/(.+)$/);
+          const projectId = projectMatch ? projectMatch[1] : '';
+          const project = projectId
+            ? this.data.projects.find((p) => p.id === projectId)
+            : undefined;
+
+          if (project) {
+            this.print(project.name, 'accent');
+            this.print(`${project.category} · ${project.year}`);
+            this.print('');
+            this.print(project.description);
+            this.print('');
+            this.print(project.tags.map((tag) => `#${tag}`).join('  '), 'dim');
+            break;
+          }
+
+          const writeupMatch = file.match(/^writeups\/(.+)$/);
+          const writeupId = writeupMatch ? writeupMatch[1] : '';
+          const writeup = writeupId
+            ? this.data.writeups.find((w) => w.id === writeupId)
+            : undefined;
+
+          if (writeup) {
+            this.print(writeup.title, 'accent');
+            this.print(`${writeup.event} · ${writeup.category} · ${writeup.year}`);
+            this.print('');
+            this.print(writeup.tags.map((tag) => `#${tag}`).join('  '), 'dim');
+            this.print('');
+            this.print(`read it at /writeups/${writeup.id}`, 'dim');
+            break;
+          }
+
+          this.print(`cat: ${file}: No such file or directory`, 'error');
+        }
+      }
+    }
+
+    private cmdNeofetch() {
+      const about = this.data.about;
+
+      this.print('    ███╗   ███╗ ██╗  ██╗', 'accent');
+      this.print('    ████╗ ████║ ██║  ██║', 'accent');
+      this.print('    ██╔████╔██║ ███████║', 'accent');
+      this.print('    ██║╚██╔╝██║ ██╔══██║', 'accent');
+      this.print('    ██║ ╚═╝ ██║ ██║  ██║', 'accent');
+      this.print('    ╚═╝     ╚═╝ ╚═╝  ╚═╝', 'accent');
+      this.print('');
+      this.print('guest@mahdi', 'fg');
+      this.print('-----------', 'fg');
+
+      const rows: Array<[string, string]> = [
+        ['Host', about.name],
+        ['Role', about.title],
+        ['Org', about.organization],
+        ['Location', about.location],
+        ['Shell', 'kevin-sh 1.0'],
+        ['Terminal', 'web-term'],
+        ['Uptime', this.uptime()],
+        ['Coffee', '████████░░ 80%'],
+      ];
+      rows.forEach(([key, value]) => this.print(`${key.padEnd(10)} ${value}`));
+    }
+
+    private uptime(): string {
+      const seconds = Math.floor((Date.now() - this.startedAt) / 1000);
+      const minutes = Math.floor(seconds / 60);
+      return minutes > 0 ? `${minutes}m ${seconds % 60}s` : `${seconds}s`;
+    }
+
+    private cmdSudo(argument: string) {
+      if (!argument) {
+        this.print('usage: sudo <command>', 'dim');
+        return;
+      }
+
+      this.awaitingSudo = true;
+      this.input.type = 'password';
+      this.print('[sudo] password for guest:', 'dim');
+    }
+
+    private cmdHistory() {
+      if (this.history.length === 0) {
+        this.print('history: empty', 'dim');
+        return;
+      }
+      this.history.forEach((command, index) =>
+        this.print(`${String(index + 1).padStart(4)}  ${command}`, 'dim')
+      );
+    }
+
+    // --- hidden flag ---
+
+    private foundFlag() {
+      const key = 'mh_terminal_flag';
+      let previous = false;
+
+      try {
+        previous = localStorage.getItem(key) === 'found';
+        localStorage.setItem(key, 'found');
+      } catch {
+        // Private mode or storage disabled: the flag still counts.
+      }
+
+      this.print('flag{cur10s1ty_p4ys_0ff}', 'ok');
+      this.print('');
+
+      if (previous) {
+        this.print('welcome back, flag collector. confetti is a first-time perk.', 'dim');
+        return;
+      }
+
+      this.print('nice. you looked where nobody looks.', 'accent');
+      this.confetti();
+
+      if (typeof (window as any).showToast === 'function') {
+        (window as any).showToast('You found the hidden flag', {
+          type: 'success',
+          title: 'Achievement unlocked',
+        });
+      }
+    }
+
+    private confetti() {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      const canvas = document.createElement('canvas');
+      canvas.className = 'terminal__confetti';
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      document.body.appendChild(canvas);
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        canvas.remove();
+        return;
+      }
+      ctx.scale(dpr, dpr);
+
+      const colors = ['#a07850', '#e8e0d4', '#8fae82', '#c97b6d', '#a8823f'];
+      const pieces = Array.from({ length: 140 }, () => ({
+        x: width / 2 + (Math.random() - 0.5) * 220,
+        y: height / 2 - 40 + (Math.random() - 0.5) * 90,
+        vx: (Math.random() - 0.5) * 11,
+        vy: -Math.random() * 9 - 3,
+        size: 4 + Math.random() * 5,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rotation: Math.random() * Math.PI,
+        spin: (Math.random() - 0.5) * 0.3,
+      }));
+
+      // Time-based so the show lasts the same on fast and slow machines.
+      const startedAt = performance.now();
+
+      const tick = () => {
+        const elapsed = performance.now() - startedAt;
+        ctx.clearRect(0, 0, width, height);
+
+        pieces.forEach((piece) => {
+          piece.vy += 0.28;
+          piece.x += piece.vx;
+          piece.y += piece.vy;
+          piece.rotation += piece.spin;
+
+          ctx.save();
+          ctx.translate(piece.x, piece.y);
+          ctx.rotate(piece.rotation);
+          ctx.globalAlpha = Math.max(0, 1 - elapsed / 2200);
+          ctx.fillStyle = piece.color;
+          ctx.fillRect(-piece.size / 2, -piece.size / 2, piece.size, piece.size * 0.6);
+          ctx.restore();
+        });
+
+        if (elapsed < 2500) {
+          requestAnimationFrame(tick);
+        } else {
+          canvas.remove();
+        }
+      };
+
+      requestAnimationFrame(tick);
+      // Safety net: if rAF pauses (hidden tab), still clean up.
+      window.setTimeout(() => canvas.remove(), 3000);
+    }
+
+    // --- tab completion ---
+
+    private complete() {
+      const value = this.input.value;
+
+      const files = [
+        'about.txt',
+        'skills.txt',
+        'contact.txt',
+        'achievements.txt',
+        ...this.data.projects.map((project) => `projects/${project.id}`),
+        ...this.data.writeups.map((writeup) => `writeups/${writeup.id}`),
+      ];
+
+      if (!value.includes(' ')) {
+        const matches = this.commandNames.filter((name) => name.startsWith(value) && name !== value);
+        this.applyCompletion(matches, '');
+        return;
+      }
+
+      const spaceIndex = value.indexOf(' ');
+      const command = value.slice(0, spaceIndex);
+      const partial = value.slice(spaceIndex + 1);
+
+      if (command === 'cat' && !partial.includes(' ')) {
+        const matches = files.filter((file) => file.startsWith(partial) && file !== partial);
+        this.applyCompletion(matches, 'cat ');
+      }
+    }
+
+    private applyCompletion(matches: string[], prefix: string) {
+      if (matches.length === 1) {
+        this.input.value = prefix + matches[0] + (prefix ? '' : ' ');
+        this.setCaretEnd();
+      } else if (matches.length > 1) {
+        this.printEcho(this.input.value);
+        this.print(matches.join('  '), 'dim');
+      }
+    }
+  }
+
+  // Initialize: one shell per [data-terminal-root] (modal in Base, inline on the homepage).
+  const shells: TerminalEgg[] = [];
+
+  function initTerminalShells() {
+    // Soft navigation replaced the DOM: drop shells whose root is gone.
+    for (let i = shells.length - 1; i >= 0; i--) {
+      if (shells[i].isConnected()) continue;
+      shells[i].destroy();
+      shells.splice(i, 1);
+    }
+
+    document.querySelectorAll<HTMLElement>('[data-terminal-root]').forEach((el) => {
+      if (el.dataset.initialized === 'true') return;
+      el.dataset.initialized = 'true';
+      shells.push(new TerminalEgg(el));
+    });
+  }
+
+  initTerminalShells();
+  document.addEventListener('astro:page-load', initTerminalShells);
+
+  // Devtools hint: the terminal is discoverable for the curious.
+  console.log(
+    '%cguest@mahdi%c found devtools, respect. press ` anywhere, then try: ls -la',
+    'color:#a07850;font-weight:bold',
+    'color:#e8e0d4'
+  );
+</script>

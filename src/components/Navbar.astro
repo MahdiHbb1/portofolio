@@ -3,21 +3,23 @@
 
 <header class="navbar" id="navbar" aria-label="Site navigation">
   <div class="navbar__inner container">
-    <a href="#hero" class="navbar__logo" aria-label="Back to top">
+    <a href="#hero" class="navbar__logo" aria-label="MH. Back to top">
       MH<span class="navbar__dot">.</span>
     </a>
 
     <nav aria-label="Primary">
       <ul class="navbar__links" role="list">
         <li><a href="/#about" class="navbar__link">About</a></li>
+        <li><a href="/#gallery" class="navbar__link">Gallery</a></li>
         <li><a href="/#skills" class="navbar__link">Skills</a></li>
         <li><a href="/#projects" class="navbar__link">Projects</a></li>
-        <li><a href="/#writeups" class="navbar__link">Writeups</a></li>
+        <li><a href="/#terminal" class="navbar__link">Terminal</a></li>
         <li><a href="/#contact" class="navbar__link">Contact</a></li>
       </ul>
     </nav>
 
-    <button class="lang-toggle" id="langToggle" aria-label="Switch language">
+    <button class="lang-toggle" id="langToggle">
+      <span class="sr-only">Switch language:</span>
       <span class="lang-toggle__option" data-lang="id">ID</span>
       <span class="lang-toggle__option" data-lang="en">EN</span>
     </button>
@@ -116,7 +118,7 @@
 
   .lang-toggle__option[data-active="true"] {
     background: var(--accent-dim);
-    color: var(--accent);
+    color: var(--accent-bright);
   }
 
   .navbar__dot {
@@ -143,11 +145,32 @@
     color: var(--fg-muted);
     transition: color 180ms ease;
     padding: 0.625rem 0.5rem;
+    position: relative;
   }
 
-  .navbar__link:hover { color: var(--fg); }
+  .navbar__link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%) scaleX(0);
+    width: 80%;
+    height: 2px;
+    background: var(--accent);
+    transition: transform 250ms var(--ease-out-expo);
+  }
 
-  .navbar__link.is-active { color: var(--accent); }
+  .navbar__link:hover { 
+    color: var(--fg); 
+  }
+
+  .navbar__link.is-active { 
+    color: var(--accent);
+  }
+
+  .navbar__link.is-active::after {
+    transform: translateX(-50%) scaleX(1);
+  }
 
   @media (max-width: 900px) {
     nav {
@@ -161,13 +184,19 @@
 </style>
 
 <script type="module">
-  (function () {
-    const navbar   = document.getElementById('navbar');
-    const hero     = document.getElementById('hero');
-    const links    = document.querySelectorAll('.navbar__link');
-    const sections = document.querySelectorAll('section[id]');
+  let navbarCleanup: (() => void) | null = null;
 
-    if (!navbar) return;
+  function initNavbar() {
+    const navbar = document.getElementById('navbar');
+    if (!navbar || navbar.dataset.initialized === 'true') return;
+    navbar.dataset.initialized = 'true';
+
+    navbarCleanup?.();
+
+    const hero = document.getElementById('hero');
+    const links = document.querySelectorAll('.navbar__link');
+    const sections = document.querySelectorAll('section[id]');
+    const observers: IntersectionObserver[] = [];
 
     // Kalau ada hero, observe untuk visibility
     if (hero) {
@@ -178,6 +207,7 @@
         { threshold: 0 },
       );
       heroObserver.observe(hero);
+      observers.push(heroObserver);
     } else {
       // Kalau tidak ada hero, navbar langsung visible
       navbar.classList.add('is-visible');
@@ -201,6 +231,14 @@
         { rootMargin: '-15% 0px -70% 0px' },
       );
       sections.forEach(s => sectionObserver.observe(s));
+      observers.push(sectionObserver);
     }
-  })();
+
+    navbarCleanup = () => {
+      observers.forEach(observer => observer.disconnect());
+    };
+  }
+
+  initNavbar();
+  document.addEventListener('astro:page-load', initNavbar);
 </script>

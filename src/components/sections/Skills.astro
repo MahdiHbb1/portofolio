@@ -1,10 +1,9 @@
 ---
-import { t } from '../../data/content';
 
 const categories = [
   {
     name: 'Security',
-    icon: 'shield-lock.svg',
+    icon: 'shield-check.svg',
     items: [
       { skill: 'CTF', level: 85 },
       { skill: 'Web Exploitation', level: 80 },
@@ -16,7 +15,7 @@ const categories = [
   },
   {
     name: 'Machine Learning',
-    icon: 'neural-net.svg',
+    icon: 'brain-circuit.svg',
     items: [
       { skill: 'Python', level: 85 },
       { skill: 'TensorFlow', level: 70 },
@@ -28,7 +27,7 @@ const categories = [
   },
   {
     name: 'Web Development',
-    icon: 'code-globe.svg',
+    icon: 'code-xml.svg',
     items: [
       { skill: 'Astro', level: 75 },
       { skill: 'JavaScript', level: 85 },
@@ -40,11 +39,11 @@ const categories = [
   },
   {
     name: 'Tools & Infra',
-    icon: 'wrench-terminal.svg',
+    icon: 'terminal.svg',
     isMarquee: true,
     items: [
       { skill: 'Git', level: 85, icon: 'git.svg' },
-      { skill: 'Linux', level: 75, icon: 'linux.svg' },
+      { skill: 'Kali Linux', level: 75, icon: 'kali.svg' },
       { skill: 'Docker', level: 65, icon: 'docker.svg' },
       { skill: 'VS Code', level: 70, icon: 'vscode.svg' },
       { skill: 'Arduino', level: 60, icon: 'arduino.svg' },
@@ -72,9 +71,9 @@ const categories = [
             </div>
             <div class="skills__marquee-track">
               <div class="skills__marquee-content">
-                {cat.items.concat(cat.items).map((item, idx) => (
-                  <div class="skills__marquee-item" key={idx}>
-                    <img src={`/icons/${item.icon}`} alt="" class="skills__marquee-item-icon" width="20" height="20" />
+                {cat.items.concat(cat.items).map((item) => (
+                  <div class="skills__marquee-item">
+                    <img src={`/icons/${item.icon}`} alt="" class="skills__marquee-item-icon" width="24" height="24" />
                     <span class="skills__marquee-text">{item.skill}</span>
                   </div>
                 ))}
@@ -282,7 +281,7 @@ const categories = [
   }
 
   .skills__marquee-item-icon {
-    opacity: 0.6;
+    opacity: 0.7;
     color: var(--accent);
   }
 
@@ -294,13 +293,13 @@ const categories = [
   }
 
   @keyframes marquee {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(0); }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .skills__marquee-content {
-      animation: none;
-    }
+  /* Hover pause: users can stop the marquee at any time */
+  .skills__marquee:hover .skills__marquee-content,
+  .skills__marquee:focus-within .skills__marquee-content {
+    animation-play-state: paused;
   }
 </style>

@@ -18,11 +18,7 @@ export const content = {
     achievements: {
       label: 'Pencapaian',
       heading: 'Achievements',
-      certificate: 'Lihat sertifikat',
       items: {
-        pkmkcSilver: {
-          desc: 'Medali perak Room KC 1 pada PKM Asosiasi MIPA LPTK Indonesia 2026 untuk SIGAP MBG.',
-        },
         pkmkc: {
           desc: 'Pendanaan nasional untuk sistem monitoring berbasis ML SIGAP MBG',
         },
@@ -41,13 +37,13 @@ export const content = {
       label: 'Karya',
       heading: 'Projects',
       items: {
-        sigapMbg: {
+        'sigap-mbg': {
           desc: 'Sistem monitoring berbasis ML untuk program makan bergizi gratis nasional. Mendapat pendanaan PKM-KC nasional.',
         },
         fraudlens: {
           desc: 'Placeholder — tambahkan deskripsi project.',
         },
-        fabricCnn: {
+        'fabric-cnn': {
           desc: 'Placeholder — tambahkan deskripsi project.',
         },
         legalin: {
@@ -56,10 +52,10 @@ export const content = {
         buktitagih: {
           desc: 'Placeholder — tambahkan deskripsi project.',
         },
-        ctfItsecdevx26: {
+        'ctf-itsecdevx26': {
           desc: 'Placeholder — tambahkan deskripsi challenge.',
         },
-        ctfWriteups: {
+        'ctf-writeups': {
           desc: 'Kumpulan writeup dari berbagai kompetisi CTF.',
         },
       },
@@ -67,6 +63,11 @@ export const content = {
     writeups: {
       label: 'Keamanan',
       heading: 'CTF Writeups',
+    },
+    terminal: {
+      label: 'Playground',
+      heading: 'Terminal',
+      hint: 'Bukan tangkapan layar, ini shell beneran. Ketik help buat mulai, intip isi filesystem-nya, siapa tahu ada yang menarik.',
     },
     contact: {
       label: 'Kontak',
@@ -93,11 +94,7 @@ export const content = {
     achievements: {
       label: 'Recognition',
       heading: 'Achievements',
-      certificate: 'View certificate',
       items: {
-        pkmkcSilver: {
-          desc: 'Silver medal in Room KC 1 at PKM Asosiasi MIPA LPTK Indonesia 2026 for SIGAP MBG.',
-        },
         pkmkc: {
           desc: 'National funding for SIGAP MBG ML-powered monitoring system',
         },
@@ -116,13 +113,13 @@ export const content = {
       label: 'Work',
       heading: 'Projects',
       items: {
-        sigapMbg: {
+        'sigap-mbg': {
           desc: 'ML-powered monitoring system for national free nutritious meal program. Secured PKM-KC national funding.',
         },
         fraudlens: {
           desc: 'Placeholder — add project description.',
         },
-        fabricCnn: {
+        'fabric-cnn': {
           desc: 'Placeholder — add project description.',
         },
         legalin: {
@@ -131,10 +128,10 @@ export const content = {
         buktitagih: {
           desc: 'Placeholder — add project description.',
         },
-        ctfItsecdevx26: {
+        'ctf-itsecdevx26': {
           desc: 'Placeholder — add challenge description.',
         },
-        ctfWriteups: {
+        'ctf-writeups': {
           desc: 'Collection of writeups from various CTF competitions.',
         },
       },
@@ -142,6 +139,11 @@ export const content = {
     writeups: {
       label: 'Security',
       heading: 'CTF Writeups',
+    },
+    terminal: {
+      label: 'Playground',
+      heading: 'Terminal',
+      hint: 'Not a screenshot. A real shell, running right here. Type help to start, poke around the filesystem, see if anything interesting turns up.',
     },
     contact: {
       label: 'Contact',

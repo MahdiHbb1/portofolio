@@ -1,0 +1,52 @@
+---
+// Scroll progress indicator - thin line at top of navbar
+---
+
+<div class="scroll-progress" aria-hidden="true">
+  <div class="scroll-progress__bar"></div>
+</div>
+
+<style>
+  .scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    z-index: 101;
+    background: transparent;
+    pointer-events: none;
+  }
+
+  .scroll-progress__bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent) 0%, rgba(160, 120, 80, 0.6) 100%);
+    transition: width 100ms linear;
+    box-shadow: 0 0 8px rgba(160, 120, 80, 0.5);
+  }
+</style>
+
+<script>
+  function initScrollProgress() {
+    const bar = document.querySelector('.scroll-progress__bar') as HTMLElement;
+    if (!bar) return;
+
+    function updateProgress() {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = (scrollTop / docHeight) * 100;
+      bar.style.width = `${Math.min(progress, 100)}%`;
+    }
+
+    window.addEventListener('scroll', updateProgress, { passive: true });
+    updateProgress();
+
+    document.addEventListener('astro:before-swap', () => {
+      window.removeEventListener('scroll', updateProgress);
+    }, { once: true });
+  }
+
+  initScrollProgress();
+  document.addEventListener('astro:page-load', initScrollProgress);
+</script>

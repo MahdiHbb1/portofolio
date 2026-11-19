@@ -15,7 +15,7 @@ const { title, category, year, tags, description, readingTime, date } = Astro.pr
 ---
 
 <Base title={`${title} — Mahdi Habibi`} description={description}>
-  <div class="project-page">
+  <main class="project-page">
 
     <!-- Back link -->
     <nav class="project-page__back container" aria-label="Breadcrumb">
@@ -50,7 +50,7 @@ const { title, category, year, tags, description, readingTime, date } = Astro.pr
       </div>
 
     </article>
-  </div>
+  </main>
 </Base>
 
 
@@ -129,7 +129,7 @@ const { title, category, year, tags, description, readingTime, date } = Astro.pr
     font-size: 0.65rem;
     padding: 0.25rem 0.6rem;
     background: var(--accent-dim);
-    color: var(--accent);
+    color: var(--accent-bright);
     border-radius: 2px;
   }
 
